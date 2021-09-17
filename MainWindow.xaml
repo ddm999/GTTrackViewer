@@ -1,0 +1,229 @@
+﻿<Window x:Class="GTTrackEditor.MainWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="clr-namespace:GTTrackEditor" xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+  xmlns:sdxm="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
+  mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280">
+    <Window.DataContext>
+        <local:ModelHandler/>
+    </Window.DataContext>
+    <Window.Resources>
+        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="24"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ToolBarTray Grid.Row="0">
+                    <ToolBar>
+                        <Button Width="28" Click="LoadPack_Click" ToolTip="Load Course Pack">
+                            <Image Width="22" Source="Resources/file_load_pack.png"/>
+                        </Button>
+                        <Button Width="28" Click="LoadRunway_Click" ToolTip="Load Runway">
+                            <Image Width="22" Source="Resources/file_load_rwy.png"/>
+                        </Button>
+                        <Button Name="Btn_ImportRunway" Width="28" Click="ImportRunway_Click" ToolTip="Import v2 Runway Data" IsEnabled="False">
+                            <Image Width="22" Source="Resources/file_import_rwy.png"/>
+                        </Button>
+                        <Button Name="Btn_SaveRunway" Width="28" Click="SaveRunway_Click" ToolTip="Save Runway">
+                            <Image Width="22" Source="Resources/file_save_rwy.png"/>
+                        </Button>
+                        <CheckBox Width="28" Name="ToggleGrid" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsChecked="True">
+                            <Image Width="22" Source="Resources/toggle_grid.png"/>
+                        </CheckBox>
+                        <CheckBox Width="28" Name="RotateMode" Click="RotateMode_Click" ToolTip="Toggle First Person Rotation">
+                            <Image Width="22" Source="Resources/rotate_mode.png"/>
+                        </CheckBox>
+                    </ToolBar>
+                </ToolBarTray>
+                <hx:Viewport3DX x:Name="View1" Grid.Row="1" Background="White" BackgroundColor="Gray"
+                          EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
+                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="False"
+                          IsManipulationEnabled="True" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" UseDefaultGestures="False">
+                    <hx:Viewport3DX.InputBindings>
+                        <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                        <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+                        <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                        <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Control+RightClick" />
+                    </hx:Viewport3DX.InputBindings>
+                    <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
+                    <hx:DirectionalLight3D Direction="0.1 -1 0.1" Color="{Binding DirectionalLightColor}" />
+                    <hx:MeshGeometryModel3D Name="Plain3D" Geometry="{Binding PlainModel}" Material="{Binding PlainMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Edit3D" Geometry="{Binding EditModel}" Material="{Binding EditMaterial}"
+                                            RenderWireframe="True" WireframeColor="Black" CullMode="None"
+                                            Mouse3DDown="Edit3D_Mouse3DDown"/>
+
+                    <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding BoundaryModel}" Material="{Binding YellowMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Blue3D" Geometry="{Binding BlueModel}" Material="{Binding BlueMaterial}" CullMode="None"/>
+                    <hx:MeshGeometryModel3D Name="Red3D" Geometry="{Binding RedModel}" Material="{Binding RedMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Green3D" Geometry="{Binding GreenModel}" Material="{Binding GreenMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Yellow3D" Geometry="{Binding YellowModel}" Material="{Binding YellowMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RoadModel}" Material="{Binding VCMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="None"/>
+                    <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
+
+                    <hx:MeshGeometryModel3D Name="TempManipulated3D" Geometry="{Binding ManipulatedModel}" Material="{Binding PlainMaterial}" CullMode="Back"/>
+                    <hx:TransformManipulator3D Name="manipulator" SizeScale="1" Target="{Binding ManipulatorTarget}" Visibility="Hidden"
+                                               EnableTranslation="True" EnableRotation="False" EnableScaling="False"/>
+                    
+                    <hx:MeshGeometryModel3D Name="Nonedit3D" Geometry="{Binding NoneditModel}" Material="{Binding NoneditMaterial}" CullMode="None"/>
+                </hx:Viewport3DX>
+            </Grid>
+            <TabControl Grid.Column="1">
+                <TabItem Header="Startup">
+                    <Grid>
+                        <TextBlock HorizontalAlignment="Center" Text="Warning!" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="Maroon" FontSize="36" FontFamily="Segoe UI Semibold" Width="334"/>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,53,0,0" TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="28" Width="334"><Run Text="This tool edits course files in real-time:"/><Run Language="en-gb" Text=" "/><Run Text="never open files unless they have been backed up!"/></TextBlock>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,207,0,0" TextAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="16" Height="435" Width="334">
+                            <Run Text="GT Track Editor v0.1 by ddm"/><LineBreak/>
+                            <Run Text="Special thanks to Nenkai"/><LineBreak/>
+                            <Run Text="and the Gran Turismo Online/Modding Discord"/><LineBreak/>
+                            <Run Text="( "/>
+                                <Hyperlink NavigateUri="https://discord.io/gtonline" RequestNavigate="Hyperlink_RequestNavigate">
+                                    <Run Text="https://discord.io/gtonline"/>
+                                </Hyperlink>
+                            <Run Text=" )"/><LineBreak/><LineBreak/>
+                            <Run Language="en-gb" Text="Supports:"/><LineBreak/>
+                            <Run Language="en-gb" Text="Viewing course models (no textures)."/><LineBreak/>
+                            <Run Language="en-gb" Text="Viewing runway files."/><LineBreak/>
+                            <Run Language="en-gb" Text="Editing runway files. 👀"/><LineBreak/><LineBreak/><LineBreak/>
+                            <Run Language="en-gb" Text="To begin, select a tab above."/>
+                        </TextBlock>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Explorer">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="320"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Content="Explorer"/>
+                            <ListBox Grid.Row="1" Name="ExplorerListBox">
+                                <ListBoxItem Content="MDL 0" Name="ExplorerListBoxItemTrack" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="MDL 1" Name="ExplorerListBoxItem1" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="MDL 2" Name="ExplorerListBoxItem2" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="MDL 3" Name="ExplorerListBoxItem3" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="MDL 4" Name="ExplorerListBoxItem4" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="MDL 5" Name="ExplorerListBoxItem5" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="RWY 0" Name="ExplorerListBoxItem6" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="RWY 1" Name="ExplorerListBoxItem7" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="RWY 2" Name="ExplorerListBoxItem8" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="RWY 3" Name="ExplorerListBoxItem9" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                            </ListBox>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Content="Properties"/>
+                            <ListBox Grid.Row="1"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Tools">
+                    
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <StatusBar Grid.Row="1">
+            <StatusBarItem>
+                <TextBlock Name="StatusText" Text=""/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ProgressBar Height="16" Width="240"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

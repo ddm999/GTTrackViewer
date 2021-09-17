@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31213.239
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTTrackEditor", "GTTrackEditor.csproj", "{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CA7A3AB-53B8-4C3C-B046-47A35EF73D14}
+	EndGlobalSection
+EndGlobal
