@@ -503,14 +503,14 @@ namespace GTTrackEditor
             {
                 rwyFileName = saveFileDialog.FileName;
 
-                try
-                {
-                    Span<byte> span = File.ReadAllBytes(rwyFileName);
-                    SpanReader sr = new(span, endian: Endian.Big);
-                    SpanWriter sw = new(span, endian: Endian.Big);
-                    runway.ToStream(ref sr, ref sw);
-                    File.WriteAllBytes(rwyFileName, span.ToArray());
-                }
+                //try
+                //{
+                //    Span<byte> span = File.ReadAllBytes(rwyFileName);
+                //    SpanReader sr = new(span, endian: Endian.Big);
+                //    SpanWriter sw = new(span, endian: Endian.Big);
+                //    runway.ToStream(ref sr, ref sw);
+                //    File.WriteAllBytes(rwyFileName, span.ToArray());
+                //}
             }
         }
     }

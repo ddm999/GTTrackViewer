@@ -35,12 +35,14 @@
                         <Button Width="28" Click="LoadRunway_Click" ToolTip="Load Runway">
                             <Image Width="22" Source="Resources/file_load_rwy.png"/>
                         </Button>
+                        <!--
                         <Button Name="Btn_ImportRunway" Width="28" Click="ImportRunway_Click" ToolTip="Import v2 Runway Data" IsEnabled="False">
                             <Image Width="22" Source="Resources/file_import_rwy.png"/>
                         </Button>
                         <Button Name="Btn_SaveRunway" Width="28" Click="SaveRunway_Click" ToolTip="Save Runway">
                             <Image Width="22" Source="Resources/file_save_rwy.png"/>
                         </Button>
+                        -->
                         <CheckBox Width="28" Name="ToggleGrid" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsChecked="True">
                             <Image Width="22" Source="Resources/toggle_grid.png"/>
                         </CheckBox>
