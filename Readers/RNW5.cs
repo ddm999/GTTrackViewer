@@ -8,7 +8,7 @@ using GTTrackEditor.Readers.Entities;
 
 namespace GTTrackEditor.Readers
 {
-    class RNW5
+    public class RNW5
     {
         const string MAGIC = "5WNR";
 

@@ -3,11 +3,14 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:ie="http://schemas.microsoft.com/xaml/behaviors"
   xmlns:local="clr-namespace:GTTrackEditor" xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
   xmlns:sdxm="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
-  mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280">
+  mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280"
+        Closing="Window_Closing">
     <Window.DataContext>
-        <local:ModelHandler/>
+        <local:ModelHandler />
     </Window.DataContext>
     <Window.Resources>
         <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
@@ -35,24 +38,38 @@
                         <Button Width="28" Click="LoadRunway_Click" ToolTip="Load Runway">
                             <Image Width="22" Source="Resources/file_load_rwy.png"/>
                         </Button>
+                        <Button Width="28" Click="LoadAutoDrive_Click" ToolTip="Load Autodrive">
+                            <Image Width="22" Source="Resources/file_load_ad.png"/>
+                        </Button>
+                        <Separator/>
                         <Button Name="Btn_ImportRunway" Width="28" Click="ImportRunway_Click" ToolTip="Import v2 Runway Data" IsEnabled="False">
                             <Image Width="22" Source="Resources/file_import_rwy.png"/>
                         </Button>
                         <Button Name="Btn_SaveRunway" Width="28" Click="SaveRunway_Click" ToolTip="Save Runway">
                             <Image Width="22" Source="Resources/file_save_rwy.png"/>
                         </Button>
-                        <CheckBox Width="28" Name="ToggleGrid" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsChecked="True">
+                        <Separator/>
+                        <Button Name="Btn_Settings" Width="28" Click="Settings_Click" ToolTip="App Settings">
+                            <Image Width="22" Source="Resources/settings.png"/>
+                        </Button>
+                        <Separator/>
+                        <CheckBox Width="28" Name="ToggleGrid_Checkbox" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsEnabled="True">
                             <Image Width="22" Source="Resources/toggle_grid.png"/>
                         </CheckBox>
-                        <CheckBox Width="28" Name="RotateMode" Click="RotateMode_Click" ToolTip="Toggle First Person Rotation">
+                        <CheckBox Width="28" Name="RotateMode_Checkbox" Click="RotateMode_Click" ToolTip="Toggle First Person Rotation">
                             <Image Width="22" Source="Resources/rotate_mode.png"/>
                         </CheckBox>
                     </ToolBar>
                 </ToolBarTray>
                 <hx:Viewport3DX x:Name="View1" Grid.Row="1" Background="White" BackgroundColor="Gray"
                           EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
-                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="False"
-                          IsManipulationEnabled="True" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" UseDefaultGestures="False">
+                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
+                                ShowCoordinateSystem="True" UseDefaultGestures="False">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown3D">
+                            <ie:CallMethodAction MethodName="OnMouseDown3DHandler" TargetObject="{Binding}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <hx:Viewport3DX.InputBindings>
                         <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
                         <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
@@ -62,23 +79,29 @@
                     <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
                     <hx:DirectionalLight3D Direction="0.1 -1 0.1" Color="{Binding DirectionalLightColor}" />
                     <hx:MeshGeometryModel3D Name="Plain3D" Geometry="{Binding PlainModel}" Material="{Binding PlainMaterial}" CullMode="Back"/>
-                    <hx:MeshGeometryModel3D Name="Edit3D" Geometry="{Binding EditModel}" Material="{Binding EditMaterial}"
-                                            RenderWireframe="True" WireframeColor="Black" CullMode="None"
-                                            Mouse3DDown="Edit3D_Mouse3DDown"/>
 
-                    <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding BoundaryModel}" Material="{Binding YellowMaterial}" CullMode="Back"/>
-                    <hx:MeshGeometryModel3D Name="Blue3D" Geometry="{Binding BlueModel}" Material="{Binding BlueMaterial}" CullMode="None"/>
-                    <hx:MeshGeometryModel3D Name="Red3D" Geometry="{Binding RedModel}" Material="{Binding RedMaterial}" CullMode="Back"/>
-                    <hx:MeshGeometryModel3D Name="Green3D" Geometry="{Binding GreenModel}" Material="{Binding GreenMaterial}" CullMode="Back"/>
-                    <hx:MeshGeometryModel3D Name="Yellow3D" Geometry="{Binding YellowModel}" Material="{Binding YellowMaterial}" CullMode="Back"/>
-                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RoadModel}" Material="{Binding VCMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="None"/>
+                    <!-- Gizmo -->
+                    <hx:TransformManipulator3D
+                        x:Name="manipulator"
+                        CenterOffset="{Binding CenterOffset}"
+                        AlwaysHittable="True"
+                        SizeScale="1"
+                        Target="{Binding Target}" 
+                        Visibility="Hidden" /> <!-- Binding doesn't work on net core for some reason -->
+
+                    <!-- Runway Geometry -->
+                    <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGridPoints}"  />
+                    
+                    <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding RunwayView.BoundaryModel}" Material="{Binding RunwayView.BoundaryMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Checkpoints3D" Geometry="{Binding RunwayView.CheckpointModel}" Material="{Binding RunwayView.CheckpointMaterial}" CullMode="None"/>
+                    <hx:MeshGeometryModel3D Name="PitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="PitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
+                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.RoadModel}" Material="{Binding RunwayView.RoadMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="None"/>
                     <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
 
-                    <hx:MeshGeometryModel3D Name="TempManipulated3D" Geometry="{Binding ManipulatedModel}" Material="{Binding PlainMaterial}" CullMode="Back"/>
-                    <hx:TransformManipulator3D Name="manipulator" SizeScale="1" Target="{Binding ManipulatorTarget}" Visibility="Hidden"
-                                               EnableTranslation="True" EnableRotation="False" EnableScaling="False"/>
-                    
-                    <hx:MeshGeometryModel3D Name="Nonedit3D" Geometry="{Binding NoneditModel}" Material="{Binding NoneditMaterial}" CullMode="None"/>
+                    <!-- Autodrive Geometry -->
+                    <hx:TopMostGroup3D x:Name="AutoDrivePointTextGroup" EnableTopMost="True" ItemsSource="{Binding AutodriveView.AutoDrivePointText}"/>
+                    <hx:MeshGeometryModel3D Name="AutoDrive3D" Geometry="{Binding Path=AutodriveView.AutoDriveModel}" Material="{Binding AutodriveView.DrivingLineMaterial}" CullMode="Back"/>
                 </hx:Viewport3DX>
             </Grid>
             <TabControl Grid.Column="1">
@@ -192,6 +215,69 @@
                                     </ListBoxItem.ContextMenu>
                                 </ListBoxItem>
                                 <ListBoxItem Content="RWY 3" Name="ExplorerListBoxItem9" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 0" Name="ExplorerListBoxItem10" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 1" Name="ExplorerListBoxItem11" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 2" Name="ExplorerListBoxItem12" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 3" Name="ExplorerListBoxItem13" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 4" Name="ExplorerListBoxItem14" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 5" Name="ExplorerListBoxItem15" Visibility="Hidden">
+                                    <ListBoxItem.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>
+                                            <MenuItem Header="Toggle Visibility" Click="ExplorerContextMenu_Visibility_Click"/>
+                                            <MenuItem Header="Delete" Click="ExplorerContextMenu_Delete_Click"/>
+                                        </ContextMenu>
+                                    </ListBoxItem.ContextMenu>
+                                </ListBoxItem>
+                                <ListBoxItem Content="AD 6" Name="ExplorerListBoxItem16" Visibility="Hidden">
                                     <ListBoxItem.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="Edit" Click="ExplorerContextMenu_Edit_Click"/>

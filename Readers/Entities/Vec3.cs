@@ -4,7 +4,7 @@ using GTTrackEditor.Readers.Entities.Interfaces;
 
 namespace GTTrackEditor.Readers
 {
-    class Vec3 : IFromStream, IToStream
+    public class Vec3 : IFromStream, IToStream
     {
         public float X { get; set; }
         public float Y { get; set; }

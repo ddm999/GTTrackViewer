@@ -4,6 +4,8 @@
     using System.Collections.Generic;
 
     using HelixToolkit.Wpf.SharpDX;
+    using HelixToolkit.SharpDX.Core;
+
     using System.IO;
     public abstract class BaseViewModel : ObservableObject, IDisposable
     {

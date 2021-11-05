@@ -7,7 +7,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class RNW5BoundaryVert : IFromStream, IToStream
+    public class RNW5BoundaryVert : IFromStream, IToStream
     {
         public float X;
         public float Y;

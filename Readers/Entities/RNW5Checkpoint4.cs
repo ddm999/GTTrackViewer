@@ -4,7 +4,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class RNW5Checkpoint4 : IFromStream, IToStream
+    public class RNW5Checkpoint4 : IFromStream, IToStream
     {
         public Vector3 left;
         public Vector3 middle;

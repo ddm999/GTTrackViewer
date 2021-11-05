@@ -3,7 +3,7 @@ using GTTrackEditor.Readers.Entities.Interfaces;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class RNW5RoadTri : IFromStream, IToStream
+    public class RNW5RoadTri : IFromStream, IToStream
     {
         public ushort vertA;
         public ushort vertB;
