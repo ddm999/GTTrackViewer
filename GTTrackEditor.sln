@@ -1,25 +1,55 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.31213.239
+VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTTrackEditor", "GTTrackEditor\GTTrackEditor.csproj", "{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTTrackEditor", "GTTrackEditor\GTTrackEditor.csproj", "{C507FDC1-2D40-457A-94F4-47F18D9ED190}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelixToolkit", "helix-toolkit\Source\HelixToolkit\HelixToolkit.csproj", "{17E6F6C3-7DE3-4364-8F42-8248474546BB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelixToolkit.SharpDX.Core.Wpf", "helix-toolkit\Source\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj", "{58784E9B-9B9A-4F5A-8CEB-8FE94A811A34}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelixToolkit.SharpDX.Core", "helix-toolkit\Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj", "{D0AE80A8-8C10-4A0B-983F-2474969D649E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelixToolkit.Native.ShaderBuilder", "helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\HelixToolkit.Native.ShaderBuilder.csproj", "{6CC83B0C-8C02-4273-9F1C-F9AD3DF05863}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		helix-toolkit\Source\HelixToolkit.SharpDX.SharedModel\HelixToolkit.SharpDX.SharedModel.projitems*{58784e9b-9b9a-4f5a-8ceb-8fe94a811a34}*SharedItemsImports = 5
+		helix-toolkit\Source\HelixToolkit.Wpf.SharpDX.Shared\HelixToolkit.Wpf.SharpDX.Shared.projitems*{58784e9b-9b9a-4f5a-8ceb-8fe94a811a34}*SharedItemsImports = 5
+		helix-toolkit\Source\HelixToolkit.Shared\HelixToolkit.Shared.projitems*{d0ae80a8-8c10-4a0b-983f-2474969d649e}*SharedItemsImports = 5
+		helix-toolkit\Source\HelixToolkit.SharpDX.Shared\HelixToolkit.SharpDX.Shared.projitems*{d0ae80a8-8c10-4a0b-983f-2474969d649e}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BF9B9A87-2C1E-454C-8B01-DB9A904B632B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C507FDC1-2D40-457A-94F4-47F18D9ED190}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C507FDC1-2D40-457A-94F4-47F18D9ED190}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C507FDC1-2D40-457A-94F4-47F18D9ED190}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C507FDC1-2D40-457A-94F4-47F18D9ED190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17E6F6C3-7DE3-4364-8F42-8248474546BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17E6F6C3-7DE3-4364-8F42-8248474546BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17E6F6C3-7DE3-4364-8F42-8248474546BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17E6F6C3-7DE3-4364-8F42-8248474546BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58784E9B-9B9A-4F5A-8CEB-8FE94A811A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58784E9B-9B9A-4F5A-8CEB-8FE94A811A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58784E9B-9B9A-4F5A-8CEB-8FE94A811A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58784E9B-9B9A-4F5A-8CEB-8FE94A811A34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0AE80A8-8C10-4A0B-983F-2474969D649E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0AE80A8-8C10-4A0B-983F-2474969D649E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0AE80A8-8C10-4A0B-983F-2474969D649E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0AE80A8-8C10-4A0B-983F-2474969D649E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CC83B0C-8C02-4273-9F1C-F9AD3DF05863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CC83B0C-8C02-4273-9F1C-F9AD3DF05863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CC83B0C-8C02-4273-9F1C-F9AD3DF05863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CC83B0C-8C02-4273-9F1C-F9AD3DF05863}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {8CA7A3AB-53B8-4C3C-B046-47A35EF73D14}
+		SolutionGuid = {5CE99083-63BB-4D3E-B10E-F21F0BC47469}
 	EndGlobalSection
 EndGlobal

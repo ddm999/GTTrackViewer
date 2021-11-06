@@ -4,6 +4,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,11 +21,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.20.0" />
-    <PackageReference Include="HelixToolkit.SharpDX.Core.Wpf" Version="2.20.0" />
+    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.37" />
     <PackageReference Include="Syroot.BinaryData" Version="5.2.2" />
     <PackageReference Include="Syroot.BinaryData.Memory" Version="5.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj" />
+    <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +39,12 @@
     <Resource Include="Resources\rotate_mode.png" />
     <Resource Include="Resources\settings.png" />
     <Resource Include="Resources\toggle_grid.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Models\Grid.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
