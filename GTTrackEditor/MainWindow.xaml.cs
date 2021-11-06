@@ -34,10 +34,6 @@ namespace GTTrackEditor
 
         Dictionary<byte, bool> modelVisibility = new();
 
-        private short _editModelIndex = -1;
-        private int _editMeshIndex = -1;
-        private int _editVertex = -1;
-
         private readonly Brush _visibleBrush = new SolidColorBrush(Colors.Black);
         private readonly Brush _editBrush = new SolidColorBrush(Colors.Blue);
         private readonly Brush _editHiddenBrush = new SolidColorBrush(Colors.LightBlue);
@@ -60,6 +56,7 @@ namespace GTTrackEditor
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TrackEditorConfig.Save();
+
         }
 
         #region File Load Events
@@ -77,7 +74,7 @@ namespace GTTrackEditor
                 }
                 catch (Exception ex)
                 {
-                    StatusText.Text = $"Error opening course pack: {ex.Message}";
+                    //StatusText.Text = $"Error opening course pack: {ex.Message}";
                     MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -160,7 +157,7 @@ namespace GTTrackEditor
                 }
                 catch (Exception ex)
                 {
-                    StatusText.Text = $"Error opening runway: {ex.Message}";
+                    //StatusText.Text = $"Error opening runway: {ex.Message}";
                     MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -231,7 +228,7 @@ namespace GTTrackEditor
                 }
                 catch (Exception ex)
                 {
-                    StatusText.Text = $"Error opening autodrive: {ex.Message}";
+                    //StatusText.Text = $"Error opening autodrive: {ex.Message}";
                     MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -314,7 +311,7 @@ namespace GTTrackEditor
                 }
                 catch (Exception ex)
                 {
-                    StatusText.Text = $"Error opening old runway: {ex.Message}";
+                    //StatusText.Text = $"Error opening old runway: {ex.Message}";
                     MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -370,7 +367,6 @@ namespace GTTrackEditor
         {
             ListBoxItem lbi = ((e.Source as MenuItem).Parent as ContextMenu).PlacementTarget as ListBoxItem;
             byte index = ExplorerItemToIndex(lbi);
-            _editModelIndex = _editModelIndex == index ? (short)-1 : index;
             UpdateTrackModel();
             ExplorerVisibleRecalculate();
         }
@@ -405,7 +401,7 @@ namespace GTTrackEditor
         private void RotateMode_Click(object sender, RoutedEventArgs e)
         {
             TrackEditorConfig.SetSetting("RotateMode", RotateMode_Checkbox.IsChecked.GetValueOrDefault());
-            View1.CameraMode = (bool)RotateMode_Checkbox.IsChecked ? CameraMode.Inspect : CameraMode.WalkAround;
+            _viewport.CameraMode = (bool)RotateMode_Checkbox.IsChecked ? CameraMode.Inspect : CameraMode.WalkAround;
         }
 
         #endregion
@@ -418,7 +414,7 @@ namespace GTTrackEditor
 
             TrackEditorConfig.TryGetBool("RotateMode", out val, false);
             RotateMode_Checkbox.IsChecked = val;
-            View1.CameraMode = val ? CameraMode.Inspect : CameraMode.WalkAround;
+            _viewport.CameraMode = val ? CameraMode.Inspect : CameraMode.WalkAround;
 
         }
 
@@ -462,20 +458,12 @@ namespace GTTrackEditor
             for (byte i = 0; i < ExplorerListBox.Items.Count; i++)
             {
                 ListBoxItem lbi = ExplorerListBox.Items[i] as ListBoxItem;
-                if (_editModelIndex == i)
-                {
-                    if (modelVisibility.ContainsKey(i) && modelVisibility[i])
-                        lbi.Foreground = _editBrush;
-                    else
-                        lbi.Foreground = _editHiddenBrush;
-                }
+
+                if (modelVisibility.ContainsKey(i) && modelVisibility[i])
+                    lbi.Foreground = _visibleBrush;
                 else
-                {
-                    if (modelVisibility.ContainsKey(i) && modelVisibility[i])
-                        lbi.Foreground = _visibleBrush;
-                    else
-                        lbi.Foreground = _hiddenBrush;
-                }
+                    lbi.Foreground = _hiddenBrush;
+
             }
         }
 
@@ -564,32 +552,11 @@ namespace GTTrackEditor
                             MDL3Mesh mesh = _courseData.Models[m].Meshes[i];
                             if (mesh.Tristrip == false)
                             {
-                                if (_editModelIndex == m)
+                                for (ushort n = 0; n < mesh.Tris.Count; n++)
                                 {
-                                    for (ushort n = 0; n < mesh.Tris.Count; n++)
-                                    {
-                                        editTrilist.Add(mesh.Verts[mesh.Tris[n].A] / 50);
-                                        editTrilist.Add(mesh.Verts[mesh.Tris[n].B] / 50);
-                                        editTrilist.Add(mesh.Verts[mesh.Tris[n].C] / 50);
-                                    }
-                                }
-                                else if (_editModelIndex != -1)
-                                {
-                                    for (ushort n = 0; n < mesh.Tris.Count; n++)
-                                    {
-                                        noneditTrilist.Add(mesh.Verts[mesh.Tris[n].A] / 50);
-                                        noneditTrilist.Add(mesh.Verts[mesh.Tris[n].B] / 50);
-                                        noneditTrilist.Add(mesh.Verts[mesh.Tris[n].C] / 50);
-                                    }
-                                }
-                                else
-                                {
-                                    for (ushort n = 0; n < mesh.Tris.Count; n++)
-                                    {
-                                        trilist.Add(mesh.Verts[mesh.Tris[n].A] / 50);
-                                        trilist.Add(mesh.Verts[mesh.Tris[n].B] / 50);
-                                        trilist.Add(mesh.Verts[mesh.Tris[n].C] / 50);
-                                    }
+                                    trilist.Add(mesh.Verts[mesh.Tris[n].A] / 50);
+                                    trilist.Add(mesh.Verts[mesh.Tris[n].B] / 50);
+                                    trilist.Add(mesh.Verts[mesh.Tris[n].C] / 50);
                                 }
                             }
                         }
@@ -610,9 +577,22 @@ namespace GTTrackEditor
             }
             catch (Exception ex)
             {
-                StatusText.Text = $"Error rendering track model: {ex.Message}";
+                //StatusText.Text = $"Error rendering track model: {ex.Message}";
                 MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
+            }
+        }
+
+        /// <summary>
+        /// Used to update the point tracking
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GizmoManipulator_Mouse3DMove(object sender, MouseMove3DEventArgs e)
+        {
+            if (ModelHandler.Gizmo.Active)
+            {
+                ModelHandler.UpdateEditMode();
             }
         }
     }

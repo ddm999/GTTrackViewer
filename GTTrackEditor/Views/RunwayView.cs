@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 
+using GTTrackEditor.Controls;
+
 namespace GTTrackEditor.Views
 {
     public class RunwayView
@@ -88,26 +90,43 @@ namespace GTTrackEditor.Views
                 StartingGridPoints.Clear();
                 for (int i = 0; i < RunwayData.StartingGrid.Count; i++)
                 {
-                    StartingGridModel3D startGridModel = new StartingGridModel3D();
+                    StartingGridModel3D startGridModel = new();
                     
-                    Vector3Collection vc = new Vector3Collection(1);
-                    IntCollection id = new IntCollection(1);
-                    Color4Collection col = new Color4Collection(1);
+                    /*
+                    Vector3Collection vc = new(1);
+                    IntCollection id = new(1);
+                    Color4Collection col = new(1);
+                    */
 
                     Vector3 pos = RunwayData.StartingGrid[i].ToVector3() / Consts.ScaleDividor;
 
+                    ObjReader reader = new ObjReader();
+                    List<Object3D> list = reader.Read("Grid.obj");
+                    MeshGeometry3D mod = list[0].Geometry as MeshGeometry3D;
+                    for (int j = 0; j < mod.Positions.Count; ++j)
+                        mod.Positions[j] = mod.Positions[j] + pos;
+                    mod.UpdateBounds();
+
+                    StartingGridPoints.Add(new StartingGridModel3D()
+                    {
+                        Geometry = mod,
+                        Material = StartingGridMaterial,
+                    });
+
+                    /*
                     vc.Add(pos);
                     id.Add(i);
                     col.Add(new(1, 0, 0, 1));
+                    */
 
+                    /*
                     startGridModel.Geometry = new PointGeometry3D()
                     {
                         Positions = vc,
                         Indices = id,
                         Colors = col,
-                    };
+                    };*/
 
-                    startGridModel.Size = new Size(6, 6);
                     StartingGridPoints.Add(startGridModel);
                 }
             }
@@ -160,7 +179,7 @@ namespace GTTrackEditor.Views
                 while (i < RunwayData.BoundaryVerts.Count)
                 {
                     RNW5BoundaryVert vert = RunwayData.BoundaryVerts[i];
-                    boundary.Add(vert.ToVector3() / 50);
+                    boundary.Add(vert.ToVector3());
 
                     if (vert.counter < 0) // boundary end
                     {
@@ -184,7 +203,7 @@ namespace GTTrackEditor.Views
             MeshBuilder meshBuilder = new(false, false);
             for (int i = 0; i < vec3rs.Count; i++)
             {
-                Vector3 pos = vec3rs[i].ToVector3() / Consts.ScaleDividor;
+                Vector3 pos = vec3rs[i].ToVector3();
                 float r = vec3rs[i].R;
 
                 meshBuilder.AddSphere(pos, 0.025f);
@@ -211,20 +230,20 @@ namespace GTTrackEditor.Views
 
         public void BuildCheckpoints(List<RNW5Checkpoint4> checkpoints)
         {
-            MeshBuilder meshBuilder = new MeshBuilder(false, false);
+            MeshBuilder meshBuilder = new(false, false);
             for (int i = 0; i < checkpoints.Count; i++)
             {
                 meshBuilder.AddQuad(
-                    checkpoints[i].left / Consts.ScaleDividor,
-                    checkpoints[i].middle / Consts.ScaleDividor,
-                    (checkpoints[i].middle / Consts.ScaleDividor) + new Vector3(0.0f, 0.2f, 0.0f),
-                    (checkpoints[i].left / Consts.ScaleDividor) + new Vector3(0.0f, 0.2f, 0.0f)
+                    checkpoints[i].left,
+                    checkpoints[i].middle,
+                    (checkpoints[i].middle) + new Vector3(0.0f, 3f, 0.0f),
+                    (checkpoints[i].left) + new Vector3(0.0f, 3f, 0.0f)
                     );
                 meshBuilder.AddQuad(
-                    checkpoints[i].middle / Consts.ScaleDividor,
-                    checkpoints[i].right / Consts.ScaleDividor,
-                    (checkpoints[i].right / Consts.ScaleDividor) + new Vector3(0.0f, 0.2f, 0.0f),
-                    (checkpoints[i].middle / Consts.ScaleDividor) + new Vector3(0.0f, 0.2f, 0.0f)
+                    checkpoints[i].middle,
+                    checkpoints[i].right,
+                    (checkpoints[i].right) + new Vector3(0.0f, 3f, 0.0f),
+                    (checkpoints[i].middle) + new Vector3(0.0f, 3f, 0.0f)
                     );
             }
 
@@ -235,14 +254,14 @@ namespace GTTrackEditor.Views
 
         public void BuildRoadSurface(List<RNW5RoadTri> roadTris, List<Vec3> roadVerts)
         {
-            MeshBuilder meshBuilder = new MeshBuilder(false, false);
+            MeshBuilder meshBuilder = new(false, false);
             Color4Collection colors = new();
             for (int n = 0; n < roadTris.Count; n++)
             {
                 meshBuilder.AddTriangle(
-                    roadVerts[roadTris[n].vertA].ToVector3() / Consts.ScaleDividor,
-                    roadVerts[roadTris[n].vertB].ToVector3() / Consts.ScaleDividor,
-                    roadVerts[roadTris[n].vertC].ToVector3() / Consts.ScaleDividor);
+                    roadVerts[roadTris[n].vertA].ToVector3(),
+                    roadVerts[roadTris[n].vertB].ToVector3(),
+                    roadVerts[roadTris[n].vertC].ToVector3());
                 colors.Add(SurfaceTypeColors[roadTris[n].surface]);
                 colors.Add(SurfaceTypeColors[roadTris[n].surface]);
                 colors.Add(SurfaceTypeColors[roadTris[n].surface]);
