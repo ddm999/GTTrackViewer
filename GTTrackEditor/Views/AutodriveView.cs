@@ -20,8 +20,10 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace GTTrackEditor.Views
 {
-    public class AutodriveView
+    public class AutodriveView : TrackEditorViewBase
     {
+        public override string TreeViewName => "Autodrive";
+
         public AutoDrive AutodriveData { get; private set;  }
 
         public MeshGeometry3D AutoDriveModel { get; set; } = new();

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
 
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -29,6 +30,8 @@ namespace GTTrackEditor
         public MainWindow Parent { get; set; }
 
         public Gizmo Gizmo { get; set; }
+
+        public ObservableCollection<TrackEditorViewBase> Views { get; set; } = new();
 
         public RunwayView RunwayView { get; } = new();
         public CourseDataView CourseDataView { get; } = new();
@@ -145,7 +148,7 @@ namespace GTTrackEditor
         public void UpdateEditMode()
         {
             Vector3 newPos = (Gizmo.EditItem as GeometryModel3D).BoundsWithTransform.Center;
-            Parent.tb_SelectedItemPosition.Text = newPos.ToString();
+            //Parent.tb_SelectedItemPosition.Text = newPos.ToString();
         }
 
         /// <summary>

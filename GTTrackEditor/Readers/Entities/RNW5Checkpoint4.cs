@@ -6,9 +6,9 @@ namespace GTTrackEditor.Readers.Entities
 {
     public class RNW5Checkpoint4 : IFromStream, IToStream
     {
-        public Vector3 left;
-        public Vector3 middle;
-        public Vector3 right;
+        public Vector3 Left;
+        public Vector3 Middle;
+        public Vector3 Right;
         public float trackV;
 
         public static RNW5Checkpoint4 FromStream(ref SpanReader sr)
@@ -20,12 +20,12 @@ namespace GTTrackEditor.Readers.Entities
             float x = sr.ReadSingle();
             float y = sr.ReadSingle();
             float z = sr.ReadSingle();
-            checkpoint.left = new(x, y, z);
+            checkpoint.Left = new(x, y, z);
 
             x = sr.ReadSingle();
             y = sr.ReadSingle();
             z = sr.ReadSingle();
-            checkpoint.middle = new(x, y, z);
+            checkpoint.Middle = new(x, y, z);
 
             checkpoint.trackV = sr.ReadSingle();
 
@@ -34,30 +34,30 @@ namespace GTTrackEditor.Readers.Entities
             x = sr.ReadSingle();
             y = sr.ReadSingle();
             z = sr.ReadSingle();
-            checkpoint.right = new(x, y, z);
+            checkpoint.Right = new(x, y, z);
 
             return checkpoint;
         }
 
         public void ToStream(ref SpanWriter sw)
         {
-            sw.WriteSingle(left.X);
-            sw.WriteSingle(left.Y);
-            sw.WriteSingle(left.Z);
+            sw.WriteSingle(Left.X);
+            sw.WriteSingle(Left.Y);
+            sw.WriteSingle(Left.Z);
 
-            sw.WriteSingle(middle.X);
-            sw.WriteSingle(middle.Y);
-            sw.WriteSingle(middle.Z);
+            sw.WriteSingle(Middle.X);
+            sw.WriteSingle(Middle.Y);
+            sw.WriteSingle(Middle.Z);
 
             sw.WriteSingle(trackV);
 
-            sw.WriteSingle(middle.X);
-            sw.WriteSingle(middle.Y);
-            sw.WriteSingle(middle.Z);
+            sw.WriteSingle(Middle.X);
+            sw.WriteSingle(Middle.Y);
+            sw.WriteSingle(Middle.Z);
 
-            sw.WriteSingle(right.X);
-            sw.WriteSingle(right.Y);
-            sw.WriteSingle(right.Z);
+            sw.WriteSingle(Right.X);
+            sw.WriteSingle(Right.Y);
+            sw.WriteSingle(Right.Z);
 
             sw.WriteSingle(trackV);
         }

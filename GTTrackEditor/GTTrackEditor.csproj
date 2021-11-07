@@ -17,12 +17,19 @@
     <None Remove="Resources\file_load_mdl.png" />
     <None Remove="Resources\file_load_pack.png" />
     <None Remove="Resources\file_load_rwy.png" />
+    <None Remove="Resources\icons8-cube-26.png" />
     <None Remove="Resources\rotate_mode.png" />
     <None Remove="Resources\settings.png" />
     <None Remove="Resources\toggle_grid.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\TreeView\object.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.60.0" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.60.0" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="4.6.97" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.37" />
     <PackageReference Include="Syroot.BinaryData" Version="5.2.2" />

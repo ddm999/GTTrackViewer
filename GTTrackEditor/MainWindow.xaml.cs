@@ -79,60 +79,6 @@ namespace GTTrackEditor
                     return;
                 }
 
-                ExplorerListBoxItemTrack.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem1.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem2.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem3.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem4.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem5.Visibility = Visibility.Hidden;
-
-                for (byte m = 0; m < 6; m++)
-                {
-                    if (modelVisibility.ContainsKey(m))
-                        modelVisibility[m] = true;
-                    else
-                        modelVisibility.Add(m, true);
-
-                    if (_courseData.Models.ContainsKey(m))
-                    {
-                        switch (m)
-                        {
-                            case 0:
-                                ExplorerListBoxItemTrack.Content = $"MDL 0 Track ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItemTrack.Visibility = Visibility.Visible;
-                                ExplorerListBoxItemTrack.Foreground = _visibleBrush;
-                                break;
-                            case 1:
-                                ExplorerListBoxItem1.Content = $"MDL 1 Skydome A ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItem1.Visibility = Visibility.Visible;
-                                ExplorerListBoxItem1.Foreground = _hiddenBrush;
-                                modelVisibility[m] = false;
-                                break;
-                            case 2:
-                                ExplorerListBoxItem2.Content = $"MDL 2 Distant Terrain ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItem2.Visibility = Visibility.Visible;
-                                ExplorerListBoxItem2.Foreground = _visibleBrush;
-                                break;
-                            case 3:
-                                ExplorerListBoxItem3.Content = $"MDL 3 Mirrors Track ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItem3.Visibility = Visibility.Visible;
-                                ExplorerListBoxItem3.Foreground = _hiddenBrush;
-                                modelVisibility[m] = false;
-                                break;
-                            case 4:
-                                ExplorerListBoxItem4.Content = $"MDL 4 Skydome B ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItem4.Visibility = Visibility.Visible;
-                                ExplorerListBoxItem4.Foreground = _hiddenBrush;
-                                modelVisibility[m] = false;
-                                break;
-                            case 5:
-                                ExplorerListBoxItem5.Content = $"MDL 5 ({_courseData.Models[m].MeshCount} meshes / {_courseData.Models[m].TriCount} tris)";
-                                ExplorerListBoxItem5.Visibility = Visibility.Visible;
-                                ExplorerListBoxItem5.Foreground = _visibleBrush;
-                                break;
-                        }
-                    }
-                }
 
                 UpdateTrackModel();
                 UpdateTitle();
@@ -163,50 +109,8 @@ namespace GTTrackEditor
                 }
 
                 Btn_ImportRunway.IsEnabled = true;
-
-                ExplorerListBoxItem6.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem7.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem8.Visibility = Visibility.Hidden;
-                ExplorerListBoxItem9.Visibility = Visibility.Hidden;
-
-                for (byte m = 6; m < 10; m++)
-                {
-                    if (modelVisibility.ContainsKey(m))
-                        modelVisibility[m] = true;
-                    else
-                        modelVisibility.Add(m, true);
-
-                    switch (m)
-                    {
-                        case 6:
-                            ExplorerListBoxItem6.Content = $"RWY 0 Positions ({rwy.StartingGrid.Count} starts, {rwy.PitStops.Count} pits, {rwy.PitStopAdjacents.Count} pit adjacent)";
-                            ExplorerListBoxItem6.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem6.Foreground = _visibleBrush;
-                            ModelHandler.RunwayView.RenderStartingGrid = true;
-                            break;
-                        case 7:
-                            ExplorerListBoxItem7.Content = $"RWY 1 Checkpoints ({rwy.Checkpoints.Count} checkpoints)";
-                            ExplorerListBoxItem7.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem7.Foreground = _visibleBrush;
-                            ModelHandler.RunwayView.RenderCheckpoints = true;
-                            break;
-                        case 8:
-                            ExplorerListBoxItem8.Content = $"RWY 2 Road ({rwy.RoadTris.Count} tris)";
-                            ExplorerListBoxItem8.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem8.Foreground = _visibleBrush;
-                            ModelHandler.RunwayView.RenderRoad = true;
-                            break;
-                        case 9:
-                            ExplorerListBoxItem9.Content = $"RWY 3 Boundaries ({rwy.BoundaryVerts.Count} verts)";
-                            ExplorerListBoxItem9.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem9.Foreground = _visibleBrush;
-                            ModelHandler.RunwayView.RenderBoundaries = true;
-                            break;
-                    }
-                }
-
-                ModelHandler.RunwayView.Render();
-                UpdateTitle();
+                ModelHandler.Views.Add(ModelHandler.RunwayView);
+                ModelHandler.RunwayView.Init();
             }
         }
 
@@ -233,63 +137,8 @@ namespace GTTrackEditor
                     return;
                 }
 
-                for (byte m = 10; m < 17; m++)
-                {
-                    if (modelVisibility.ContainsKey(m))
-                        modelVisibility[m] = true;
-                    else
-                        modelVisibility.Add(m, true);
 
-
-                    switch (m)
-                    {
-                        case 10:
-                            ExplorerListBoxItem10.Content = $"AD  0 Line ({ad.EnemyLine.AutoDriveInfos[0].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem10.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem10.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderLine1 = true;
-                            break;
-                        case 11:
-                            ExplorerListBoxItem11.Content = $"AD  1 Left Lane ({ad.EnemyLine.AutoDriveInfos[1].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem11.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem11.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderLeftLane = true;
-                            break;
-                        case 12:
-                            ExplorerListBoxItem12.Content = $"AD  2 Right Lane ({ad.EnemyLine.AutoDriveInfos[2].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem12.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem12.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderRightLane = true;
-                            break;
-                        case 13:
-                            ExplorerListBoxItem13.Content = $"AD  3 Pit Exit Lane (?) ({ad.EnemyLine.AutoDriveInfos[3].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem13.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem13.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderPitExitLane = true;
-                            break;
-                        case 14:
-                            ExplorerListBoxItem14.Content = $"AD  4 Restricted Area / Pit ({ad.EnemyLine.AutoDriveInfos[4].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem14.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem14.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderRestrictedArea = true;
-                            break;
-                        case 15:
-                            ExplorerListBoxItem15.Content = $"AD  5 Learning Section ({ad.EnemyLine.AutoDriveInfos[5].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem15.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem15.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderLearningSection = true;
-                            break;
-                        case 16:
-                            ExplorerListBoxItem16.Content = $"AD  6 Default Line ({ad.EnemyLine.AutoDriveInfos[6].AttackInfos.Count} Attack Points)";
-                            ExplorerListBoxItem16.Visibility = Visibility.Visible;
-                            ExplorerListBoxItem16.Foreground = _visibleBrush;
-                            ModelHandler.AutodriveView.RenderDefaultLane = true;
-                            break;
-                    }
-
-                }
-
-                ModelHandler.AutodriveView.Render();
+                //ModelHandler.AutodriveView.Render();
             }
         }
         #endregion
@@ -455,16 +304,7 @@ namespace GTTrackEditor
 
         private void ExplorerVisibleRecalculate()
         {
-            for (byte i = 0; i < ExplorerListBox.Items.Count; i++)
-            {
-                ListBoxItem lbi = ExplorerListBox.Items[i] as ListBoxItem;
-
-                if (modelVisibility.ContainsKey(i) && modelVisibility[i])
-                    lbi.Foreground = _visibleBrush;
-                else
-                    lbi.Foreground = _hiddenBrush;
-
-            }
+           
         }
 
         private void ExplorerVisibleToggle(ListBoxItem lbi, byte i)
@@ -565,7 +405,7 @@ namespace GTTrackEditor
 
                 if (ModelHandler.RunwayView.Loaded())
                 {
-                    ModelHandler.RunwayView.Render();
+                    ModelHandler.RunwayView.Init();
                 }
 
                 if (ModelHandler.AutodriveView.Loaded())

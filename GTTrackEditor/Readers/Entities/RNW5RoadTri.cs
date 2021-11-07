@@ -9,7 +9,7 @@ namespace GTTrackEditor.Readers.Entities
         public ushort vertB;
         public ushort vertC;
         public ushort unk;
-        public byte surface;
+        public byte SurfaceType;
         public byte flagsA;
         public byte flagsB;
         public byte flagsC;
@@ -21,7 +21,7 @@ namespace GTTrackEditor.Readers.Entities
 
             sr.Position = basePos + 0x1;
             roadTri.vertA = sr.ReadUInt16();
-            roadTri.surface = sr.ReadByte();
+            roadTri.SurfaceType = sr.ReadByte();
 
             sr.Position = basePos + 0x5;
             roadTri.vertB = sr.ReadUInt16();
@@ -40,7 +40,7 @@ namespace GTTrackEditor.Readers.Entities
         {
             sw.WriteByte(0);
             sw.WriteUInt16(vertA);
-            sw.WriteByte(surface);
+            sw.WriteByte(SurfaceType);
             sw.WriteByte(0);
             sw.WriteUInt16(vertB);
             sw.WriteByte(flagsA);

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace GTTrackEditor.Views
 {
-    public class CourseDataView
+    public class CourseDataView : TrackEditorViewBase
     {
+        public override string TreeViewName => "CourseData";
     }
 }
