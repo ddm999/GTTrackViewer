@@ -8,9 +8,14 @@ using SharpDX;
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
+using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
+using Quaternion = System.Windows.Media.Media3D.Quaternion;
+using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
 using GTTrackEditor.Controls;
+using GTTrackEditor.Utils;
 
 namespace GTTrackEditor.Views
 {
@@ -87,48 +92,7 @@ namespace GTTrackEditor.Views
         {
             if (RenderStartingGrid && RunwayData.StartingGrid != null)
             {
-                StartingGridPoints.Clear();
-                for (int i = 0; i < RunwayData.StartingGrid.Count; i++)
-                {
-                    StartingGridModel3D startGridModel = new();
-                    
-                    /*
-                    Vector3Collection vc = new(1);
-                    IntCollection id = new(1);
-                    Color4Collection col = new(1);
-                    */
-
-                    Vector3 pos = RunwayData.StartingGrid[i].ToVector3() / Consts.ScaleDividor;
-
-                    ObjReader reader = new ObjReader();
-                    List<Object3D> list = reader.Read("Grid.obj");
-                    MeshGeometry3D mod = list[0].Geometry as MeshGeometry3D;
-                    for (int j = 0; j < mod.Positions.Count; ++j)
-                        mod.Positions[j] = mod.Positions[j] + pos;
-                    mod.UpdateBounds();
-
-                    StartingGridPoints.Add(new StartingGridModel3D()
-                    {
-                        Geometry = mod,
-                        Material = StartingGridMaterial,
-                    });
-
-                    /*
-                    vc.Add(pos);
-                    id.Add(i);
-                    col.Add(new(1, 0, 0, 1));
-                    */
-
-                    /*
-                    startGridModel.Geometry = new PointGeometry3D()
-                    {
-                        Positions = vc,
-                        Indices = id,
-                        Colors = col,
-                    };*/
-
-                    StartingGridPoints.Add(startGridModel);
-                }
+                BuildRenderStartingGrid();
             }
 
             if (RenderPitStops && RunwayData.PitStops != null)
@@ -173,23 +137,7 @@ namespace GTTrackEditor.Views
 
             if (RenderBoundaries && RunwayData.BoundaryVerts != null)
             {
-                int i = 0;
-                List<List<Vector3>> boundaries = new();
-                List<Vector3> boundary = new();
-                while (i < RunwayData.BoundaryVerts.Count)
-                {
-                    RNW5BoundaryVert vert = RunwayData.BoundaryVerts[i];
-                    boundary.Add(vert.ToVector3());
-
-                    if (vert.counter < 0) // boundary end
-                    {
-                        boundaries.Add(boundary);
-                        boundary = new List<Vector3>();
-                    }
-                    i++;
-                }
-
-                BuildBoundaries(boundaries);
+                BuildRenderBoundaries();
                 //Line3D.Visibility = Visibility.Visible;
             }
             else
@@ -198,34 +146,69 @@ namespace GTTrackEditor.Views
             }
         }
 
-        public static MeshGeometry3D BuildArrows(List<Vec3R> vec3rs)
+        private void BuildRenderStartingGrid()
         {
-            MeshBuilder meshBuilder = new(false, false);
-            for (int i = 0; i < vec3rs.Count; i++)
+            StartingGridPoints.Clear();
+            for (int i = 0; i < RunwayData.StartingGrid.Count; i++)
             {
-                Vector3 pos = vec3rs[i].ToVector3();
-                float r = vec3rs[i].R;
+                ObjReader reader = new();
+                List<Object3D> list = reader.Read("Models/Grid.obj");
+                MeshGeometry3D gridGeometry = list[0].Geometry as MeshGeometry3D;
 
-                meshBuilder.AddSphere(pos, 0.025f);
-                Vector3 pos2 = pos;
-                pos2.X += (0 * MathF.Cos(-r)) - (0.1f * MathF.Sin(-r));
-                pos2.Z += (0 * MathF.Sin(-r)) + (0.1f * MathF.Cos(-r));
-                meshBuilder.AddArrow(pos, pos2, 0.01f, 3.0f, 18);
+                Vector3 actualPos = RunwayData.StartingGrid[i].ToVector3();
+                for (int j = 0; j < gridGeometry.Positions.Count; ++j)
+                {
+                    gridGeometry.Positions[j] += actualPos;
+                }
+                gridGeometry.UpdateBounds();
+
+                StartingGridModel3D newGridModel = new()
+                {
+                    Geometry = gridGeometry,
+                    Material = StartingGridMaterial,
+
+                    StartingIndex = i,
+                };
+
+                Point3D center = new(RunwayData.StartingGrid[i].X, RunwayData.StartingGrid[i].Y, RunwayData.StartingGrid[i].Z);
+                System.Diagnostics.Debug.WriteLine(RunwayData.StartingGrid[i].AngleRad);
+
+
+                // Apply angle
+                float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].AngleRad);
+                ModelUtils.Rotate(newGridModel, center, angle);
+
+                StartingGridPoints.Add(newGridModel);
             }
-            MeshGeometry3D model = meshBuilder.ToMesh();
-            model.Normals = model.CalculateNormals();
-            return model;
         }
 
-        public void BuildBoundaries(List<List<Vector3>> boundaries)
+        public void BuildRenderBoundaries()
         {
+            int i = 0;
+            List<List<Vector3>> boundaries = new();
+            List<Vector3> boundary = new();
+            while (i < RunwayData.BoundaryVerts.Count)
+            {
+                RNW5BoundaryVert vert = RunwayData.BoundaryVerts[i];
+                boundary.Add(vert.ToVector3());
+
+                if (vert.counter < 0) // boundary end
+                {
+                    boundaries.Add(boundary);
+                    boundary = new List<Vector3>();
+                }
+                i++;
+            }
+
             MeshBuilder meshBuilder = new(false, false);
             for (int n = 0; n < boundaries.Count; n++)
             {
                 List<Vector3> vec3s = boundaries[n];
-                meshBuilder.AddTube(vec3s, 0.005f, 18, true);
+                meshBuilder.AddTube(vec3s, 1f, 18, true);
             }
-            BoundaryModel = meshBuilder.ToMesh();
+
+            MeshGeometry3D m = meshBuilder.ToMesh();
+            m.AssignTo(BoundaryModel);
         }
 
         public void BuildCheckpoints(List<RNW5Checkpoint4> checkpoints)
@@ -270,6 +253,25 @@ namespace GTTrackEditor.Views
             MeshGeometry3D road = meshBuilder.ToMesh();
             road.Colors = colors;
             road.AssignTo(RoadModel);
+        }
+
+        public static MeshGeometry3D BuildArrows(List<Vec3R> vec3rs)
+        {
+            MeshBuilder meshBuilder = new(false, false);
+            for (int i = 0; i < vec3rs.Count; i++)
+            {
+                Vector3 pos = vec3rs[i].ToVector3();
+                float r = vec3rs[i].AngleRad;
+
+                meshBuilder.AddSphere(pos, 0.025f);
+                Vector3 pos2 = pos;
+                pos2.X += (0 * MathF.Cos(-r)) - (0.1f * MathF.Sin(-r));
+                pos2.Z += (0 * MathF.Sin(-r)) + (0.1f * MathF.Cos(-r));
+                meshBuilder.AddArrow(pos, pos2, 0.01f, 3.0f, 18);
+            }
+            MeshGeometry3D model = meshBuilder.ToMesh();
+            model.Normals = model.CalculateNormals();
+            return model;
         }
     }
 }

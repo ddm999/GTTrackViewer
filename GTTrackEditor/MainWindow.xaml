@@ -63,9 +63,10 @@
                 </ToolBarTray>
                 <hx:Viewport3DX x:Name="_viewport" Grid.Row="1" Background="White" BackgroundColor="Gray"
                           EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
-                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="True" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
+                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
                           ShowCoordinateSystem="True" UseDefaultGestures="False"
-                          ZoomSensitivity="40">
+                          ZoomSensitivity="40"
+                          MousePanSensitivity="100">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown3D">
                             <ie:CallMethodAction MethodName="OnMouseDown3DHandler" TargetObject="{Binding}" />
@@ -84,7 +85,7 @@
                     <!-- Gizmo -->
                     <hx:TransformManipulator3D
                         x:Name="GizmoManipulator"
-                        SizeScale="1"
+                        SizeScale="20"
                         Visibility="Hidden" 
                         Mouse3DMove="GizmoManipulator_Mouse3DMove" />
                     <!-- Binding doesn't work on net core for some reason -->

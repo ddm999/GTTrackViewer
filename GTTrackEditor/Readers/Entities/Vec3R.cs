@@ -9,16 +9,16 @@ namespace GTTrackEditor.Readers.Entities
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
-        public float R { get; set; }
+        public float AngleRad { get; set; }
 
         public Vec3R()
         {
-            X = 0.0f; Y = 0.0f; Z = 0.0f; R = 0.0f;
+            X = 0.0f; Y = 0.0f; Z = 0.0f; AngleRad = 0.0f;
         }
 
         public Vec3R(float x, float y, float z, float r)
         {
-            X = x; Y = y; Z = z; R = r;
+            X = x; Y = y; Z = z; AngleRad = r;
         }
 
         public Vector3 ToVector3()
@@ -40,7 +40,7 @@ namespace GTTrackEditor.Readers.Entities
             sw.WriteSingle(X);
             sw.WriteSingle(Y);
             sw.WriteSingle(Z);
-            sw.WriteSingle(R);
+            sw.WriteSingle(AngleRad);
         }
     }
 }

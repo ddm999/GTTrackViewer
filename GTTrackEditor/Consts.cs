@@ -4,8 +4,6 @@ namespace GTTrackEditor
 {
     public class Consts
     {
-        public const float ScaleDividor = 50f;
-
         public enum RenderObjects
         {
 

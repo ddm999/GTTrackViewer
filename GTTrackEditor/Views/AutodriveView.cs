@@ -87,7 +87,7 @@ namespace GTTrackEditor.Views
             for (int i = 0; i < adInfo.AttackInfos.Count; i++)
             {
                 AttackInfo atk = adInfo.AttackInfos[i];
-                Vector3 attackPoint = new(-(atk.Position.X / Consts.ScaleDividor), atk.Position.Z / Consts.ScaleDividor, atk.Position.Y / Consts.ScaleDividor);
+                Vector3 attackPoint = new(-(atk.Position.X), atk.Position.Z, atk.Position.Y);
 
                 if (DrawText)
                 {

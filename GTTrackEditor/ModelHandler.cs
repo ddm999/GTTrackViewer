@@ -15,6 +15,10 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using GTTrackEditor.Views;
 using GTTrackEditor.Controls;
 
+using Xceed.Wpf.Toolkit.PropertyGrid;
+
+using GTTrackEditor.Utils;
+
 namespace GTTrackEditor
 {
     public class ModelHandler : BaseViewModel
@@ -74,52 +78,7 @@ namespace GTTrackEditor
             EditMaterial.DiffuseColor = new(1.0f, 0.8f, 0.0f, 1.0f);
 
 
-            Grid = GenerateGrid(Vector3.UnitY, -1000, 1000, -1000, 1000, 100f);
-        }
-
-        /// <summary>
-        /// Generates a square grid with a custom step
-        /// </summary>
-        /// <returns></returns>
-        public static LineGeometry3D GenerateGrid(Vector3 plane, int min0 = 0, int max0 = 10, int min1 = 0, int max1 = 10, float step = 1f)
-        {
-            LineBuilder grid = new();
-            if (plane == Vector3.UnitX)
-            {
-                for (float i = min0; i <= max0; i += step)
-                {
-                    grid.AddLine(new Vector3(0, i, min1), new Vector3(0, i, max1));
-                }
-                for (float i = min1; i <= max1; i += step)
-                {
-                    grid.AddLine(new Vector3(0, min0, i), new Vector3(0, max0, i));
-                }
-            }
-            else if (plane == Vector3.UnitY)
-            {
-                for (float i = min0; i <= max0; i += step)
-                {
-                    grid.AddLine(new Vector3(i, 0, min1), new Vector3(i, 0, max1));
-
-                }
-                for (float i = min1; i <= max1; i += step)
-                {
-                    grid.AddLine(new Vector3(min0, 0, i), new Vector3(max0, 0, i));
-                }
-            }
-            else
-            {
-                for (float i = min0; i <= max0; i += step)
-                {
-                    grid.AddLine(new Vector3(i, min1, 0), new Vector3(i, max1, 0));
-                }
-                for (float i = min1; i <= max1; i += step)
-                {
-                    grid.AddLine(new Vector3(min0, i, 0), new Vector3(max0, i, 0));
-                }
-            }
-
-            return grid.ToLineGeometry3D();
+            Grid = LineGeneratorUtils.GenerateGrid(Vector3.UnitY, -1000, 1000, -1000, 1000, 100f);
         }
 
         /// <summary>
@@ -142,8 +101,12 @@ namespace GTTrackEditor
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
-                        EnterEditMode(e.HitTestResult.ModelHit);
+                        EnterEditMode(e.HitTestResult.ModelHit); UpdateEditMode();
                         Parent.PropertyGrid.SelectedObject = m;
+
+                        var list = new PropertyDefinitionCollection();
+                        list.Add(new() { Name = nameof(StartingGridModel3D.StartingIndex) });
+                        Parent.PropertyGrid.PropertyDefinitions = list;
                     }
                 }
             }

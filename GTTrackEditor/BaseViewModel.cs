@@ -29,7 +29,7 @@
             }
             set
             {
-                SetValue(ref title, value, "Title");
+                SetValue(ref title, value, nameof(Title));
             }
         }
 
@@ -41,7 +41,7 @@
             }
             set
             {
-                SetValue(ref subTitle, value, "SubTitle");
+                SetValue(ref subTitle, value, nameof(SubTitle));
             }
         }
 
@@ -55,7 +55,7 @@
             }
             set
             {
-                if (SetValue(ref cameraModel, value, "CameraModel"))
+                if (SetValue(ref cameraModel, value, nameof(CameraModel)))
                 {
                     OnCameraModelChanged();
                 }
@@ -71,7 +71,7 @@
 
             protected set
             {
-                SetValue(ref camera, value, "Camera");
+                SetValue(ref camera, value, nameof(Camera));
                 CameraModel = value is PerspectiveCamera
                                        ? Perspective
                                        : value is OrthographicCamera ? Orthographic : null;
