@@ -63,7 +63,7 @@
                 </ToolBarTray>
                 <hx:Viewport3DX x:Name="_viewport" Grid.Row="1" Background="White" BackgroundColor="Gray"
                           EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
-                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="True" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
+                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="False" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
                           ShowCoordinateSystem="True" UseDefaultGestures="False"
                           ZoomSensitivity="40"
                           MousePanSensitivity="100">
@@ -299,8 +299,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Label Grid.Row="0" Content="Properties"/>
-                            <xctk:PropertyGrid Grid.Row="1" x:Name="PropertyGrid" AutoGenerateProperties="False">
-                            </xctk:PropertyGrid>
+                            <xctk:PropertyGrid Grid.Row="1" x:Name="PropertyGrid" SelectedObject="{Binding Path=Gizmo.EditItem, Mode=TwoWay}" AutoGenerateProperties="False"/>
                         </Grid>
                     </Grid>
                 </TabItem>

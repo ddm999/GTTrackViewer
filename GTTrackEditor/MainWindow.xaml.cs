@@ -39,7 +39,7 @@ namespace GTTrackEditor
         private readonly Brush _editHiddenBrush = new SolidColorBrush(Colors.LightBlue);
         private readonly Brush _hiddenBrush = new SolidColorBrush(Colors.LightGray);
 
-        public ModelHandler ModelHandler { get; } = new();
+        public TrackEditorView ModelHandler { get; } = new();
 
         public MainWindow()
         {
@@ -47,7 +47,7 @@ namespace GTTrackEditor
             InitializeComponent();
 
             // Grab reference set from XAML
-            ModelHandler = (ModelHandler)DataContext;
+            ModelHandler = (TrackEditorView)DataContext;
             ModelHandler.Parent = this;
 
             ReflectConfig();
@@ -573,7 +573,7 @@ namespace GTTrackEditor
                     ModelHandler.AutodriveView.Render();
                 }
 
-                ModelHandler.Trilists(trilist, noneditTrilist, editTrilist);
+                TrackEditorView.Trilists(trilist, noneditTrilist, editTrilist);
             }
             catch (Exception ex)
             {

@@ -3,6 +3,8 @@ using HelixToolkit.SharpDX.Core;
 using HelixToolkit.Wpf.SharpDX;
 
 using SharpDX;
+using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
@@ -18,22 +20,19 @@ using GTTrackEditor.Controls;
 using Xceed.Wpf.Toolkit.PropertyGrid;
 
 using GTTrackEditor.Utils;
+using GTTrackEditor.Attributes;
 
 namespace GTTrackEditor
 {
-    public class ModelHandler : BaseViewModel
+    public class TrackEditorView : BaseViewModel
     {
         public MainWindow Parent { get; set; }
 
-        public Gizmo Gizmo { get; set; } = new();
+        public Gizmo Gizmo { get; set; }
 
         public RunwayView RunwayView { get; } = new();
         public CourseDataView CourseDataView { get; } = new();
         public AutodriveView AutodriveView { get; } = new();
-
-        static MeshBuilder meshBuilder;
-
-        public const float ScaleDividor = 50f;
 
         /// <summary>
         /// Grid, for utility
@@ -56,7 +55,7 @@ namespace GTTrackEditor
         public Color DirectionalLightColor { get; private set; }
         public Color AmbientLightColor { get; private set; }
 
-        public ModelHandler()
+        public TrackEditorView()
         {
             EffectsManager = new DefaultEffectsManager();
 
@@ -77,7 +76,7 @@ namespace GTTrackEditor
             NoneditMaterial.DiffuseColor = new(0.8f, 0.8f, 0.8f, 0.4f);
             EditMaterial.DiffuseColor = new(1.0f, 0.8f, 0.0f, 1.0f);
 
-
+            Gizmo = new();
             Grid = LineGeneratorUtils.GenerateGrid(Vector3.UnitY, -1000, 1000, -1000, 1000, 100f);
         }
 
@@ -97,15 +96,17 @@ namespace GTTrackEditor
             if (e.HitTestResult != null)
             {
                 object target = e.HitTestResult.ModelHit;
-                if (e.HitTestResult.ModelHit is StartingGridModel3D m)
+                if (e.HitTestResult.ModelHit is TrackEditorModel teModel)
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
-                        EnterEditMode(e.HitTestResult.ModelHit); UpdateEditMode();
-                        Parent.PropertyGrid.SelectedObject = m;
+                        EnterEditMode(teModel); 
+                        UpdateEditMode();
 
-                        var list = new PropertyDefinitionCollection();
-                        list.Add(new() { Name = nameof(StartingGridModel3D.StartingIndex) });
+                        PropertyDefinitionCollection list = new();
+                        foreach (var prop in target.GetType().GetProperties().Where(p => p.GetCustomAttribute<EditableProperty>() is not null))
+                            list.Add(new() { Name = prop.Name });
+
                         Parent.PropertyGrid.PropertyDefinitions = list;
                     }
                 }
@@ -123,17 +124,18 @@ namespace GTTrackEditor
         /// Fired when we are clicking on an editable object.
         /// </summary>
         /// <param name="modelHit"></param>
-        private void EnterEditMode(object modelHit)
+        private void EnterEditMode(TrackEditorModel teModel)
         {
-            Gizmo.SetActive(modelHit as Element3D);
+            Gizmo.SetActive(teModel);
 
             Parent.GizmoManipulator.Visibility = Visibility.Visible;
             Parent.GizmoManipulator.Target = null;
-            Parent.GizmoManipulator.CenterOffset = (modelHit as GeometryModel3D).Geometry.Bound.Center; // Must update this before updating target
-            Parent.GizmoManipulator.Target = modelHit as Element3D;
-            Parent.GizmoManipulator.EnableScaling = false;
-            Parent.GizmoManipulator.EnableXRayGrid = false;
-            Parent.GizmoManipulator.EnableRotation = false;
+            Parent.GizmoManipulator.CenterOffset = teModel.Geometry.Bound.Center; // Must update this before updating target
+            Parent.GizmoManipulator.Target = teModel;
+
+            Parent.GizmoManipulator.EnableScaling = teModel.CanScale;
+            Parent.GizmoManipulator.EnableRotation = teModel.CanRotate;
+            Parent.GizmoManipulator.EnableTranslation = teModel.CanTranslate;
         }
 
         /// <summary>
@@ -160,7 +162,7 @@ namespace GTTrackEditor
 
         public static void Trilists(List<Vector3> tris, List<Vector3> neTris, List<Vector3> eTris)
         {
-            meshBuilder = new(false, false);
+            MeshBuilder meshBuilder = new(false, false);
             meshBuilder.AddTriangles(tris);
             PlainModel = meshBuilder.ToMesh();
             PlainModel.Normals = PlainModel.CalculateNormals();
@@ -178,7 +180,7 @@ namespace GTTrackEditor
 
         public static void ManipulatedPos(Vector3 pos)
         {
-            meshBuilder = new(false, false);
+            MeshBuilder meshBuilder = new(false, false);
             meshBuilder.AddSphere(pos, 0.005f);
             ManipulatedModel = meshBuilder.ToMesh();
             ManipulatedModel.Normals = ManipulatedModel.CalculateNormals();
