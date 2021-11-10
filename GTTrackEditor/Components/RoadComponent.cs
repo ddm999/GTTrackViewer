@@ -14,17 +14,15 @@ using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
 namespace GTTrackEditor.Components
 {
     public class RoadComponent : TrackComponentBase
     {
-        public override string Name => "Road";
-
         public MeshGeometry3D RoadModel { get; set; } = new();
-        public DiffuseMaterial RoadMaterial { get; set; } = new();
+        public static VertColorMaterial RoadMaterial { get; set; } = new();
 
         public RNW5 RunwayData { get; set; }
 
@@ -49,7 +47,7 @@ namespace GTTrackEditor.Components
 
         public RoadComponent()
         {
-            RoadMaterial.DiffuseColor = new(1.0f, 1.0f, 0.0f, 1.0f);
+            Name = "Road";
         }
 
         public void Init(RNW5 runwayData)
@@ -66,9 +64,9 @@ namespace GTTrackEditor.Components
             for (int n = 0; n < RunwayData.RoadTris.Count; n++)
             {
                 meshBuilder.AddTriangle(
-                    rwy.RoadVerts[rwy.RoadTris[n].vertA].ToVector3(),
-                    rwy.RoadVerts[rwy.RoadTris[n].vertB].ToVector3(),
-                    rwy.RoadVerts[rwy.RoadTris[n].vertC].ToVector3());
+                    rwy.RoadVerts[rwy.RoadTris[n].VertA].ToVector3(),
+                    rwy.RoadVerts[rwy.RoadTris[n].VertB].ToVector3(),
+                    rwy.RoadVerts[rwy.RoadTris[n].VertC].ToVector3());
                 colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);
                 colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);
                 colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);
@@ -81,7 +79,22 @@ namespace GTTrackEditor.Components
 
         public override void Hide()
         {
-            throw new NotImplementedException();
+            if (!IsVisible)
+                return;
+
+            RoadModel.ClearAllGeometryData();
+            RoadModel.UpdateVertices();
+
+            IsVisible = false;
+        }
+
+        public override void Show()
+        {
+            if (IsVisible)
+                return;
+
+            RenderComponent();
+            IsVisible = true;
         }
     }
 }

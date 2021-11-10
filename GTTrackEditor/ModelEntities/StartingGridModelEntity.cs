@@ -5,9 +5,12 @@ using HelixToolkit.Wpf.SharpDX;
 
 using GTTrackEditor.Attributes;
 
-namespace GTTrackEditor.Controls
+namespace GTTrackEditor.ModelEntities
 {
-    public class StartingGridModel3D : TrackEditorModel
+    /// <summary>
+    /// Represents a starting grid model entity.
+    /// </summary>
+    public class StartingGridModelEntity : BaseModelEntity
     {
         public Vec3R StartingGridPoint { get; set; }
 
@@ -16,7 +19,6 @@ namespace GTTrackEditor.Controls
         /// </summary>
         [EditableProperty]
         public int StartingIndex { get; set; }
-
 
         public override bool CanRotate => true;
         public override bool CanTranslate => true;

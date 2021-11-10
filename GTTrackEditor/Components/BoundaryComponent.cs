@@ -14,15 +14,13 @@ using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
 namespace GTTrackEditor.Components
 {
     public class BoundaryComponent : TrackComponentBase
     {
-        public override string Name => "Boundary";
-
         public MeshGeometry3D BoundaryModel { get; set; } = new();
         public DiffuseMaterial BoundaryMaterial { get; set; } = new();
 
@@ -30,6 +28,7 @@ namespace GTTrackEditor.Components
 
         public BoundaryComponent()
         {
+            Name = "Boundary";
             BoundaryMaterial.DiffuseColor = new(1.0f, 1.0f, 0.0f, 1.0f);
         }
 
@@ -69,7 +68,22 @@ namespace GTTrackEditor.Components
 
         public override void Hide()
         {
-            throw new NotImplementedException();
+            if (!IsVisible)
+                return;
+
+            BoundaryModel.ClearAllGeometryData();
+            BoundaryModel.UpdateVertices();
+
+            IsVisible = false;
+        }
+
+        public override void Show()
+        {
+            if (IsVisible)
+                return;
+
+            RenderComponent();
+            IsVisible = true;
         }
     }
 }

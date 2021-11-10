@@ -5,9 +5,9 @@ namespace GTTrackEditor.Readers.Entities
 {
     public class RNW5RoadTri : IFromStream, IToStream
     {
-        public ushort vertA;
-        public ushort vertB;
-        public ushort vertC;
+        public ushort VertA;
+        public ushort VertB;
+        public ushort VertC;
         public ushort unk;
         public byte SurfaceType;
         public byte flagsA;
@@ -20,15 +20,15 @@ namespace GTTrackEditor.Readers.Entities
             RNW5RoadTri roadTri = new();
 
             sr.Position = basePos + 0x1;
-            roadTri.vertA = sr.ReadUInt16();
+            roadTri.VertA = sr.ReadUInt16();
             roadTri.SurfaceType = sr.ReadByte();
 
             sr.Position = basePos + 0x5;
-            roadTri.vertB = sr.ReadUInt16();
+            roadTri.VertB = sr.ReadUInt16();
             roadTri.flagsA = sr.ReadByte();
 
             sr.Position = basePos + 0x9;
-            roadTri.vertC = sr.ReadUInt16();
+            roadTri.VertC = sr.ReadUInt16();
             roadTri.flagsB = sr.ReadByte();
             roadTri.unk = sr.ReadUInt16();
             roadTri.flagsC = sr.ReadByte();
@@ -39,13 +39,13 @@ namespace GTTrackEditor.Readers.Entities
         void ToStream(ref SpanWriter sw)
         {
             sw.WriteByte(0);
-            sw.WriteUInt16(vertA);
+            sw.WriteUInt16(VertA);
             sw.WriteByte(SurfaceType);
             sw.WriteByte(0);
-            sw.WriteUInt16(vertB);
+            sw.WriteUInt16(VertB);
             sw.WriteByte(flagsA);
             sw.WriteByte(0);
-            sw.WriteUInt16(vertC);
+            sw.WriteUInt16(VertC);
             sw.WriteByte(flagsB);
             sw.WriteUInt16(unk);
             sw.WriteByte(flagsC);

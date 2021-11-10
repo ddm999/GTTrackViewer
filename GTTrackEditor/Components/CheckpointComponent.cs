@@ -14,15 +14,13 @@ using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
 namespace GTTrackEditor.Components
 {
     public class CheckpointComponent : TrackComponentBase
     {
-        public override string Name => "Checkpoints";
-
         public MeshGeometry3D CheckpointModel { get; set; } = new();
         public DiffuseMaterial CheckpointMaterial { get; set; } = new();
 
@@ -30,6 +28,7 @@ namespace GTTrackEditor.Components
 
         public CheckpointComponent()
         {
+            Name = "Checkpoints";
             CheckpointMaterial.DiffuseColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f);
         }
 
@@ -66,7 +65,22 @@ namespace GTTrackEditor.Components
 
         public override void Hide()
         {
-            throw new NotImplementedException();
+            if (!IsVisible)
+                return;
+
+            CheckpointModel.ClearAllGeometryData();
+            CheckpointModel.UpdateVertices();
+
+            IsVisible = false;
+        }
+
+        public override void Show()
+        {
+            if (IsVisible)
+                return;
+
+            RenderComponent();
+            IsVisible = true;
         }
     }
 }

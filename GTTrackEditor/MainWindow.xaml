@@ -7,7 +7,9 @@
   xmlns:ie="http://schemas.microsoft.com/xaml/behaviors"
   xmlns:local="clr-namespace:GTTrackEditor" xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
   xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-  xmlns:winformsIntegration="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+  xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
+  xmlns:gt_components="clr-namespace:GTTrackEditor.Components" 
+  xmlns:gt_controls="clr-namespace:GTTrackEditor.ModelEntities"
   mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280"
         Closing="Window_Closing">
     <Window.DataContext>
@@ -79,11 +81,11 @@
                                 ContentId="document1">
 
                                 <hx:Viewport3DX x:Name="_viewport" Grid.Row="1" Background="White" BackgroundColor="Gray"
-                          EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
-                          CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="False" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
-                          ShowCoordinateSystem="True" UseDefaultGestures="False"
-                          ZoomSensitivity="30"
-                          MousePanSensitivity="80">
+                                    EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
+                                    CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="False" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
+                                    ShowCoordinateSystem="True" UseDefaultGestures="False"
+                                    ZoomSensitivity="30" PageUpDownZoomSensitivity="120"
+                                    MousePanSensitivity="80">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseDown3D">
                                             <ie:CallMethodAction MethodName="OnMouseDown3DHandler" TargetObject="{Binding}" />
@@ -108,10 +110,9 @@
                                     <!-- Binding doesn't work on net core for some reason -->
 
                                     <!-- Runway Geometry -->
-                                    <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}"  />
-
                                     <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="Checkpoints3D" Geometry="{Binding RunwayView.Checkpoints.CheckpointModel}" Material="{Binding RunwayView.Checkpoints.CheckpointMaterial}" CullMode="None"/>
+                                    <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}" />
                                     <hx:MeshGeometryModel3D Name="PitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="PitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="None"/>
@@ -127,18 +128,25 @@
                     <LayoutAnchorablePaneGroup DockWidth="360" >
                         <LayoutAnchorablePane>
                             <LayoutAnchorable Title="Explorer" ContentId="toolWindow1">
-                                <TreeView>
+                                <TreeView ItemsSource="{Binding}">
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type TreeViewItem}">
+                                            <Setter Property="IsExpanded" Value="True"/>
+                                            <EventSetter Event="PreviewMouseRightButtonDown"
+                                            Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
+                                    
                                     <TreeViewItem Name="TreeViewRoot" IsExpanded="True" ItemsSource="{Binding Views}">
                                         <TreeViewItem.Header>
                                             <StackPanel Orientation="Horizontal">
                                                 <Image Width="16" Source="Resources/TreeView/object.png"/>
                                                 <TextBlock Text=" Track Editor" />
                                             </StackPanel>
-                                            
                                         </TreeViewItem.Header>
                                     </TreeViewItem>
                                     <TreeView.Resources>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Views.RunwayView}" ItemsSource="{Binding Components}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_views:RunwayView}" ItemsSource="{Binding Components}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding TreeViewName}"/>
                                                 <TextBlock Text=" (" />
@@ -146,37 +154,33 @@
                                                 <TextBlock Text=")" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Components.StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"/>
-                                                <TextBlock Text=" (" />
-                                                <TextBlock Text="{Binding StartingGridPoints.Count}" />
-                                                <TextBlock Text=" positions)" />
-                                                <StackPanel.ContextMenu>
-                                                    <ContextMenu>
-                                                        <MenuItem Header="Hide" IsCheckable="True" IsChecked="{Binding Render, Mode=TwoWay}"/>
-                                                    </ContextMenu>
-                                                </StackPanel.ContextMenu>
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Controls.StartingGridModel3D}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_controls:StartingGridModelEntity}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Point"/>
+                                                <TextBlock Text="Point" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Components.BoundaryComponent}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:BoundaryComponent}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"/>
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                            </StackPanel>
+                                            
+                                        </HierarchicalDataTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:CheckpointComponent}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Components.CheckpointComponent}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:RoadComponent}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"/>
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type local:Components.RoadComponent}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"/>
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                     </TreeView.Resources>

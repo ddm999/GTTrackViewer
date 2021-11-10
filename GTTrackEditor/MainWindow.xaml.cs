@@ -15,9 +15,13 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Input;
 using SharpDX;
-using System.Windows.Media.Animation;
+
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core;
+
+using GTTrackEditor.Components;
+using GTTrackEditor.Views;
+using GTTrackEditor.Interfaces;
 
 namespace GTTrackEditor
 {
@@ -218,6 +222,54 @@ namespace GTTrackEditor
             byte index = ExplorerItemToIndex(lbi);
             UpdateTrackModel();
             ExplorerVisibleRecalculate();
+        }
+
+        void TreeViewItem_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject obj = e.OriginalSource as DependencyObject;
+            TreeViewItem item = GetDependencyObjectFromVisualTree(obj, typeof(TreeViewItem)) as TreeViewItem;
+
+            ContextMenu menu = new ContextMenu() { };
+
+            if (item.Header is IHideable hideable)
+            {
+                MenuItem visibilityItem = new MenuItem();
+                visibilityItem.DataContext = item.Header;
+
+                if (hideable.IsVisible)
+                {
+                    visibilityItem.Header = "Hide Element";
+                    visibilityItem.Click += Component_Hide;
+                }
+                else
+                {
+                    visibilityItem.Header = "Show Element";
+                    visibilityItem.Click += Component_Show;
+                }
+                menu.Items.Add(visibilityItem);
+
+                (sender as TreeViewItem).ContextMenu = menu;
+            }
+        }
+
+        private void Component_Hide(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            if (item.DataContext is IHideable hideable)
+            {
+                hideable.Hide();
+            }
+        }
+
+        private void Component_Show(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            if (item.DataContext is IHideable hideable)
+            {
+                hideable.Show();
+            }
         }
 
         private void ExplorerContextMenu_Delete_Click(object sender, RoutedEventArgs e)
@@ -434,6 +486,18 @@ namespace GTTrackEditor
             {
                 ModelHandler.UpdateEditMode();
             }
+        }
+
+        static DependencyObject GetDependencyObjectFromVisualTree(DependencyObject startObject, Type type)
+        {
+            var parent = startObject;
+            while (parent != null)
+            {
+                if (type.IsInstanceOfType(parent))
+                    break;
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return parent;
         }
     }
 }

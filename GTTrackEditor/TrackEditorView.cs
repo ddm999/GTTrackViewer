@@ -16,7 +16,7 @@ using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 using GTTrackEditor.Views;
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 
 using Xceed.Wpf.Toolkit.PropertyGrid;
 
@@ -67,7 +67,7 @@ namespace GTTrackEditor
                 Position = new Point3D(300, 300, 300),
                 LookDirection = new Vector3D(-3, -3, -3),
                 UpDirection = new Vector3D(0, 1, 0),
-                FarPlaneDistance = 4000,
+                FarPlaneDistance = 10000,
                 NearPlaneDistance = 0.001,
             };
 
@@ -99,7 +99,7 @@ namespace GTTrackEditor
             if (e.HitTestResult != null)
             {
                 object target = e.HitTestResult.ModelHit;
-                if (e.HitTestResult.ModelHit is TrackEditorModel teModel)
+                if (e.HitTestResult.ModelHit is BaseModelEntity teModel)
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
@@ -127,7 +127,7 @@ namespace GTTrackEditor
         /// Fired when we are clicking on an editable object.
         /// </summary>
         /// <param name="modelHit"></param>
-        private void EnterEditMode(TrackEditorModel teModel)
+        private void EnterEditMode(BaseModelEntity teModel)
         {
             Gizmo.SetActive(teModel);
 

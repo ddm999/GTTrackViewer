@@ -14,7 +14,7 @@ using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 using GTTrackEditor.Components;
 

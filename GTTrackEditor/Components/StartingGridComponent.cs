@@ -8,21 +8,21 @@ using SharpDX;
 
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
-using GTTrackEditor.Controls;
+using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
+using System.Collections.ObjectModel;
 
 namespace GTTrackEditor.Components
 {
     public class StartingGridComponent : TrackComponentBase
     {
-        public override string Name => "Starting Grid";
-
         public ObservableElement3DCollection StartingGridPoints { get; set; } = new();
         public DiffuseMaterial StartingGridMaterial { get; set; } = new();
 
@@ -30,6 +30,7 @@ namespace GTTrackEditor.Components
 
         public StartingGridComponent()
         {
+            Name = "Starting Grid";
             StartingGridMaterial.DiffuseColor = new(0.0f, 1.0f, 0.0f, 1.0f);
         }
 
@@ -44,7 +45,7 @@ namespace GTTrackEditor.Components
             for (int i = 0; i < RunwayData.StartingGrid.Count; i++)
             {
                 ObjReader reader = new();
-                List<Object3D> list = reader.Read("Models/Grid.obj");
+                List<Object3D> list = reader.Read("Resources/Models/Grid.obj");
                 MeshGeometry3D gridGeometry = list[0].Geometry as MeshGeometry3D;
 
                 Vector3 actualPos = RunwayData.StartingGrid[i].ToVector3();
@@ -54,11 +55,10 @@ namespace GTTrackEditor.Components
                 }
                 gridGeometry.UpdateBounds();
 
-                StartingGridModel3D newGridModel = new()
+                StartingGridModelEntity newGridModel = new()
                 {
                     Geometry = gridGeometry,
                     Material = StartingGridMaterial,
-
                     StartingIndex = i,
                 };
 
@@ -74,7 +74,23 @@ namespace GTTrackEditor.Components
 
         public override void Hide()
         {
-            StartingGridPoints.Clear();
+            if (!IsVisible)
+                return;
+
+            foreach (Element3D i in StartingGridPoints)
+                (i as StartingGridModelEntity).Hide();
+            IsVisible = false;
+        }
+
+        public override void Show()
+        {
+            if (IsVisible)
+                return;
+
+            foreach (Element3D i in StartingGridPoints)
+                (i as StartingGridModelEntity).Show();
+
+            IsVisible = true;
         }
     }
 }
