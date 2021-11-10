@@ -22,7 +22,6 @@ using HelixToolkit.SharpDX.Core;
 using GTTrackEditor.Components;
 using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
-
 namespace GTTrackEditor
 {
     /// <summary>
@@ -31,8 +30,6 @@ namespace GTTrackEditor
     public partial class MainWindow : Window
     {
         private string _courseDataFileName;
-        private PACB _courseData;
-
         private string _rwyFileName;
         private string _autoDriveFileName;
 
@@ -67,13 +64,17 @@ namespace GTTrackEditor
         private void LoadPack_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Course Data Files (c***x)|*.*";
+
+            PACB courseData;
             if (openFileDialog.ShowDialog() == true)
             {
                 try
                 {
                     ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
                     SpanReader sr = new(span, endian: Endian.Big);
-                    _courseData = PACB.FromStream(ref sr);
+                    courseData = PACB.FromStream(ref sr);
+                    ModelHandler.CourseDataView.SetCourseData(courseData);
                     _courseDataFileName = openFileDialog.FileName;
                 }
                 catch (Exception ex)
@@ -83,8 +84,12 @@ namespace GTTrackEditor
                     return;
                 }
 
+                if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
+                    ModelHandler.Views.Add(ModelHandler.CourseDataView);
 
-                UpdateTrackModel();
+                ModelHandler.CourseDataView.Init();
+                ModelHandler.CourseDataView.Render();
+
                 UpdateTitle();
             }
         }
@@ -113,8 +118,15 @@ namespace GTTrackEditor
                 }
 
                 Btn_ImportRunway.IsEnabled = true;
-                ModelHandler.Views.Add(ModelHandler.RunwayView);
+
+                if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
+                    ModelHandler.Views.Add(ModelHandler.RunwayView);
+
+                ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                 ModelHandler.RunwayView.Init();
+                ModelHandler.RunwayView.Render();
+
+                UpdateTitle();
             }
         }
 
@@ -280,7 +292,7 @@ namespace GTTrackEditor
             SpanReader sr = new(span, endian: Endian.Big);
             SpanWriter sw = new(span, endian: Endian.Big);
 
-            _courseData.DeleteModel(ref sr, ref sw, id);
+            ModelHandler.CourseDataView.CourseData.DeleteModel(ref sr, ref sw, id);
             File.WriteAllBytes(_courseDataFileName, span.ToArray());
 
             lbi.Visibility = Visibility.Hidden;
@@ -423,56 +435,7 @@ namespace GTTrackEditor
 
         private void UpdateTrackModel()
         {
-            try
-            {
-                List<Vector3> trilist = new();
-                List<Vector3> editTrilist = new();
-                List<Vector3> noneditTrilist = new();
 
-                if (_courseData != null)
-                {
-                    for (byte m = 0; m < 6; m++)
-                    {
-                        if (!modelVisibility[m] || !_courseData.Models.ContainsKey(m))
-                            continue;
-
-                        for (ushort i = 0; i < _courseData.Models[m].MeshCount; i++)
-                        {
-                            /*if (modelVisibility[m].Item2[i] == false)
-                                continue;*/
-
-                            MDL3Mesh mesh = _courseData.Models[m].Meshes[i];
-                            if (mesh.Tristrip == false)
-                            {
-                                for (ushort n = 0; n < mesh.Tris.Count; n++)
-                                {
-                                    trilist.Add(mesh.Verts[mesh.Tris[n].A] / 50);
-                                    trilist.Add(mesh.Verts[mesh.Tris[n].B] / 50);
-                                    trilist.Add(mesh.Verts[mesh.Tris[n].C] / 50);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (ModelHandler.RunwayView.Loaded())
-                {
-                    ModelHandler.RunwayView.Init();
-                }
-
-                if (ModelHandler.AutodriveView.Loaded())
-                {
-                    ModelHandler.AutodriveView.Render();
-                }
-
-                TrackEditorView.Trilists(trilist, noneditTrilist, editTrilist);
-            }
-            catch (Exception ex)
-            {
-                //StatusText.Text = $"Error rendering track model: {ex.Message}";
-                MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
         }
 
         /// <summary>

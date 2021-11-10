@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace GTTrackEditor.Readers
 {
-    class MDL3
+    public class MDL3
     {
         const string MAGIC = "MDL3";
         const string MAGIC_LE = "3LDM";

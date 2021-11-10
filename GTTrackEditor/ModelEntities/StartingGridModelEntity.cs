@@ -5,23 +5,23 @@ using HelixToolkit.Wpf.SharpDX;
 
 using GTTrackEditor.Attributes;
 
-namespace GTTrackEditor.ModelEntities
+namespace GTTrackEditor.ModelEntities;
+
+/// <summary>
+/// Represents a starting grid model entity.
+/// </summary>
+public class StartingGridModelEntity : BaseModelEntity
 {
+    public Vec3R StartingGridPoint { get; set; }
+
     /// <summary>
-    /// Represents a starting grid model entity.
+    /// Position on the grid (0 indexed).
     /// </summary>
-    public class StartingGridModelEntity : BaseModelEntity
-    {
-        public Vec3R StartingGridPoint { get; set; }
+    [EditableProperty]
+    public int StartingIndex { get; set; }
 
-        /// <summary>
-        /// Position on the grid (0 indexed).
-        /// </summary>
-        [EditableProperty]
-        public int StartingIndex { get; set; }
-
-        public override bool CanRotate => true;
-        public override bool CanTranslate => true;
-        public override bool CanScale => false;
-    }
+    public override bool CanRotate => true;
+    public override bool CanTranslate => true;
+    public override bool CanScale => false;
 }
+

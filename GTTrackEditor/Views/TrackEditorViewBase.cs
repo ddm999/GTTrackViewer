@@ -9,18 +9,24 @@ using System.Windows.Media;
 
 using GTTrackEditor.Components;
 
-namespace GTTrackEditor.Views
-{
-    public abstract class TrackEditorViewBase
-    {
-        /// <summary>
-        /// Name for the tree view.
-        /// </summary>
-        public abstract string TreeViewName { get; }
+namespace GTTrackEditor.Views;
 
-        /// <summary>
-        /// Components to render for this view.
-        /// </summary>
-        public ObservableCollection<TrackComponentBase> Components { get; } = new();
+public abstract class TrackEditorViewBase
+{
+    /// <summary>
+    /// Name for the tree view.
+    /// </summary>
+    public abstract string TreeViewName { get; }
+
+    /// <summary>
+    /// Components to render for this view.
+    /// </summary>
+    public ObservableCollection<TrackComponentBase> Components { get; } = new();
+
+    public void Render()
+    {
+        foreach (var component in Components)
+            component.RenderComponent();
     }
 }
+

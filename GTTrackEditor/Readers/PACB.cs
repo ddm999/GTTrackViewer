@@ -6,7 +6,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers
 {
-    class PACB
+    public class PACB
     {
         const string MAGIC = "PACB";
         public Dictionary<byte, MDL3> Models = new();

@@ -8,8 +8,9 @@
   xmlns:local="clr-namespace:GTTrackEditor" xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
   xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
   xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
-  xmlns:gt_components="clr-namespace:GTTrackEditor.Components" 
-  xmlns:gt_controls="clr-namespace:GTTrackEditor.ModelEntities"
+  xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway" 
+  xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.CourseData" 
+  xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
   mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280"
         Closing="Window_Closing">
     <Window.DataContext>
@@ -99,7 +100,6 @@
                                     </hx:Viewport3DX.InputBindings>
                                     <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
                                     <hx:DirectionalLight3D Direction="0.1 -1 0.1" Color="{Binding DirectionalLightColor}" />
-                                    <hx:MeshGeometryModel3D Name="Plain3D" Geometry="{Binding PlainModel}" Material="{Binding PlainMaterial}" CullMode="Back"/>
 
                                     <!-- Gizmo -->
                                     <hx:TransformManipulator3D
@@ -107,7 +107,9 @@
                                     SizeScale="10"
                                     Visibility="Hidden" 
                                     Mouse3DMove="GizmoManipulator_Mouse3DMove" />
-                                    <!-- Binding doesn't work on net core for some reason -->
+                                    
+                                    <!-- Course Data Geometry -->
+                                    <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
 
                                     <!-- Runway Geometry -->
                                     <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" CullMode="Back"/>
@@ -115,7 +117,7 @@
                                     <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}" />
                                     <hx:MeshGeometryModel3D Name="PitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="PitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
-                                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="None"/>
+                                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="Back"/>
                                     <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
 
                                     <!-- Autodrive Geometry -->
@@ -154,33 +156,43 @@
                                                 <TextBlock Text=")" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text="{Binding TreeViewName}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_controls:StartingGridModelEntity}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="Point" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:BoundaryComponent}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:BoundaryComponent}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                             
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:CheckpointComponent}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:CheckpointComponent}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_components:RoadComponent}">
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:RoadComponent}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                     </TreeView.Resources>

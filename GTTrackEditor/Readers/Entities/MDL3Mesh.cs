@@ -7,7 +7,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class MDL3Mesh : IFromStream
+    public class MDL3Mesh : IFromStream
     {
         public struct Tri
         {

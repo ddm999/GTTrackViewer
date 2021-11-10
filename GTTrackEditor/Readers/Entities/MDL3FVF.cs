@@ -5,7 +5,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class MDL3FVF : IFromStream
+    public class MDL3FVF : IFromStream
     {
         public byte dataLength;
         public List<string> contents = new(4);

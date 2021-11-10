@@ -41,18 +41,6 @@ namespace GTTrackEditor
         /// Grid, for utility
         /// </summary>
         public static LineGeometry3D Grid { get; set; }
-
-        public static MeshGeometry3D PlainModel { get; set; }
-        public static MeshGeometry3D NoneditModel { get; set; }
-
-        public static MeshGeometry3D EditModel { get; set; } = new();
-        public static DiffuseMaterial EditMaterial { get; set; } = new();
-
-        public static MeshGeometry3D ManipulatedModel { get; set; }
-
-        public static DiffuseMaterial PlainMaterial { get; set; } = new();
-        public static DiffuseMaterial NoneditMaterial { get; set; } = new();
-        
         
         public Vector3D DirectionalLightDirection { get; private set; }
         public Color DirectionalLightColor { get; private set; }
@@ -74,10 +62,6 @@ namespace GTTrackEditor
             AmbientLightColor = Colors.DimGray;
             DirectionalLightColor = Colors.White;
             DirectionalLightDirection = new Vector3D(-2, -5, -2);
-
-            PlainMaterial.DiffuseColor = new(1.0f, 1.0f, 1.0f, 1.0f);
-            NoneditMaterial.DiffuseColor = new(0.8f, 0.8f, 0.8f, 0.4f);
-            EditMaterial.DiffuseColor = new(1.0f, 0.8f, 0.0f, 1.0f);
 
             Gizmo = new();
             Grid = LineGeneratorUtils.GenerateGrid(Vector3.UnitY, -1000, 1000, -1000, 1000, 100f);
@@ -161,32 +145,6 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.IsEnabled = false;
             Parent.GizmoManipulator.Target = null;
             Parent.GizmoManipulator.CenterOffset = Vector3.Zero;
-        }
-
-        public static void Trilists(List<Vector3> tris, List<Vector3> neTris, List<Vector3> eTris)
-        {
-            MeshBuilder meshBuilder = new(false, false);
-            meshBuilder.AddTriangles(tris);
-            PlainModel = meshBuilder.ToMesh();
-            PlainModel.Normals = PlainModel.CalculateNormals();
-
-            meshBuilder = new(false, false);
-            meshBuilder.AddTriangles(neTris);
-            NoneditModel = meshBuilder.ToMesh();
-            NoneditModel.Normals = NoneditModel.CalculateNormals();
-
-            meshBuilder = new(false, false);
-            meshBuilder.AddTriangles(eTris);
-            EditModel = meshBuilder.ToMesh();
-            EditModel.Normals = EditModel.CalculateNormals();
-        }
-
-        public static void ManipulatedPos(Vector3 pos)
-        {
-            MeshBuilder meshBuilder = new(false, false);
-            meshBuilder.AddSphere(pos, 0.005f);
-            ManipulatedModel = meshBuilder.ToMesh();
-            ManipulatedModel.Normals = ManipulatedModel.CalculateNormals();
         }
     }
 }

@@ -6,7 +6,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class MDL3MeshInfo : IFromStream
+    public class MDL3MeshInfo : IFromStream
     {
         public uint MeshIndex;
         public List<string> MeshParams;

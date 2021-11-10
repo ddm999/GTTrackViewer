@@ -6,7 +6,7 @@ using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    class MDL3Set : IFromStream
+    public class MDL3Set : IFromStream
     {
         public Point3D origin;
         public List<Point3D> bounds;
