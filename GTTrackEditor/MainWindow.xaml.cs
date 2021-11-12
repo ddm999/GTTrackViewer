@@ -80,16 +80,7 @@ namespace GTTrackEditor
 
                     if (openFileDialog.FileName.EndsWith(".rwy"))
                     {
-                        RNW5 runway = RNW5.FromStream(ref sr);
-                        ModelHandler.RunwayView.SetRunwayData(runway);
-                        _rwyFileName = openFileDialog.FileName;
-
-                        if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
-                            ModelHandler.Views.Add(ModelHandler.RunwayView);
-
-                        ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                        ModelHandler.RunwayView.Init();
-                        ModelHandler.RunwayView.Render();
+                        HandleRunway(ref sr, openFileDialog.FileName);
                     }
                     else if (openFileDialog.FileName.EndsWith(".ad"))
                     {
@@ -97,21 +88,12 @@ namespace GTTrackEditor
                     }
                     else if (openFileDialog.FileName.EndsWith("x"))
                     {
-                        PACB courseData = PACB.FromStream(ref sr);
-                        ModelHandler.CourseDataView.SetCourseData(courseData);
-                        _courseDataFileName = openFileDialog.FileName;
-
-                        if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
-                            ModelHandler.Views.Add(ModelHandler.CourseDataView);
-
-                        ModelHandler.CourseDataView.Init();
-                        ModelHandler.CourseDataView.Render();
+                        HandleCourseData(ref sr, openFileDialog.FileName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    //StatusText.Text = $"Error opening course pack: {ex.Message}";
-                    MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(this, $"Error openning file: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -167,8 +149,8 @@ namespace GTTrackEditor
                 }
                 menu.Items.Add(visibilityItem);
 
-                (sender as TreeViewItem).ContextMenu = menu;
             }
+            (sender as TreeViewItem).ContextMenu = menu;
         }
 
         private void Component_Hide(object sender, RoutedEventArgs e)
@@ -204,12 +186,6 @@ namespace GTTrackEditor
 
             lbi.Visibility = Visibility.Hidden;
             UpdateTrackModel();
-        }
-
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
-            e.Handled = true;
         }
 
         private void ToggleGrid_Click(object sender, RoutedEventArgs e)
@@ -366,6 +342,33 @@ namespace GTTrackEditor
                 parent = VisualTreeHelper.GetParent(parent);
             }
             return parent;
+        }
+
+        private void HandleRunway(ref SpanReader sr, string fileName)
+        {
+            RNW5 runway = RNW5.FromStream(ref sr);
+            ModelHandler.RunwayView.SetRunwayData(runway);
+            _rwyFileName = fileName;
+
+            if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
+                ModelHandler.Views.Add(ModelHandler.RunwayView);
+
+            ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(fileName);
+            ModelHandler.RunwayView.Init();
+            ModelHandler.RunwayView.Render();
+        }
+
+        private void HandleCourseData(ref SpanReader sr, string fileName)
+        {
+            PACB courseData = PACB.FromStream(ref sr);
+            ModelHandler.CourseDataView.SetCourseData(courseData);
+            _courseDataFileName = fileName;
+
+            if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
+                ModelHandler.Views.Add(ModelHandler.CourseDataView);
+
+            ModelHandler.CourseDataView.Init();
+            ModelHandler.CourseDataView.Render();
         }
     }
 }

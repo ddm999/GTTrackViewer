@@ -137,7 +137,7 @@ namespace GTTrackEditor
         public void UpdateEditMode()
         {
             Vector3 newPos = (Gizmo.EditItem as GeometryModel3D).BoundsWithTransform.Center;
-            //Parent.tb_SelectedItemPosition.Text = newPos.ToString();
+            Parent.tb_SelectedItemPosition.Text = $"Object: {newPos}";
         }
 
         /// <summary>
@@ -150,6 +150,8 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.IsEnabled = false;
             Parent.GizmoManipulator.Target = null;
             Parent.GizmoManipulator.CenterOffset = Vector3.Zero;
+
+            Parent.tb_SelectedItemPosition.Text = "No object selected";
         }
     }
 }

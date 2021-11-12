@@ -159,7 +159,7 @@
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
-                                            <StackPanel Orientation="Horizontal">
+                                            <StackPanel Orientation="Horizontal" >
                                                 <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
                                                 <TextBlock Text=" "/>
                                                 <TextBlock Text="Start Point" Foreground="{Binding TreeViewItemColor}" />
@@ -216,24 +216,33 @@
             </LayoutRoot>
         </DockingManager>
         <StatusBar Name="statusBar" Grid.Row="2" Background="#2d2d30">
-            <Separator />
-            <StatusBarItem>
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=_viewport, StringFormat=\{0:0.00\} FPS}"/>
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}" />
-            </StatusBarItem>
-            <Separator />
-            <StatusBarItem>
-                <TextBlock Text="{Binding Items.Count, ElementName=_viewport, StringFormat=Children: \{0\}}" />
-            </StatusBarItem>
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="64" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="500" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
             <Separator/>
-            <StatusBarItem>
-                <TextBlock x:Name="tb_SelectedItemPosition" Text="Selected Object Position:" />
+            <StatusBarItem Grid.Column="1">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Text="{Binding FrameRate, ElementName=_viewport, StringFormat=\{0:0.00\} FPS}" TextAlignment="Center" MinWidth="60"/>
+            </StatusBarItem>
+            <Separator Grid.Column="2"/>
+            <StatusBarItem Grid.Column="3">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Camera.Position, StringFormat=Position: \{0:0.0\}}" />
+            </StatusBarItem>
+            <Separator Grid.Column="4" />
+            <StatusBarItem Grid.Column="5">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           x:Name="tb_SelectedItemPosition" Text="No object selected"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>
