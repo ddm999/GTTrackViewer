@@ -213,7 +213,12 @@
                         </LayoutAnchorablePaneGroup>
                         <LayoutAnchorablePane>
                             <LayoutAnchorable Title="Properties" ContentId="toolWindow2" CanClose="False">
-                                <xctk:PropertyGrid Name="PropertyGrid" SelectedObject="{Binding Path=Gizmo.EditItem, Mode=TwoWay}" AutoGenerateProperties="False"/>
+                                <xctk:PropertyGrid Name="PropertyGrid" SelectedObject="{Binding Path=Gizmo.EditItem, Mode=TwoWay}" AutoGenerateProperties="False"
+                                                   Background="#2d2d30" BorderBrush="#2d2d30" Foreground="Black" >
+                                    <xctk:PropertyGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="White" /> <!-- ! -->
+                                    </xctk:PropertyGrid.Resources>
+                                </xctk:PropertyGrid>
                             </LayoutAnchorable>
                         </LayoutAnchorablePane>
                     </LayoutAnchorablePaneGroup>

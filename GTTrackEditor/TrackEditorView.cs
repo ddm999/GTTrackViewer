@@ -85,7 +85,7 @@ namespace GTTrackEditor
                 object target = e.HitTestResult.ModelHit;
 
                 // Discard/Update manipulator events - can't find a better way to determine it
-                bool isManipulator = (((target as MeshGeometryModel3D)?.Parent as GroupModel3D).Parent as GroupModel3D)?.Parent is TransformManipulator3D;
+                bool isManipulator = (((target as MeshGeometryModel3D)?.Parent as GroupModel3D)?.Parent as GroupModel3D)?.Parent is TransformManipulator3D;
 
                 if (isManipulator && Gizmo.Active)
                     UpdateEditMode();

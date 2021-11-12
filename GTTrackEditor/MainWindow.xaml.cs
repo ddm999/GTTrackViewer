@@ -60,7 +60,6 @@ namespace GTTrackEditor
             ModelHandler.Parent = this;
 
             ReflectConfig();
-
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
