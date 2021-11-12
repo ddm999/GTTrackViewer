@@ -20,8 +20,7 @@ public class StartingGridModelEntity : BaseModelEntity
     [EditableProperty]
     public int StartingIndex { get; set; }
 
-    public override bool CanRotate => true;
-    public override bool CanTranslate => true;
-    public override bool CanScale => false;
+    public override bool CanRotateX => false;
+    public override bool CanRotateZ => false;
 }
 

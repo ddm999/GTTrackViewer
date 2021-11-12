@@ -16,19 +16,39 @@ namespace GTTrackEditor.ModelEntities;
 public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChanged, IHideable
 {
     /// <summary>
-    /// Whether the model is allowed to rotate.
+    /// Whether the model is allowed to rotate on the X axis.
     /// </summary>
-    public abstract bool CanRotate { get; }
+    public virtual bool CanRotateX { get; } = true;
 
     /// <summary>
-    /// Whether the model is allowed to be translated.
+    /// Whether the model is allowed to rotate on the Y axis.
     /// </summary>
-    public abstract bool CanTranslate { get; }
+    public virtual bool CanRotateY { get; } = true;
+
+    /// <summary>
+    /// Whether the model is allowed to rotate on the Z axis.
+    /// </summary>
+    public virtual bool CanRotateZ { get; } = true;
+
+    /// <summary>
+    /// Whether the model is allowed to translate on the X axis.
+    /// </summary>
+    public virtual bool CanTranslateX { get; } = true;
+
+    /// <summary>
+    /// Whether the model is allowed to translate on the Y axis.
+    /// </summary>
+    public virtual bool CanTranslateY { get; } = true;
+
+    /// <summary>
+    /// Whether the model is allowed to translate on the Z axis.
+    /// </summary>
+    public virtual bool CanTranslateZ { get; } = true;
 
     /// <summary>
     /// Whether the model is allowed to be scaled.
     /// </summary>
-    public abstract bool CanScale { get; }
+    public virtual bool CanScale { get; }
 
     private Brush _treeViewItemColor = Brushes.Black;
     /// <summary>

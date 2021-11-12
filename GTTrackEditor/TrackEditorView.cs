@@ -121,8 +121,13 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.Target = teModel;
 
             Parent.GizmoManipulator.EnableScaling = teModel.CanScale;
-            Parent.GizmoManipulator.EnableRotation = teModel.CanRotate;
-            Parent.GizmoManipulator.EnableTranslation = teModel.CanTranslate;
+            Parent.GizmoManipulator.EnableRotationX = teModel.CanRotateX;
+            Parent.GizmoManipulator.EnableRotationY = teModel.CanRotateY;
+            Parent.GizmoManipulator.EnableRotationZ = teModel.CanRotateZ;
+
+            Parent.GizmoManipulator.EnableTranslationX = teModel.CanTranslateX;
+            Parent.GizmoManipulator.EnableTranslationY = teModel.CanTranslateY;
+            Parent.GizmoManipulator.EnableTranslationZ = teModel.CanTranslateZ;
         }
 
         /// <summary>
