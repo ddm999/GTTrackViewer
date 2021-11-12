@@ -166,6 +166,8 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.Target = null;
             Parent.GizmoManipulator.CenterOffset = Vector3.Zero;
 
+            Parent.PropertyGrid.SelectedObject = null;
+
             Parent.tb_SelectedItemPosition.Text = "No object selected";
         }
     }
