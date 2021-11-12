@@ -61,8 +61,6 @@ namespace GTTrackEditor
 
             ReflectConfig();
 
-            XmlLayoutSerializer layoutSerializer = new XmlLayoutSerializer(dockManager);
-            layoutSerializer.Serialize("xddd.xml");
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
