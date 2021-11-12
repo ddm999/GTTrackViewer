@@ -165,6 +165,12 @@ namespace GTTrackEditor
             {
                 hideable.Hide();
             }
+
+            Gizmo gizmo = ModelHandler.Gizmo;
+            if (gizmo.Active && gizmo.EditItem.Visibility == Visibility.Hidden)
+            {
+                ModelHandler.ExitEditMode();
+            }
         }
 
         private void Component_Show(object sender, RoutedEventArgs e)

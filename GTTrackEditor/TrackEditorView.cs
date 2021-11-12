@@ -158,7 +158,7 @@ namespace GTTrackEditor
         /// <summary>
         /// Fired when exiting the edit mode.
         /// </summary>
-        private void ExitEditMode()
+        public void ExitEditMode()
         {
             Gizmo.SetInactive();
             Parent.GizmoManipulator.Visibility = Visibility.Hidden;
