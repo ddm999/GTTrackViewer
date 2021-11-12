@@ -1,18 +1,24 @@
-﻿<Window x:Class="GTTrackEditor.MainWindow"
+﻿<mah:MetroWindow x:Class="GTTrackEditor.MainWindow"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
   xmlns:ie="http://schemas.microsoft.com/xaml/behaviors"
-  xmlns:local="clr-namespace:GTTrackEditor" xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+  xmlns:local="clr-namespace:GTTrackEditor" 
+  xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
   xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
   xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
   xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway" 
   xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.CourseData" 
   xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
-  mc:Ignorable="d" Title="GT Track Editor" Height="720" Width="1280" MinHeight="720" MinWidth="1280"
-        Closing="Window_Closing">
+  mc:Ignorable="d" 
+  Height="720" Width="1280" MinHeight="720" MinWidth="1280"
+  Closing="Window_Closing"
+  Title="GT Track Editor"
+  TitleCharacterCasing="Normal">
     <Window.DataContext>
         <local:TrackEditorView />
     </Window.DataContext>
@@ -23,36 +29,23 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0">
             <ToolBar>
-                <Button Width="28" Click="LoadPack_Click" ToolTip="Load Course Pack">
-                    <Image Width="22" Source="Resources/file_load_pack.png"/>
-                </Button>
-                <Button Width="28" Click="LoadRunway_Click" ToolTip="Load Runway">
-                    <Image Width="22" Source="Resources/file_load_rwy.png"/>
-                </Button>
-                <Button Width="28" Click="LoadAutoDrive_Click" ToolTip="Load Autodrive">
-                    <Image Width="22" Source="Resources/file_load_ad.png"/>
+                <Button Click="LoadFile_Click" ToolTip="Load Course File">
+                    <iconPacks:PackIconMaterial Kind="FilePlus" />
                 </Button>
                 <Separator/>
-                <Button Name="Btn_ImportRunway" Width="28" Click="ImportRunway_Click" ToolTip="Import v2 Runway Data" IsEnabled="False">
-                    <Image Width="22" Source="Resources/file_import_rwy.png"/>
-                </Button>
-                <Button Name="Btn_SaveRunway" Width="28" Click="SaveRunway_Click" ToolTip="Save Runway">
-                    <Image Width="22" Source="Resources/file_save_rwy.png"/>
+                <Button Click="Settings_Click" ToolTip="App Settings">
+                    <iconPacks:PackIconMaterial Kind="CogOutline" />
                 </Button>
                 <Separator/>
-                <Button Name="Btn_Settings" Width="28" Click="Settings_Click" ToolTip="App Settings">
-                    <Image Width="22" Source="Resources/settings.png"/>
-                </Button>
-                <Separator/>
-                <CheckBox Width="28" Name="ToggleGrid_Checkbox" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsEnabled="True">
-                    <Image Width="22" Source="Resources/toggle_grid.png"/>
+                <CheckBox Name="ToggleGrid_Checkbox" Click="ToggleGrid_Click" ToolTip="Toggle Grid" IsEnabled="True">
+                    <iconPacks:PackIconMaterial Kind="Grid" />
                 </CheckBox>
-                <CheckBox Width="28" Name="RotateMode_Checkbox" Click="RotateMode_Click" ToolTip="Toggle First Person Rotation">
-                    <Image Width="22" Source="Resources/rotate_mode.png"/>
+                <CheckBox Name="RotateMode_Checkbox" Click="RotateMode_Click" ToolTip="Toggle First Person Rotation">
+                    <iconPacks:PackIconMaterial Kind="CameraControl" />
                 </CheckBox>
             </ToolBar>
         </ToolBarTray>
@@ -141,15 +134,17 @@
                                     
                                     <TreeViewItem Name="TreeViewRoot" IsExpanded="True" ItemsSource="{Binding Views}">
                                         <TreeViewItem.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <Image Width="16" Source="Resources/TreeView/object.png"/>
-                                                <TextBlock Text=" Track Editor" />
+                                            <StackPanel Orientation="Horizontal" Height="16">
+                                                <iconPacks:PackIconMaterial Kind="GoKartTrack" />
+                                                <TextBlock Text=" Track Editor" Foreground="White" FontSize="12"/>
                                             </StackPanel>
                                         </TreeViewItem.Header>
                                     </TreeViewItem>
                                     <TreeView.Resources>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_views:RunwayView}" ItemsSource="{Binding Components}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="RoadVariant" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding TreeViewName}"/>
                                                 <TextBlock Text=" (" />
                                                 <TextBlock Text="{Binding FileName}" />
@@ -158,37 +153,51 @@
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding TreeViewName}"/>
+                                                <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
+                                                <TextBlock Text=" "/>
+                                                <TextBlock Text="{Binding TreeViewName}" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Point" Foreground="{Binding TreeViewItemColor}"/>
+                                                <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
+                                                <TextBlock Text=" "/>
+                                                <TextBlock Text="Start Point" Foreground="{Binding TreeViewItemColor}" />
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:BoundaryComponent}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="Wall" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                             
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:CheckpointComponent}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="MapMarkerCheck" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:RoadComponent}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="Road" Width="16" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
                                             <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="Car" />
+                                                <TextBlock Text=" "/>
                                                 <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
                                                 <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
                                                 <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
@@ -206,16 +215,13 @@
                 </LayoutPanel>
             </LayoutRoot>
         </DockingManager>
-        <StatusBar Grid.Row="2" VerticalAlignment="Bottom">
-            <StatusBar.Background>
-                <SolidColorBrush Opacity="0.5" Color="WhiteSmoke" />
-            </StatusBar.Background>
+        <StatusBar Name="statusBar" Grid.Row="2" Background="#2d2d30">
             <Separator />
             <StatusBarItem>
                 <TextBlock
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    Text="{Binding FrameRate, ElementName=_viewport, StringFormat=\{0:0.00\} FPS}" />
+                    Text="{Binding FrameRate, ElementName=_viewport, StringFormat=\{0:0.00\} FPS}"/>
             </StatusBarItem>
             <Separator />
             <StatusBarItem>
@@ -231,4 +237,4 @@
             </StatusBarItem>
         </StatusBar>
     </Grid>
-</Window>
+</mah:MetroWindow>

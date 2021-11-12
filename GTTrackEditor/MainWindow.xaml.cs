@@ -8,12 +8,12 @@ using Syroot.BinaryData.Core;
 using Syroot.BinaryData.Memory;
 using System.Text;
 using System.Linq;
-
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Input;
+
+using MahApps.Metro.Controls;
+
 using SharpDX;
 
 using HelixToolkit.Wpf.SharpDX;
@@ -22,12 +22,15 @@ using HelixToolkit.SharpDX.Core;
 using GTTrackEditor.Components;
 using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
+using GTTrackEditor.Readers;
+using GTTrackEditor.Readers.Entities;
+
 namespace GTTrackEditor
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         private string _courseDataFileName;
         private string _rwyFileName;
@@ -52,6 +55,7 @@ namespace GTTrackEditor
             ModelHandler.Parent = this;
 
             ReflectConfig();
+
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -60,22 +64,49 @@ namespace GTTrackEditor
 
         }
 
-        #region File Load Events
-        private void LoadPack_Click(object sender, RoutedEventArgs e)
+        private void LoadFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Course Data Files (c***x)|*.*";
+            openFileDialog.Filter = "Course Data Files (c***x)|*.*|" +
+                "Runway Files|*.rwy|" +
+                "Autodrive Files|*.ad";
 
-            PACB courseData;
             if (openFileDialog.ShowDialog() == true)
             {
                 try
                 {
                     ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
                     SpanReader sr = new(span, endian: Endian.Big);
-                    courseData = PACB.FromStream(ref sr);
-                    ModelHandler.CourseDataView.SetCourseData(courseData);
-                    _courseDataFileName = openFileDialog.FileName;
+
+                    if (openFileDialog.FileName.EndsWith(".rwy"))
+                    {
+                        RNW5 runway = RNW5.FromStream(ref sr);
+                        ModelHandler.RunwayView.SetRunwayData(runway);
+                        _rwyFileName = openFileDialog.FileName;
+
+                        if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
+                            ModelHandler.Views.Add(ModelHandler.RunwayView);
+
+                        ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                        ModelHandler.RunwayView.Init();
+                        ModelHandler.RunwayView.Render();
+                    }
+                    else if (openFileDialog.FileName.EndsWith(".ad"))
+                    {
+
+                    }
+                    else if (openFileDialog.FileName.EndsWith("x"))
+                    {
+                        PACB courseData = PACB.FromStream(ref sr);
+                        ModelHandler.CourseDataView.SetCourseData(courseData);
+                        _courseDataFileName = openFileDialog.FileName;
+
+                        if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
+                            ModelHandler.Views.Add(ModelHandler.CourseDataView);
+
+                        ModelHandler.CourseDataView.Init();
+                        ModelHandler.CourseDataView.Render();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -84,131 +115,7 @@ namespace GTTrackEditor
                     return;
                 }
 
-                if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
-                    ModelHandler.Views.Add(ModelHandler.CourseDataView);
-
-                ModelHandler.CourseDataView.Init();
-                ModelHandler.CourseDataView.Render();
-
                 UpdateTitle();
-            }
-        }
-
-        private void LoadRunway_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Runway Files|*.rwy|All Files|*.*";
-
-            RNW5 rwy;
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
-                    SpanReader sr = new(span, endian: Endian.Big);
-                    rwy = RNW5.FromStream(ref sr);
-                    ModelHandler.RunwayView.SetRunwayData(rwy);
-                    _rwyFileName = openFileDialog.FileName;
-                }
-                catch (Exception ex)
-                {
-                    //StatusText.Text = $"Error opening runway: {ex.Message}";
-                    MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                Btn_ImportRunway.IsEnabled = true;
-
-                if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
-                    ModelHandler.Views.Add(ModelHandler.RunwayView);
-
-                ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                ModelHandler.RunwayView.Init();
-                ModelHandler.RunwayView.Render();
-
-                UpdateTitle();
-            }
-        }
-
-        private void LoadAutoDrive_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Autodrive Files|*.ad|All Files|*.*";
-
-            AutoDrive ad;
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
-                {
-                    ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
-                    SpanReader sr = new(span, endian: Endian.Little);
-                    ad = AutoDrive.FromStream(ref sr);
-                    ModelHandler.AutodriveView.SetAutodriveData(ad);
-                    _autoDriveFileName = openFileDialog.FileName;
-                }
-                catch (Exception ex)
-                {
-                    //StatusText.Text = $"Error opening autodrive: {ex.Message}";
-                    MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-
-                //ModelHandler.AutodriveView.Render();
-            }
-        }
-        #endregion
-
-        #region Events
-        private void ImportRunway_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                _rwyFileName = openFileDialog.FileName;
-
-                try
-                {
-                    ReadOnlySpan<byte> span = File.ReadAllBytes(_rwyFileName);
-                    SpanReader sr = new(span, endian: Endian.Big);
-                    var rwy = new RNW5().MergeFromStream(ref sr);
-                    ModelHandler.RunwayView.SetRunwayData(rwy);
-                }
-                catch (Exception ex)
-                {
-                    //StatusText.Text = $"Error opening old runway: {ex.Message}";
-                    MessageBox.Show(this, $"{ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-            }
-        }
-
-        private void SaveRunway_Click(object sender, RoutedEventArgs e)
-        {
-            if (!ModelHandler.RunwayView.Loaded())
-            {
-                MessageBox.Show(this, $"No runway file loaded.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            SaveFileDialog saveFileDialog = new();
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                _rwyFileName = saveFileDialog.FileName;
-
-                try
-                {
-                    Span<byte> span = File.ReadAllBytes(_rwyFileName);
-                    SpanReader sr = new(span, endian: Endian.Big);
-                    SpanWriter sw = new(span, endian: Endian.Big);
-                    ModelHandler.RunwayView.RunwayData.ToStream(ref sr, ref sw);
-                    File.WriteAllBytes(_rwyFileName, span.ToArray());
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(this, $"Unable to save runway: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
             }
         }
 
@@ -316,8 +223,6 @@ namespace GTTrackEditor
             TrackEditorConfig.SetSetting("RotateMode", RotateMode_Checkbox.IsChecked.GetValueOrDefault());
             _viewport.CameraMode = (bool)RotateMode_Checkbox.IsChecked ? CameraMode.Inspect : CameraMode.WalkAround;
         }
-
-        #endregion
 
         private void ReflectConfig()
         {

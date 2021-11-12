@@ -83,7 +83,7 @@ public class CheckpointComponent : TrackComponentBase
 
         RenderComponent();
 
-        TreeViewItemColor = Brushes.Black;
+        TreeViewItemColor = Brushes.White;
         IsVisible = true;
     }
 }

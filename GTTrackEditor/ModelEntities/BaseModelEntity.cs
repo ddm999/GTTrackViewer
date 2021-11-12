@@ -50,7 +50,7 @@ public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChan
     /// </summary>
     public virtual bool CanScale { get; }
 
-    private Brush _treeViewItemColor = Brushes.Black;
+    private Brush _treeViewItemColor = Brushes.White;
     /// <summary>
     /// Color for the tree view.
     /// </summary>
@@ -85,7 +85,7 @@ public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChan
     public void Show()
     {
         Visibility = System.Windows.Visibility.Visible;
-        TreeViewItemColor = Brushes.Black;
+        TreeViewItemColor = Brushes.White;
 
         IsVisible = true;
     }

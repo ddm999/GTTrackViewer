@@ -29,7 +29,7 @@ public abstract class TrackComponentBase : INotifyPropertyChanged, IHideable
         }
     }
 
-    private Brush _treeViewItemColor = Brushes.Black;
+    private Brush _treeViewItemColor = Brushes.White;
     /// <summary>
     /// Color for the tree view.
     /// </summary>

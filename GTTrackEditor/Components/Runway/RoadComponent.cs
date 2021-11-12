@@ -96,7 +96,7 @@ public class RoadComponent : TrackComponentBase
             return;
 
         RenderComponent();
-        TreeViewItemColor = Brushes.Black;
+        TreeViewItemColor = Brushes.White;
 
         IsVisible = true;
     }

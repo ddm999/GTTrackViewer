@@ -95,7 +95,7 @@ public class StartingGridComponent : TrackComponentBase
 
         foreach (Element3D i in StartingGridPoints)
             (i as StartingGridModelEntity).Show();
-        TreeViewItemColor = Brushes.Black;
+        TreeViewItemColor = Brushes.White;
         IsVisible = true;
     }
 }
