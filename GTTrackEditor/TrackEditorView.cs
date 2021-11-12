@@ -83,7 +83,13 @@ namespace GTTrackEditor
             if (e.HitTestResult != null)
             {
                 object target = e.HitTestResult.ModelHit;
-                if (e.HitTestResult.ModelHit is BaseModelEntity teModel)
+
+                // Discard/Update manipulator events - can't find a better way to determine it
+                bool isManipulator = (((target as MeshGeometryModel3D)?.Parent as GroupModel3D).Parent as GroupModel3D)?.Parent is TransformManipulator3D;
+
+                if (isManipulator && Gizmo.Active)
+                    UpdateEditMode();
+                else if (e.HitTestResult.ModelHit is BaseModelEntity teModel)
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
