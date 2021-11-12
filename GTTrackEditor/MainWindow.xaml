@@ -106,8 +106,7 @@
                                     x:Name="GizmoManipulator"
                                     SizeScale="10"
                                     Visibility="Hidden" 
-                                    Mouse3DMove="GizmoManipulator_Mouse3DMove" 
-                                        EnableTranslationX="False"/>
+                                    Mouse3DMove="GizmoManipulator_Mouse3DMove" />
                                     
                                     <!-- Course Data Geometry -->
                                     <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
