@@ -29,6 +29,8 @@ public class StartingGridComponent : TrackComponentBase
 
     public RNW5 RunwayData { get; set; }
 
+    public const int DepthBias = -50;
+
     public StartingGridComponent()
     {
         Name = "Starting Grid";
@@ -61,6 +63,8 @@ public class StartingGridComponent : TrackComponentBase
                 Geometry = gridGeometry,
                 Material = StartingGridMaterial,
                 StartingIndex = i,
+
+                DepthBias = DepthBias,
             };
 
             Point3D center = new(RunwayData.StartingGrid[i].X, RunwayData.StartingGrid[i].Y, RunwayData.StartingGrid[i].Z);

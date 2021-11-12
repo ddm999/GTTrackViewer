@@ -112,12 +112,12 @@
                                     <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
 
                                     <!-- Runway Geometry -->
-                                    <hx:MeshGeometryModel3D Name="Line3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" CullMode="Back"/>
+                                    <hx:MeshGeometryModel3D Name="Boundary3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" DepthBias="-30" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="Checkpoints3D" Geometry="{Binding RunwayView.Checkpoints.CheckpointModel}" Material="{Binding RunwayView.Checkpoints.CheckpointMaterial}" CullMode="None"/>
                                     <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}" />
                                     <hx:MeshGeometryModel3D Name="PitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="PitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
-                                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" RenderWireframe="True" WireframeColor="Black" CullMode="Back"/>
+                                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" DepthBias="-20" RenderWireframe="True" WireframeColor="Black" CullMode="Back"/>
                                     <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
 
                                     <!-- Autodrive Geometry -->
