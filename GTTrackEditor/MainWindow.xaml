@@ -68,7 +68,7 @@
             </DockingManager.DocumentHeaderTemplate>
             <LayoutRoot>
                 <LayoutPanel Orientation="Horizontal">
-                    <LayoutDocumentPaneGroup>
+                    <LayoutDocumentPaneGroup Orientation="Horizontal">
                         <LayoutDocumentPane x:Name="LayoutDocumentPane">
                             <LayoutDocument
                                 Title="Track Editor"
@@ -120,94 +120,99 @@
                             </LayoutDocument>
                         </LayoutDocumentPane>
                     </LayoutDocumentPaneGroup>
-                    <LayoutAnchorablePaneGroup DockWidth="360" >
-                        <LayoutAnchorablePane>
-                            <LayoutAnchorable Title="Explorer" ContentId="toolWindow1">
-                                <TreeView ItemsSource="{Binding}">
-                                    <TreeView.ItemContainerStyle>
-                                        <Style TargetType="{x:Type TreeViewItem}">
-                                            <Setter Property="IsExpanded" Value="True"/>
-                                            <EventSetter Event="PreviewMouseRightButtonDown"
+                    
+                    <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="360">
+                        <LayoutAnchorablePaneGroup>
+                            <LayoutAnchorablePane>
+                                <LayoutAnchorable Title="Explorer" ContentId="toolWindow1" CanClose="False">
+                                    <TreeView ItemsSource="{Binding}">
+                                        <TreeView.ItemContainerStyle>
+                                            <Style TargetType="{x:Type TreeViewItem}">
+                                                <Setter Property="IsExpanded" Value="True"/>
+                                                <EventSetter Event="PreviewMouseRightButtonDown"
                                             Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
-                                        </Style>
-                                    </TreeView.ItemContainerStyle>
-                                    
-                                    <TreeViewItem Name="TreeViewRoot" IsExpanded="True" ItemsSource="{Binding Views}">
-                                        <TreeViewItem.Header>
-                                            <StackPanel Orientation="Horizontal" Height="16">
-                                                <iconPacks:PackIconMaterial Kind="GoKartTrack" />
-                                                <TextBlock Text=" Track Editor" Foreground="White" FontSize="12"/>
-                                            </StackPanel>
-                                        </TreeViewItem.Header>
-                                    </TreeViewItem>
-                                    <TreeView.Resources>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_views:RunwayView}" ItemsSource="{Binding Components}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="RoadVariant" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding TreeViewName}"/>
-                                                <TextBlock Text=" (" />
-                                                <TextBlock Text="{Binding FileName}" />
-                                                <TextBlock Text=")" />
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding TreeViewName}" />
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
-                                            <StackPanel Orientation="Horizontal" >
-                                                <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="Start Point" Foreground="{Binding TreeViewItemColor}" />
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:BoundaryComponent}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="Wall" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
-                                            </StackPanel>
-                                            
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:CheckpointComponent}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="MapMarkerCheck" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:RoadComponent}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="Road" Width="16" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <iconPacks:PackIconMaterial Kind="Car" />
-                                                <TextBlock Text=" "/>
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
-                                                <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                    </TreeView.Resources>
-                                </TreeView>
-                            </LayoutAnchorable>
-                            <LayoutAnchorable Title="Properties" ContentId="toolWindow2">
+                                            </Style>
+                                        </TreeView.ItemContainerStyle>
+
+                                        <TreeViewItem Name="TreeViewRoot" IsExpanded="True" ItemsSource="{Binding Views}">
+                                            <TreeViewItem.Header>
+                                                <StackPanel Orientation="Horizontal" Height="16">
+                                                    <iconPacks:PackIconMaterial Kind="GoKartTrack" />
+                                                    <TextBlock Text=" Track Editor" Foreground="White" FontSize="12"/>
+                                                </StackPanel>
+                                            </TreeViewItem.Header>
+                                        </TreeViewItem>
+                                        <TreeView.Resources>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_views:RunwayView}" ItemsSource="{Binding Components}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="RoadVariant" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding TreeViewName}"/>
+                                                    <TextBlock Text=" (" />
+                                                    <TextBlock Text="{Binding FileName}" />
+                                                    <TextBlock Text=")" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding TreeViewName}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="Start Point" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:BoundaryComponent}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="Wall" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:CheckpointComponent}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="MapMarkerCheck" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:RoadComponent}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="Road" Width="16" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="Car" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                        </TreeView.Resources>
+                                    </TreeView>
+                                </LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                        </LayoutAnchorablePaneGroup>
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable Title="Properties" ContentId="toolWindow2" CanClose="False">
                                 <xctk:PropertyGrid Name="PropertyGrid" SelectedObject="{Binding Path=Gizmo.EditItem, Mode=TwoWay}" AutoGenerateProperties="False"/>
                             </LayoutAnchorable>
                         </LayoutAnchorablePane>

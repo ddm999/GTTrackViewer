@@ -25,6 +25,10 @@ using GTTrackEditor.Interfaces;
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
 
+using AvalonDock;
+using AvalonDock.Layout;
+using AvalonDock.Layout.Serialization;
+
 namespace GTTrackEditor
 {
     /// <summary>
@@ -47,6 +51,7 @@ namespace GTTrackEditor
 
         public MainWindow()
         {
+
             TrackEditorConfig.Init();
             InitializeComponent();
 
@@ -56,6 +61,8 @@ namespace GTTrackEditor
 
             ReflectConfig();
 
+            XmlLayoutSerializer layoutSerializer = new XmlLayoutSerializer(dockManager);
+            layoutSerializer.Serialize("xddd.xml");
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
