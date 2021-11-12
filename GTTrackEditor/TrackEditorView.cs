@@ -87,7 +87,7 @@ namespace GTTrackEditor
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
-                        EnterEditMode(teModel); 
+                        EnterEditMode(teModel);
                         UpdateEditMode();
 
                         PropertyDefinitionCollection list = new();
@@ -97,9 +97,18 @@ namespace GTTrackEditor
                         Parent.PropertyGrid.PropertyDefinitions = list;
                     }
                 }
+                else
+                {
+                    // Hit another item that is not the current one
+                    if (Gizmo.Active)
+                    {
+                        ExitEditMode();
+                    }
+                }
             }
             else
             {
+                // Didn't hit anything at all
                 if (Gizmo.Active)
                 {
                     ExitEditMode();
