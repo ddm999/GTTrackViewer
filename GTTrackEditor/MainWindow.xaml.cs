@@ -117,8 +117,6 @@ namespace GTTrackEditor
                     return;
                 }
 
-                Btn_ImportRunway.IsEnabled = true;
-
                 if (!ModelHandler.Views.Contains(ModelHandler.RunwayView))
                     ModelHandler.Views.Add(ModelHandler.RunwayView);
 
@@ -159,7 +157,8 @@ namespace GTTrackEditor
         }
         #endregion
 
-        #region Events
+        #region File Import Events
+
         private void ImportRunway_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new();
@@ -182,6 +181,15 @@ namespace GTTrackEditor
                 }
             }
         }
+
+        private void ImportOBJ_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Save Events
 
         private void SaveRunway_Click(object sender, RoutedEventArgs e)
         {
@@ -212,6 +220,9 @@ namespace GTTrackEditor
             }
         }
 
+        #endregion
+
+        #region Events
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             SettingsWindow window = new SettingsWindow();
