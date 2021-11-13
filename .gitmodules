@@ -1,3 +1,6 @@
 [submodule "helix-toolkit"]
 	path = helix-toolkit
 	url = https://github.com/Nenkai/helix-toolkit.git
+[submodule "PDTools"]
+	path = PDTools
+	url = https://github.com/Nenkai/PDTools.git

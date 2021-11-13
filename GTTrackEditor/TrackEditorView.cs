@@ -85,7 +85,7 @@ namespace GTTrackEditor
                 object target = e.HitTestResult.ModelHit;
 
                 // Discard/Update manipulator events - can't find a better way to determine it
-                bool isManipulator = (((target as MeshGeometryModel3D)?.Parent as GroupModel3D).Parent as GroupModel3D)?.Parent is TransformManipulator3D;
+                bool isManipulator = (((target as MeshGeometryModel3D)?.Parent as GroupModel3D)?.Parent as GroupModel3D)?.Parent is TransformManipulator3D;
 
                 if (isManipulator && Gizmo.Active)
                     UpdateEditMode();
@@ -158,13 +158,15 @@ namespace GTTrackEditor
         /// <summary>
         /// Fired when exiting the edit mode.
         /// </summary>
-        private void ExitEditMode()
+        public void ExitEditMode()
         {
             Gizmo.SetInactive();
             Parent.GizmoManipulator.Visibility = Visibility.Hidden;
             Parent.GizmoManipulator.IsEnabled = false;
             Parent.GizmoManipulator.Target = null;
             Parent.GizmoManipulator.CenterOffset = Vector3.Zero;
+
+            Parent.PropertyGrid.SelectedObject = null;
 
             Parent.tb_SelectedItemPosition.Text = "No object selected";
         }

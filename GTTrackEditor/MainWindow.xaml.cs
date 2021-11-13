@@ -60,7 +60,6 @@ namespace GTTrackEditor
             ModelHandler.Parent = this;
 
             ReflectConfig();
-
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -180,6 +179,12 @@ namespace GTTrackEditor
             if (item.DataContext is IHideable hideable)
             {
                 hideable.Hide();
+            }
+
+            Gizmo gizmo = ModelHandler.Gizmo;
+            if (gizmo.Active && gizmo.EditItem.Visibility == Visibility.Hidden)
+            {
+                ModelHandler.ExitEditMode();
             }
         }
 
