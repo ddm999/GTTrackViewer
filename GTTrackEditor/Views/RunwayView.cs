@@ -59,12 +59,16 @@ public class RunwayView : TrackEditorViewBase
     {
         Components.Clear();
 
+        if (RunwayData.Version >= 40U && RunwayData.Version < 50U)
+        {
+            Road.Init(RunwayData);
+            Components.Add(Road);
+        }
+
         StartingGrid.Init(RunwayData);
         Boundary.Init(RunwayData);
-        Road.Init(RunwayData);
         Checkpoints.Init(RunwayData);
 
-        Components.Add(Road);
         Components.Add(Boundary);
         Components.Add(StartingGrid);
         Components.Add(Checkpoints);

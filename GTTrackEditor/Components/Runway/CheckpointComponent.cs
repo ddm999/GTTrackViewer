@@ -40,22 +40,20 @@ public class CheckpointComponent : TrackComponentBase
 
     public override void RenderComponent()
     {
-        List<RNW5Checkpoint4> chks = RunwayData.Checkpoints;
-
         MeshBuilder meshBuilder = new(false, false);
-        for (int i = 0; i < chks.Count; i++)
+        for (int i = 0; i < RunwayData.Checkpoints.Count; i++)
         {
             meshBuilder.AddQuad(
-                chks[i].Left,
-                chks[i].Middle,
-                chks[i].Middle + new Vector3(0.0f, 3f, 0.0f),
-                chks[i].Left + new Vector3(0.0f, 3f, 0.0f)
+                RunwayData.Checkpoints[i].Left,
+                RunwayData.Checkpoints[i].Middle,
+                RunwayData.Checkpoints[i].Middle + new Vector3(0.0f, 3f, 0.0f),
+                RunwayData.Checkpoints[i].Left + new Vector3(0.0f, 3f, 0.0f)
                 );
             meshBuilder.AddQuad(
-                chks[i].Middle,
-                chks[i].Right,
-                chks[i].Right + new Vector3(0.0f, 3f, 0.0f),
-                chks[i].Middle + new Vector3(0.0f, 3f, 0.0f)
+                RunwayData.Checkpoints[i].Middle,
+                RunwayData.Checkpoints[i].Right,
+                RunwayData.Checkpoints[i].Right + new Vector3(0.0f, 3f, 0.0f),
+                RunwayData.Checkpoints[i].Middle + new Vector3(0.0f, 3f, 0.0f)
                 );
         }
 

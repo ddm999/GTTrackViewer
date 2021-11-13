@@ -17,7 +17,7 @@ namespace GTTrackEditor.Readers
         public Vec3 BoundsMax = new(0.0f, 0.0f, 0.0f);
         public float TrackV;
         public List<Vec3R> StartingGrid = new();
-        public List<RNW5Checkpoint4> Checkpoints = new();
+        public List<BaseRNWCheckpoint> Checkpoints = new();
         public List<ushort> CheckpointList = new();
         public List<Vec3> RoadVerts = new();
         public List<RNW5RoadTri> RoadTris = new();
@@ -80,10 +80,23 @@ namespace GTTrackEditor.Readers
                 rnw5.StartingGrid.Add(Vec3R.FromStream(ref sr));
             }
 
-            for (int i = 0; i < checkpointCount; i++)
+            // RNW5 v2.x checkpoints
+            if (rnw5.Version >= 20 && rnw5.Version < 30)
             {
-                sr.Position = basePos + checkpointOffset + (i * 0x38);
-                rnw5.Checkpoints.Add(RNW5Checkpoint4.FromStream(ref sr));
+                for (int i = 0; i < checkpointCount; i++)
+                {
+                    sr.Position = basePos + checkpointOffset + (i * 0x28);
+                    rnw5.Checkpoints.Add(RNW5Checkpoint2.FromStream(ref sr));
+                }
+            }
+            // RNW5 v4.x checkpoints
+            else if (rnw5.Version >= 40 && rnw5.Version < 50)
+            {
+                for (int i = 0; i < checkpointCount; i++)
+                {
+                    sr.Position = basePos + checkpointOffset + (i * 0x38);
+                    rnw5.Checkpoints.Add(RNW5Checkpoint4.FromStream(ref sr));
+                }
             }
 
             sr.Position = basePos + checkpointListOffset;
@@ -92,16 +105,20 @@ namespace GTTrackEditor.Readers
                 rnw5.CheckpointList.Add(sr.ReadUInt16());
             }
 
-            sr.Position = basePos + roadVertOffset;
-            for (int i = 0; i < roadVertCount; i++)
+            // only load road from RNW5 v4.x
+            if (rnw5.Version >= 40 && rnw5.Version < 50)
             {
-                rnw5.RoadVerts.Add(Vec3.FromStream(ref sr));
-            }
+                sr.Position = basePos + roadVertOffset;
+                for (int i = 0; i < roadVertCount; i++)
+                {
+                    rnw5.RoadVerts.Add(Vec3.FromStream(ref sr));
+                }
 
-            for (int i = 0; i < roadTriCount; i++)
-            {
-                sr.Position = basePos + roadTriOffset + (i * 0x10);
-                rnw5.RoadTris.Add(RNW5RoadTri.FromStream(ref sr));
+                for (int i = 0; i < roadTriCount; i++)
+                {
+                    sr.Position = basePos + roadTriOffset + (i * 0x10);
+                    rnw5.RoadTris.Add(RNW5RoadTri.FromStream(ref sr));
+                }
             }
 
             for (int i = 0; i < boundaryVertCount; i++)
@@ -131,21 +148,25 @@ namespace GTTrackEditor.Readers
             return rnw5;
         }
 
-        public RNW5 MergeFromStream(ref SpanReader sr)
+        public void Merge(RNW5 other)
         {
-            int basePos = sr.Position;
-            
-            string magic = sr.ReadStringRaw(4);
-            if (magic != MAGIC)
-                throw new InvalidDataException("Not a valid RNW5 file.");
-
-
-
-            return this;
+            BoundsMin = other.BoundsMin;
+            BoundsMax = other.BoundsMax;
+            TrackV = other.TrackV;
+            StartingGrid = other.StartingGrid;
+            Checkpoints = other.Checkpoints;
+            CheckpointList = other.CheckpointList;
+            BoundaryVerts = other.BoundaryVerts;
+            BoundaryList = other.BoundaryList;
+            PitStops = other.PitStops;
+            PitStopAdjacents = other.PitStopAdjacents;
         }
 
         public void ToStream(ref SpanReader sr, ref SpanWriter sw)
         {
+            if (Version < 40U || Version >= 50U)
+                throw new NotImplementedException($"Export not implemented for RNW5 v{(int)Version/10}.{Version%10}");
+
             int basePos = sr.Position;
 
             sr.Position = basePos + 0x8;
@@ -160,40 +181,52 @@ namespace GTTrackEditor.Readers
 
             sr.Position = basePos + 0x4C;
             int startingGridCount = sr.ReadInt32();
+            sw.Position = basePos + 0x4C;
+            sw.WriteInt32(StartingGrid.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, StartingGrid, 0x10, startingGridCount, fileSize);
 
             int checkpointCount = sr.ReadInt32();
-            fileSize = SpanExtender.ExtendHelper(
-                ref sr, ref sw, Checkpoints, 0x38, checkpointCount, fileSize);
+            sw.WriteInt32(Checkpoints.Count);
+            fileSize = SpanExtender.ExtendHelperRNW5Checkpoint4(
+                ref sr, ref sw, Checkpoints, checkpointCount, fileSize);
 
             int checkpointListCount = sr.ReadInt32();
+            sw.WriteInt32(CheckpointList.Count);
             fileSize = SpanExtender.ExtendHelperUInt16(
                 ref sr, ref sw, CheckpointList, checkpointListCount, fileSize);
 
             sr.Position = basePos + 0x7C;
             int roadVertCount = sr.ReadInt32();
+            sw.Position = basePos + 0x7C;
+            sw.WriteInt32(RoadVerts.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, RoadVerts, 0xC, roadVertCount, fileSize);
 
             int roadTriCount = sr.ReadInt32();
+            sw.WriteInt32(RoadTris.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, RoadTris, 0x10, roadTriCount, fileSize);
 
             sr.Position = basePos + 0x9C;
             int boundaryVertCount = sr.ReadInt32();
+            sw.Position = basePos + 0x9C;
+            sw.WriteInt32(BoundaryVerts.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, BoundaryVerts, 0x10, boundaryVertCount, fileSize);
 
             int boundaryListCount = sr.ReadInt32();
+            sw.WriteInt32(BoundaryList.Count);
             fileSize = SpanExtender.ExtendHelperUInt16(
                 ref sr, ref sw, BoundaryList, boundaryListCount, fileSize);
 
             int pitStopCount = sr.ReadInt32();
+            sw.WriteInt32(PitStops.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, PitStops, 0x10, pitStopCount, fileSize);
 
             int pitStopAdjacentCount = sr.ReadInt32();
+            sw.WriteInt32(PitStopAdjacents.Count);
             fileSize = SpanExtender.ExtendHelper(
                 ref sr, ref sw, PitStopAdjacents, 0x10, pitStopAdjacentCount, fileSize);
 

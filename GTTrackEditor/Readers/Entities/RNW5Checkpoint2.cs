@@ -1,7 +1,7 @@
 ﻿using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities;
-public class RNW5Checkpoint4
+public class RNW5Checkpoint2
 {
     public static BaseRNWCheckpoint FromStream(ref SpanReader sr)
     {
@@ -19,14 +19,12 @@ public class RNW5Checkpoint4
         z = sr.ReadSingle();
         checkpoint.Middle = new(x, y, z);
 
-        checkpoint.trackV = sr.ReadSingle();
-
-        sr.Position = basePos + 0x28;
-
         x = sr.ReadSingle();
         y = sr.ReadSingle();
         z = sr.ReadSingle();
         checkpoint.Right = new(x, y, z);
+
+        checkpoint.trackV = sr.ReadSingle();
 
         return checkpoint;
     }
@@ -36,12 +34,6 @@ public class RNW5Checkpoint4
         sw.WriteSingle(check.Left.X);
         sw.WriteSingle(check.Left.Y);
         sw.WriteSingle(check.Left.Z);
-
-        sw.WriteSingle(check.Middle.X);
-        sw.WriteSingle(check.Middle.Y);
-        sw.WriteSingle(check.Middle.Z);
-
-        sw.WriteSingle(check.trackV);
 
         sw.WriteSingle(check.Middle.X);
         sw.WriteSingle(check.Middle.Y);

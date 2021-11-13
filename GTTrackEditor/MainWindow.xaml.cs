@@ -78,8 +78,10 @@ namespace GTTrackEditor
 
             if (openFileDialog.ShowDialog() == true)
             {
+#if !DEBUG
                 try
                 {
+#endif
                     ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
                     SpanReader sr = new(span, endian: Endian.Big);
 
@@ -95,12 +97,14 @@ namespace GTTrackEditor
                     {
                         HandleCourseData(ref sr, openFileDialog.FileName);
                     }
+#if !DEBUG
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(this, $"Error openning file: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(this, $"Error opening file: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+#endif
 
                 UpdateTitle();
             }
@@ -139,7 +143,7 @@ namespace GTTrackEditor
 
             if (item.Header is IHideable hideable)
             {
-                MenuItem visibilityItem = new MenuItem();
+                MenuItem visibilityItem = new();
                 visibilityItem.DataContext = item.Header;
 
                 if (hideable.IsVisible)
@@ -155,6 +159,17 @@ namespace GTTrackEditor
                 menu.Items.Add(visibilityItem);
 
             }
+
+            if (item.Header is RunwayView rwyView)
+            {
+                MenuItem exportItem = new();
+                exportItem.DataContext = item.Header;
+                exportItem.Header = "Export to .rwy";
+                exportItem.Click += Runway_Export;
+
+                menu.Items.Add(exportItem);
+            }
+
             (sender as TreeViewItem).ContextMenu = menu;
         }
 
@@ -175,6 +190,21 @@ namespace GTTrackEditor
             if (item.DataContext is IHideable hideable)
             {
                 hideable.Show();
+            }
+        }
+
+        private void Runway_Export(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new();
+            saveFileDialog.Filter = "Runway Files|*.rwy";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                Span<byte> span = File.ReadAllBytes(_rwyFileName);
+                SpanReader sr = new(span, endian: Endian.Big);
+                SpanWriter sw = new(span, endian: Endian.Big);
+                ModelHandler.RunwayView.RunwayData.ToStream(ref sr, ref sw);
+                File.WriteAllBytes(saveFileDialog.FileName, span.ToArray());
             }
         }
 
@@ -351,6 +381,20 @@ namespace GTTrackEditor
 
         private void HandleRunway(ref SpanReader sr, string fileName)
         {
+            if (ModelHandler.RunwayView.Loaded())
+            {
+                RNW5 runway_other = RNW5.FromStream(ref sr);
+                // if mergable, merge: else replace
+                if (runway_other.Version == 20U && ModelHandler.RunwayView.RunwayData.Version >= 40U)
+                {
+                    ModelHandler.RunwayView.RunwayData.Merge(runway_other);
+                    string newName = Path.GetFileNameWithoutExtension(fileName);
+                    ModelHandler.RunwayView.Init();
+                    ModelHandler.RunwayView.Render();
+                    return;
+                }
+            }
+
             RNW5 runway = RNW5.FromStream(ref sr);
             ModelHandler.RunwayView.SetRunwayData(runway);
             _rwyFileName = fileName;
