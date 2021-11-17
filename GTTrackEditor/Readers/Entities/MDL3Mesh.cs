@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using GTTrackEditor.Readers.Entities.Interfaces;
 using SharpDX;
 using Syroot.BinaryData.Memory;
 
 
 namespace GTTrackEditor.Readers.Entities
 {
-    public class MDL3Mesh : IFromStream
+    public class MDL3Mesh
     {
         public struct Tri
         {

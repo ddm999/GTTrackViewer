@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GTTrackEditor.Readers.Entities.Interfaces;
 using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    public class MDL3MeshInfo : IFromStream
+    public class MDL3MeshInfo
     {
         public uint MeshIndex;
         public List<string> MeshParams;

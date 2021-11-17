@@ -94,6 +94,8 @@
                                     <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
                                     <hx:DirectionalLight3D Direction="0.1 -1 0.1" Color="{Binding DirectionalLightColor}" />
 
+                                    <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
+                                    
                                     <!-- Gizmo -->
                                     <hx:TransformManipulator3D
                                     x:Name="GizmoManipulator"
@@ -105,14 +107,15 @@
                                     <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
 
                                     <!-- Runway Geometry -->
-                                    <hx:MeshGeometryModel3D Name="Boundary3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" DepthBias="-30" CullMode="Back"/>
-                                    <hx:MeshGeometryModel3D Name="Checkpoints3D" Geometry="{Binding RunwayView.Checkpoints.CheckpointModel}" Material="{Binding RunwayView.Checkpoints.CheckpointMaterial}" CullMode="None"/>
-                                    <hx:GroupModel3D Name="StartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}" />
-                                    <hx:MeshGeometryModel3D Name="PitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
-                                    <hx:MeshGeometryModel3D Name="PitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
-                                    <hx:MeshGeometryModel3D Name="Road3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" DepthBias="-20" RenderWireframe="True" WireframeColor="Black" CullMode="Back"/>
-                                    <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
-
+                                    <hx:MeshGeometryModel3D Name="RunwayBoundary3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" DepthBias="-10" CullMode="Back"/>
+                                    <hx:MeshGeometryModel3D Name="RunwayCheckpoints3D" Geometry="{Binding RunwayView.Checkpoints.CheckpointModel}" Material="{Binding RunwayView.Checkpoints.CheckpointMaterial}" CullMode="None"/>
+                                    <hx:GroupModel3D Name="RunwayStartingGridGroup" ItemsSource="{Binding RunwayView.StartingGrid.StartingGridPoints}" />
+                                    <hx:GroupModel3D Name="RunwayOldGadgetGroup" ItemsSource="{Binding RunwayView.OldGadgets.Gadgets}" />
+                                    <hx:GroupModel3D Name="RunwayLightGroup" ItemsSource="{Binding RunwayView.Lights.Lights}" />
+                                    <hx:MeshGeometryModel3D Name="RunwayPitStops3D" Geometry="{Binding RunwayView.PitStopsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
+                                    <hx:MeshGeometryModel3D Name="RunwayPitStopAdjacents3D" Geometry="{Binding RunwayView.PitStopAdjacentsModel}" Material="{Binding RunwayView.PitStopsMaterial}" CullMode="Back"/>
+                                    <hx:MeshGeometryModel3D Name="RunwayRoad3D" Geometry="{Binding RunwayView.Road.RoadModel}" Material="{Binding RunwayView.Road.RoadMaterial}" DepthBias="-5" RenderWireframe="True" WireframeColor="Black" CullMode="Back"/>
+                                    
                                     <!-- Autodrive Geometry -->
                                     <hx:TopMostGroup3D x:Name="AutoDrivePointTextGroup" EnableTopMost="True" ItemsSource="{Binding AutodriveView.AutoDrivePointText}"/>
                                     <hx:MeshGeometryModel3D Name="AutoDrive3D" Geometry="{Binding Path=AutodriveView.AutoDriveModel}" Material="{Binding AutodriveView.DrivingLineMaterial}" CullMode="Back"/>
@@ -163,8 +166,19 @@
                                             <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">
                                                 <StackPanel Orientation="Horizontal" >
                                                     <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
-                                                    <TextBlock Text=" "/>
-                                                    <TextBlock Text="Start Point" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" Start Point" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:OldGadgetModelEntity}">
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <iconPacks:PackIconMaterial Kind="TrafficCone" />
+                                                    <TextBlock Text=" Gadget" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:LightModelEntity}">
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <iconPacks:PackIconMaterial Kind="LightbulbOutline" />
+                                                    <TextBlock Text=" Light Source" Foreground="{Binding TreeViewItemColor}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:BoundaryComponent}">
@@ -173,7 +187,6 @@
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                                 </StackPanel>
-
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:CheckpointComponent}">
                                                 <StackPanel Orientation="Horizontal">
@@ -204,6 +217,26 @@
                                                     <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text="{Binding StartingGridPoints.Count}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" positions)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:LightComponent}" ItemsSource="{Binding Lights}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="LightbulbOutline" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding Lights.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" light sources)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:OldGadgetComponent}" ItemsSource="{Binding Gadgets}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="TrafficCone" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding Gadgets.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" gadgets)" Foreground="{Binding TreeViewItemColor}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                         </TreeView.Resources>

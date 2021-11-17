@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
-using GTTrackEditor.Readers.Entities.Interfaces;
 using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    public class MDL3Set : IFromStream
+    public class MDL3Set
     {
         public Point3D origin;
         public List<Point3D> bounds;

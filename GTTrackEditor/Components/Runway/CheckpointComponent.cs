@@ -18,6 +18,9 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
+using PDTools.Files;
+using PDTools.Files.Courses.Runway;
+
 namespace GTTrackEditor.Components.Runway;
 
 public class CheckpointComponent : TrackComponentBase
@@ -25,7 +28,7 @@ public class CheckpointComponent : TrackComponentBase
     public MeshGeometry3D CheckpointModel { get; set; } = new();
     public DiffuseMaterial CheckpointMaterial { get; set; } = new();
 
-    public RNW5 RunwayData { get; set; }
+    public RunwayFile RunwayData { get; set; }
 
     public CheckpointComponent()
     {
@@ -33,7 +36,7 @@ public class CheckpointComponent : TrackComponentBase
         CheckpointMaterial.DiffuseColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f);
     }
 
-    public void Init(RNW5 runwayData)
+    public void Init(RunwayFile runwayData)
     {
         RunwayData = runwayData;
     }
@@ -44,16 +47,16 @@ public class CheckpointComponent : TrackComponentBase
         for (int i = 0; i < RunwayData.Checkpoints.Count; i++)
         {
             meshBuilder.AddQuad(
-                RunwayData.Checkpoints[i].Left,
-                RunwayData.Checkpoints[i].Middle,
-                RunwayData.Checkpoints[i].Middle + new Vector3(0.0f, 3f, 0.0f),
-                RunwayData.Checkpoints[i].Left + new Vector3(0.0f, 3f, 0.0f)
+                RunwayData.Checkpoints[i].Left.ToSharpDXVector(),
+                RunwayData.Checkpoints[i].Middle.ToSharpDXVector(),
+                RunwayData.Checkpoints[i].Middle.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f),
+                RunwayData.Checkpoints[i].Left.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f)
                 );
             meshBuilder.AddQuad(
-                RunwayData.Checkpoints[i].Middle,
-                RunwayData.Checkpoints[i].Right,
-                RunwayData.Checkpoints[i].Right + new Vector3(0.0f, 3f, 0.0f),
-                RunwayData.Checkpoints[i].Middle + new Vector3(0.0f, 3f, 0.0f)
+                RunwayData.Checkpoints[i].Middle.ToSharpDXVector(),
+                RunwayData.Checkpoints[i].Right.ToSharpDXVector(),
+                RunwayData.Checkpoints[i].Right.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f),
+                RunwayData.Checkpoints[i].Middle.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f)
                 );
         }
 

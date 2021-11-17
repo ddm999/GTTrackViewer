@@ -18,6 +18,9 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
+using PDTools.Files;
+using PDTools.Files.Courses.Runway;
+
 namespace GTTrackEditor.Components.Runway;
 
 public class BoundaryComponent : TrackComponentBase
@@ -25,7 +28,7 @@ public class BoundaryComponent : TrackComponentBase
     public MeshGeometry3D BoundaryModel { get; set; } = new();
     public DiffuseMaterial BoundaryMaterial { get; set; } = new();
 
-    public RNW5 RunwayData { get; set; }
+    public RunwayFile RunwayData { get; set; }
 
     public BoundaryComponent()
     {
@@ -33,7 +36,7 @@ public class BoundaryComponent : TrackComponentBase
         BoundaryMaterial.DiffuseColor = new(1.0f, 1.0f, 0.0f, 1.0f);
     }
 
-    public void Init(RNW5 runwayData)
+    public void Init(RunwayFile runwayData)
     {
         RunwayData = runwayData;
     }
@@ -45,8 +48,8 @@ public class BoundaryComponent : TrackComponentBase
         List<Vector3> boundary = new();
         while (i < RunwayData.BoundaryVerts.Count)
         {
-            RNW5BoundaryVert vert = RunwayData.BoundaryVerts[i];
-            boundary.Add(vert.ToVector3());
+            RunwayBoundaryVert vert = RunwayData.BoundaryVerts[i];
+            boundary.Add(vert.Position.ToSharpDXVector());
 
             if (vert.counter < 0) // boundary end
             {

@@ -14,6 +14,10 @@ using System.Windows.Input;
 
 using MahApps.Metro.Controls;
 
+using AvalonDock;
+using AvalonDock.Layout;
+using AvalonDock.Layout.Serialization;
+
 using SharpDX;
 
 using HelixToolkit.Wpf.SharpDX;
@@ -25,9 +29,8 @@ using GTTrackEditor.Interfaces;
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
 
-using AvalonDock;
-using AvalonDock.Layout;
-using AvalonDock.Layout.Serialization;
+using PDTools.Files.Courses.Runway;
+using PDTools.Files.Courses.AutoDrive;
 
 namespace GTTrackEditor
 {
@@ -81,12 +84,11 @@ namespace GTTrackEditor
                 try
                 {
 #endif
-                    ReadOnlySpan<byte> span = File.ReadAllBytes(openFileDialog.FileName);
-                    SpanReader sr = new(span, endian: Endian.Big);
+                    using var file = File.Open(openFileDialog.FileName, FileMode.Open);
 
                     if (openFileDialog.FileName.EndsWith(".rwy"))
                     {
-                        HandleRunway(ref sr, openFileDialog.FileName);
+                        HandleRunway(file, openFileDialog.FileName);
                     }
                     else if (openFileDialog.FileName.EndsWith(".ad"))
                     {
@@ -94,7 +96,7 @@ namespace GTTrackEditor
                     }
                     else if (openFileDialog.FileName.EndsWith("x"))
                     {
-                        HandleCourseData(ref sr, openFileDialog.FileName);
+                        //HandleCourseData(ref sr, openFileDialog.FileName);
                     }
 #if !DEBUG
                 }
@@ -172,6 +174,12 @@ namespace GTTrackEditor
             (sender as TreeViewItem).ContextMenu = menu;
         }
 
+        private void Runway_Export(object sender, RoutedEventArgs e)
+        {
+            MemoryStream ms = new MemoryStream();
+            ModelHandler.RunwayView.RunwayData.ToStream(ms);
+        }
+
         private void Component_Hide(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
@@ -195,21 +203,6 @@ namespace GTTrackEditor
             if (item.DataContext is IHideable hideable)
             {
                 hideable.Show();
-            }
-        }
-
-        private void Runway_Export(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new();
-            saveFileDialog.Filter = "Runway Files|*.rwy";
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                Span<byte> span = File.ReadAllBytes(_rwyFileName);
-                SpanReader sr = new(span, endian: Endian.Big);
-                SpanWriter sw = new(span, endian: Endian.Big);
-                ModelHandler.RunwayView.RunwayData.ToStream(ref sr, ref sw);
-                File.WriteAllBytes(saveFileDialog.FileName, span.ToArray());
             }
         }
 
@@ -384,13 +377,13 @@ namespace GTTrackEditor
             return parent;
         }
 
-        private void HandleRunway(ref SpanReader sr, string fileName)
+        private void HandleRunway(Stream stream, string fileName)
         {
             if (ModelHandler.RunwayView.Loaded())
             {
-                RNW5 runway_other = RNW5.FromStream(ref sr);
+                RunwayFile runway_other = RunwayFile.FromStream(stream);
                 // if mergable, merge: else replace
-                if (runway_other.Version == 20U && ModelHandler.RunwayView.RunwayData.Version >= 40U)
+                if (runway_other.VersionMajor == 2 && ModelHandler.RunwayView.RunwayData.VersionMajor >= 40U)
                 {
                     ModelHandler.RunwayView.RunwayData.Merge(runway_other);
                     string newName = Path.GetFileNameWithoutExtension(fileName);
@@ -400,7 +393,7 @@ namespace GTTrackEditor
                 }
             }
 
-            RNW5 runway = RNW5.FromStream(ref sr);
+            RunwayFile runway = RunwayFile.FromStream(stream);
             ModelHandler.RunwayView.SetRunwayData(runway);
             _rwyFileName = fileName;
 

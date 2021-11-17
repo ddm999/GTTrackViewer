@@ -26,19 +26,19 @@ using PDTools.Files.Courses.Runway;
 
 namespace GTTrackEditor.Components.Runway;
 
-public class StartingGridComponent : TrackComponentBase
+public class LightComponent : TrackComponentBase
 {
-    public ObservableElement3DCollection StartingGridPoints { get; set; } = new();
-    public DiffuseMaterial StartingGridMaterial { get; set; } = new();
+    public ObservableElement3DCollection Lights { get; set; } = new();
+    public DiffuseMaterial LightMaterial { get; set; } = new();
 
     public RunwayFile RunwayData { get; set; }
 
     public const int DepthBias = -50;
 
-    public StartingGridComponent()
+    public LightComponent()
     {
-        Name = "Starting Grid";
-        StartingGridMaterial.DiffuseColor = new(0.0f, 1.0f, 0.0f, 1.0f);
+        Name = "Light Definitions";
+        LightMaterial.DiffuseColor = new(1.0f, 1.0f, 0.0f, 1.0f); // Yellow
     }
 
     public void Init(RunwayFile runwayData)
@@ -48,29 +48,23 @@ public class StartingGridComponent : TrackComponentBase
 
     public override void RenderComponent()
     {
-        StartingGridPoints.Clear();
-        for (int i = 0; i < RunwayData.StartingGrid.Count; i++)
+        Lights.Clear();
+        for (int i = 0; i < RunwayData.LightSets.Count; i++)
         {
-            ObjReader reader = new();
-            List<Object3D> list = reader.Read("Resources/Models/Grid.obj");
-            MeshGeometry3D gridGeometry = list[0].Geometry as MeshGeometry3D;
+            Vector3 actualPos = RunwayData.LightSets[i].Position.ToSharpDXVector();
+            MeshBuilder builder = new MeshBuilder();
+            builder.AddSphere(actualPos, 1);
+            builder.ToMesh();
 
-            Vector3 actualPos = RunwayData.StartingGrid[i].ToSharpDXVector();
-            for (int j = 0; j < gridGeometry.Positions.Count; ++j)
+            LightModelEntity newLightModel = new()
             {
-                gridGeometry.Positions[j] += actualPos;
-            }
-            gridGeometry.UpdateBounds();
+                Geometry = builder.ToMesh(),
+                Material = LightMaterial,
 
-            StartingGridModelEntity newGridModel = new()
-            {
-                Geometry = gridGeometry,
-                Material = StartingGridMaterial,
-                StartingIndex = i,
-
-                DepthBias = DepthBias,
+                DepthBias = -15,
             };
 
+            /*
             Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);
 
             // Apply angle
@@ -78,6 +72,9 @@ public class StartingGridComponent : TrackComponentBase
             ModelUtils.Rotate(newGridModel, center, angle);
 
             StartingGridPoints.Add(newGridModel);
+            */
+
+            Lights.Add(newLightModel);
         }
     }
 
@@ -86,21 +83,15 @@ public class StartingGridComponent : TrackComponentBase
         if (!IsVisible)
             return;
 
-        foreach (Element3D i in StartingGridPoints)
-            (i as StartingGridModelEntity).Hide();
+        foreach (Element3D i in Lights)
+            (i as LightModelEntity).Hide();
         TreeViewItemColor = Brushes.Gray;
         IsVisible = false;
     }
 
     public override void Show()
     {
-        if (IsVisible)
-            return;
 
-        foreach (Element3D i in StartingGridPoints)
-            (i as StartingGridModelEntity).Show();
-        TreeViewItemColor = Brushes.White;
-        IsVisible = true;
     }
 }
 

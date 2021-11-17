@@ -38,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.SharpDX.Core.Wpf\HelixToolkit.SharpDX.Core.Wpf.csproj" />
     <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.SharpDX.Core\HelixToolkit.SharpDX.Core.csproj" />
+    <ProjectReference Include="..\PDTools\PDTools.Files\PDTools.Files.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,6 +19,9 @@ using GTTrackEditor.Utils;
 using GTTrackEditor.Components;
 using GTTrackEditor.Components.Runway;
 
+using PDTools.Files;
+using PDTools.Files.Courses.Runway;
+
 namespace GTTrackEditor.Views;
 
 public class RunwayView : TrackEditorViewBase
@@ -26,12 +29,14 @@ public class RunwayView : TrackEditorViewBase
     public override string TreeViewName => "Runway";
     public string FileName { get; set; }
 
-    public RNW5 RunwayData { get; private set; }
+    public RunwayFile RunwayData { get; private set; }
 
     public StartingGridComponent StartingGrid { get; set; } = new();
     public BoundaryComponent Boundary { get; set; } = new();
     public RoadComponent Road { get; set; } = new();
     public CheckpointComponent Checkpoints { get; set; } = new();
+    public OldGadgetComponent OldGadgets { get; set; } = new();
+    public LightComponent Lights { get; set; } = new();
 
     public MeshGeometry3D PitStopAdjacentsModel { get; set; } = new();
     public DiffuseMaterial PitStopAdjacentsMaterial { get; set; } = new();
@@ -45,7 +50,7 @@ public class RunwayView : TrackEditorViewBase
         PitStopsMaterial.DiffuseColor = new(1.0f, 0.0f, 0.0f, 1.0f);
     }
 
-    public void SetRunwayData(RNW5 runway)
+    public void SetRunwayData(RunwayFile runway)
     {
         RunwayData = runway;
     }
@@ -59,19 +64,19 @@ public class RunwayView : TrackEditorViewBase
     {
         Components.Clear();
 
-        if (RunwayData.Version >= 40U && RunwayData.Version < 50U)
-        {
-            Road.Init(RunwayData);
-            Components.Add(Road);
-        }
-
+        Road.Init(RunwayData);
         StartingGrid.Init(RunwayData);
         Boundary.Init(RunwayData);
         Checkpoints.Init(RunwayData);
+        OldGadgets.Init(RunwayData);
+        Lights.Init(RunwayData);
 
+        Components.Add(Road);
         Components.Add(Boundary);
         Components.Add(StartingGrid);
         Components.Add(Checkpoints);
+        Components.Add(Lights);
+        Components.Add(OldGadgets);
     }
 
     public static MeshGeometry3D BuildArrows(List<Vec3R> vec3rs)
@@ -79,7 +84,7 @@ public class RunwayView : TrackEditorViewBase
         MeshBuilder meshBuilder = new(false, false);
         for (int i = 0; i < vec3rs.Count; i++)
         {
-            Vector3 pos = vec3rs[i].ToVector3();
+            Vector3 pos = vec3rs[i].ToSharpDXVector();
             float r = vec3rs[i].AngleRad;
 
             meshBuilder.AddSphere(pos, 0.025f);

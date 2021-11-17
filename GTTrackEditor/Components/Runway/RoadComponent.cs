@@ -7,6 +7,8 @@ using HelixToolkit.SharpDX.Core;
 using SharpDX;
 
 using System;
+using System.Numerics;
+
 using System.Collections.Generic;
 using System.Windows.Media;
 using Point3D = System.Windows.Media.Media3D.Point3D;
@@ -18,6 +20,8 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
+using PDTools.Files.Courses.Runway;
+
 namespace GTTrackEditor.Components.Runway;
 
 public class RoadComponent : TrackComponentBase
@@ -25,7 +29,7 @@ public class RoadComponent : TrackComponentBase
     public MeshGeometry3D RoadModel { get; set; } = new();
     public static VertColorMaterial RoadMaterial { get; set; } = new();
 
-    public RNW5 RunwayData { get; set; }
+    public RunwayFile RunwayData { get; set; }
 
     public static List<Color4> SurfaceTypeColors { get; set; } = new();
     static RoadComponent()
@@ -44,6 +48,16 @@ public class RoadComponent : TrackComponentBase
         SurfaceTypeColors.Add(new(0.3f, 0.7f, 0.2f, 1.0f)); // GUIDE3
         SurfaceTypeColors.Add(new(0.8f, 0.65f, 0.75f, 1.0f)); // PEBBLE
         SurfaceTypeColors.Add(new(0.8f, 0.8f, 0.2f, 1.0f)); // BEACH
+
+        // Fill me
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
+        SurfaceTypeColors.Add(new(0f, 0f, 0f, 1.0f)); // ??
     }
 
     public RoadComponent()
@@ -51,7 +65,7 @@ public class RoadComponent : TrackComponentBase
         Name = "Road";
     }
 
-    public void Init(RNW5 runwayData)
+    public void Init(RunwayFile runwayData)
     {
         RunwayData = runwayData;
     }
@@ -61,13 +75,13 @@ public class RoadComponent : TrackComponentBase
         MeshBuilder meshBuilder = new(false, false);
         Color4Collection colors = new();
 
-        RNW5 rwy = RunwayData;
-        for (int n = 0; n < RunwayData.RoadTris.Count; n++)
+        RunwayFile rwy = RunwayData;
+        for (int n = 0; n < rwy.RoadTris.Count; n++)
         {
             meshBuilder.AddTriangle(
-                rwy.RoadVerts[rwy.RoadTris[n].VertA].ToVector3(),
-                rwy.RoadVerts[rwy.RoadTris[n].VertB].ToVector3(),
-                rwy.RoadVerts[rwy.RoadTris[n].VertC].ToVector3());
+                rwy.RoadVerts.Vertices[(int)rwy.RoadTris[n].VertA].Vertex.ToSharpDXVector(),
+                rwy.RoadVerts.Vertices[(int)rwy.RoadTris[n].VertB].Vertex.ToSharpDXVector(),
+                rwy.RoadVerts.Vertices[(int)rwy.RoadTris[n].VertC].Vertex.ToSharpDXVector());
             colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);
             colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);
             colors.Add(SurfaceTypeColors[rwy.RoadTris[n].SurfaceType]);

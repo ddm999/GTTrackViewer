@@ -2,7 +2,6 @@
 
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
-using GTTrackEditor.Readers.Entities.AutoDrive;
 
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core;
@@ -18,13 +17,15 @@ using Colors = System.Windows.Media.Colors;
 using Point3D = System.Windows.Media.Media3D.Point3D;
 using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
+using PDTools.Files.Courses.AutoDrive;
+
 namespace GTTrackEditor.Views;
 
 public class AutodriveView : TrackEditorViewBase
 {
     public override string TreeViewName => "Autodrive";
 
-    public AutoDrive AutodriveData { get; private set; }
+    public AutoDriveFile AutodriveData { get; private set; }
 
     public MeshGeometry3D AutoDriveModel { get; set; } = new();
     public DiffuseMaterial DrivingLineMaterial { get; set; } = new();
@@ -54,7 +55,7 @@ public class AutodriveView : TrackEditorViewBase
         return AutodriveData is not null;
     }
 
-    public void SetAutodriveData(AutoDrive ad)
+    public void SetAutodriveData(AutoDriveFile ad)
     {
         AutodriveData = ad;
     }

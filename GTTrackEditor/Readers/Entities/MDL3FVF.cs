@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using GTTrackEditor.Readers.Entities.Interfaces;
+
 using Syroot.BinaryData.Memory;
 
 namespace GTTrackEditor.Readers.Entities
 {
-    public class MDL3FVF : IFromStream
+    public class MDL3FVF
     {
         public byte dataLength;
         public List<string> contents = new(4);
