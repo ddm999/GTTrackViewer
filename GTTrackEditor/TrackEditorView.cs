@@ -47,8 +47,13 @@ namespace GTTrackEditor
         public Color DirectionalLightColor { get; private set; }
         public Color AmbientLightColor { get; private set; }
 
+        public ObservableCollection<Scripts.ScriptBase> ScriptMenuItems { get; } = new();
+
         public TrackEditorView()
         {
+            ScriptMenuItems.Add(new Scripts.MakeBigRoad());
+            ScriptMenuItems.Add(new Scripts.RemoveBoundaries());
+
             EffectsManager = new DefaultEffectsManager();
 
             Camera = new PerspectiveCamera

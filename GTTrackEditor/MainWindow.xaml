@@ -36,6 +36,18 @@
                 <Button Click="LoadFile_Click" ToolTip="Load Course File">
                     <iconPacks:PackIconMaterial Kind="FilePlus" />
                 </Button>
+                <Button Click="ScriptButton_Click" ToolTip="Run Script">
+                    <iconPacks:PackIconMaterial Kind="Script" />
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding ScriptMenuItems}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="{x:Type MenuItem}">
+                                    <EventSetter Event="Click" Handler="ScriptMenu_Click" />
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
                 <Separator/>
                 <Button Click="Settings_Click" ToolTip="App Settings">
                     <iconPacks:PackIconMaterial Kind="CogOutline" />

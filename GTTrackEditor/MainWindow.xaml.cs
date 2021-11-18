@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -232,6 +232,29 @@ namespace GTTrackEditor
             UpdateTrackModel();
         }
         */
+
+        private void ScriptButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(this, "right click on that button instead of left clicking", "c# sucks", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+        }
+
+        private void ScriptMenu_Click(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            try
+            {
+#endif
+                var script = (e.OriginalSource as MenuItem).Header as Scripts.ScriptBase;
+                script.Execute(ModelHandler);
+#if !DEBUG
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, $"Error executing script: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+#endif
+        }
 
         private void ToggleGrid_Click(object sender, RoutedEventArgs e)
         {
