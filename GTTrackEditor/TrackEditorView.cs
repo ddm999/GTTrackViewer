@@ -22,6 +22,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid;
 
 using GTTrackEditor.Utils;
 using GTTrackEditor.Attributes;
+using System.Windows.Controls;
 
 namespace GTTrackEditor
 {
@@ -41,7 +42,7 @@ namespace GTTrackEditor
         /// Grid, for utility
         /// </summary>
         public static LineGeometry3D Grid { get; set; }
-        
+
         public Vector3D DirectionalLightDirection { get; private set; }
         public Color DirectionalLightColor { get; private set; }
         public Color AmbientLightColor { get; private set; }
@@ -93,14 +94,7 @@ namespace GTTrackEditor
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {
-                        EnterEditMode(teModel);
-                        UpdateEditMode();
-
-                        PropertyDefinitionCollection list = new();
-                        foreach (var prop in target.GetType().GetProperties().Where(p => p.GetCustomAttribute<EditableProperty>() is not null))
-                            list.Add(new() { Name = prop.Name });
-
-                        Parent.PropertyGrid.PropertyDefinitions = list;
+                        SetEditTarget(teModel);
                     }
                 }
                 else
@@ -108,6 +102,7 @@ namespace GTTrackEditor
                     // Hit another item that is not the current one
                     if (Gizmo.Active)
                     {
+                        ClearExplorerItem();
                         ExitEditMode();
                     }
                 }
@@ -117,8 +112,66 @@ namespace GTTrackEditor
                 // Didn't hit anything at all
                 if (Gizmo.Active)
                 {
+                    ClearExplorerItem();
                     ExitEditMode();
                 }
+            }
+        }
+
+        public void SetEditTarget(object o)
+        {
+            if (o is BaseModelEntity teModel)
+            {
+                EnterEditMode(teModel);
+                UpdateEditMode();
+
+                SelectExplorerItem(teModel);
+
+                PropertyDefinitionCollection list = new();
+                foreach (var prop in teModel.GetType().GetProperties().Where(p => p.GetCustomAttribute<EditableProperty>() is not null))
+                    list.Add(new() { Name = prop.Name });
+
+                Gizmo.EditItem = teModel;
+                Parent.PropertyGrid.PropertyDefinitions = list;
+            }
+            else
+            {
+                ExitEditMode();
+            }
+        }
+
+        private void SelectExplorerItem(object o)
+        {
+            var tvi = FindTviFromObjectRecursive(Parent.FindName("ExplorerTree") as TreeView, o);
+            if (tvi != null) tvi.IsSelected = true;
+        }
+
+        private void ClearExplorerItem()
+        {
+            DeselectTviRecursive(Parent.FindName("ExplorerTree") as TreeView);
+        }
+
+        private static TreeViewItem FindTviFromObjectRecursive(ItemsControl ic, object o)
+        {
+            //Search for the object model in first level children (recursively)
+            if (ic.ItemContainerGenerator.ContainerFromItem(o) is TreeViewItem tvi) return tvi;
+            foreach (object i in ic.Items)
+            {
+                //Get the TreeViewItem associated with the iterated object model
+                if (ic.ItemContainerGenerator.ContainerFromItem(i) is not TreeViewItem tvi2) continue;
+                tvi = FindTviFromObjectRecursive(tvi2, o);
+                if (tvi != null) return tvi;
+            }
+            return null;
+        }
+
+        private static void DeselectTviRecursive(ItemsControl ic)
+        {
+            foreach (object i in ic.Items)
+            {
+                if (ic.ItemContainerGenerator.ContainerFromItem(i) is not TreeViewItem tvi) continue;
+                tvi.IsSelected = false;
+                DeselectTviRecursive(tvi);
             }
         }
 

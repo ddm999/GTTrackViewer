@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace GTTrackEditor.Interfaces;
 
     /// <summary>
-    /// Represents an interface for showing and hidding items.
+    /// Represents an interface for showing and hiding items.
     /// </summary>
 public interface IHideable
 {

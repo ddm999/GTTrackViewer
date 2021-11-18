@@ -117,6 +117,7 @@ namespace GTTrackEditor
             window.ShowDialog();
         }
 
+        /*
         private void ListBoxItem_Selected(object sender, RoutedEventArgs e)
         {
             ExplorerVisibleToggle_Buttons(e.Source as ListBoxItem);
@@ -134,6 +135,7 @@ namespace GTTrackEditor
             UpdateTrackModel();
             ExplorerVisibleRecalculate();
         }
+        */
 
         void TreeViewItem_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -206,6 +208,15 @@ namespace GTTrackEditor
             }
         }
 
+        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
+        {
+            DependencyObject obj = e.OriginalSource as DependencyObject;
+            TreeViewItem item = GetDependencyObjectFromVisualTree(obj, typeof(TreeViewItem)) as TreeViewItem;
+
+            ModelHandler.SetEditTarget(item.Header);
+        }
+
+        /*
         private void ExplorerContextMenu_Delete_Click(object sender, RoutedEventArgs e)
         {
             ListBoxItem lbi = ((e.Source as MenuItem).Parent as ContextMenu).PlacementTarget as ListBoxItem;
@@ -220,6 +231,7 @@ namespace GTTrackEditor
             lbi.Visibility = Visibility.Hidden;
             UpdateTrackModel();
         }
+        */
 
         private void ToggleGrid_Click(object sender, RoutedEventArgs e)
         {
@@ -280,11 +292,7 @@ namespace GTTrackEditor
             Title = $"GT Track Editor {state}";
         }
 
-        private void ExplorerVisibleRecalculate()
-        {
-           
-        }
-
+        /*
         private void ExplorerVisibleToggle(ListBoxItem lbi, byte i)
         {
             if (modelVisibility[i])
@@ -351,6 +359,7 @@ namespace GTTrackEditor
         {
 
         }
+        */
 
         /// <summary>
         /// Used to update the point tracking
