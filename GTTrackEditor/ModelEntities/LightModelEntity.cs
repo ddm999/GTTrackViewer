@@ -14,6 +14,9 @@ namespace GTTrackEditor.ModelEntities;
 /// </summary>
 public class LightModelEntity : BaseModelEntity
 {
-    
+    public override void OnMove()
+    {
+
+    }
 }
 

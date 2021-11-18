@@ -16,5 +16,10 @@ public class OldGadgetModelEntity : BaseModelEntity
 {
     public override bool CanRotateX => false;
     public override bool CanRotateZ => false;
+
+    public override void OnMove()
+    {
+
+    }
 }
 

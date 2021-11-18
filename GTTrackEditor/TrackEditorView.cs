@@ -217,6 +217,9 @@ namespace GTTrackEditor
         {
             Vector3 newPos = (Gizmo.EditItem as GeometryModel3D).BoundsWithTransform.Center;
             Parent.tb_SelectedItemPosition.Text = $"Object: {newPos}";
+
+            if (Gizmo.EditItem is BaseModelEntity entity)
+                entity.OnMove();
         }
 
         /// <summary>

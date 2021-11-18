@@ -14,5 +14,10 @@ namespace GTTrackEditor.ModelEntities
         public override bool CanRotateX => false;
         public override bool CanRotateY => false;
         public override bool CanRotateZ => false;
+
+        public override void OnMove()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

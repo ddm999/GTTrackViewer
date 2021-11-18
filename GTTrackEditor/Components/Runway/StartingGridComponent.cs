@@ -20,13 +20,14 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
+using GTTrackEditor.Interfaces;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Runway;
 
 namespace GTTrackEditor.Components.Runway;
 
-public class StartingGridComponent : TrackComponentBase
+public class StartingGridComponent : TrackComponentBase, IModelCollection
 {
     public ObservableElement3DCollection StartingGridPoints { get; set; } = new();
     public DiffuseMaterial StartingGridMaterial { get; set; } = new();
@@ -55,7 +56,7 @@ public class StartingGridComponent : TrackComponentBase
             List<Object3D> list = reader.Read("Resources/Models/Grid.obj");
             MeshGeometry3D gridGeometry = list[0].Geometry as MeshGeometry3D;
 
-            Vector3 actualPos = RunwayData.StartingGrid[i].ToSharpDXVector();
+            Vector3 actualPos = RunwayData.StartingGrid[i].Position.ToSharpDXVector();
             for (int j = 0; j < gridGeometry.Positions.Count; ++j)
             {
                 gridGeometry.Positions[j] += actualPos;
@@ -66,15 +67,16 @@ public class StartingGridComponent : TrackComponentBase
             {
                 Geometry = gridGeometry,
                 Material = StartingGridMaterial,
-                StartingIndex = i,
-
                 DepthBias = DepthBias,
+
+                StartingIndex = i,
+                StartingGridPoint = RunwayData.StartingGrid[i],
             };
 
             Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);
 
             // Apply angle
-            float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].AngleRad);
+            float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].Position.AngleRad);
             ModelUtils.Rotate(newGridModel, center, angle);
 
             StartingGridPoints.Add(newGridModel);
@@ -101,6 +103,25 @@ public class StartingGridComponent : TrackComponentBase
             (i as StartingGridModelEntity).Show();
         TreeViewItemColor = Brushes.White;
         IsVisible = true;
+    }
+
+    public void AddNew()
+    {
+        ObjReader reader = new();
+        List<Object3D> list = reader.Read("Resources/Models/Grid.obj");
+        MeshGeometry3D gridGeometry = list[0].Geometry as MeshGeometry3D;
+
+        var newStartGridPos = new RunwayStartingGridPosition();
+        RunwayData.StartingGrid.Add(newStartGridPos);
+
+        StartingGridPoints.Add(new StartingGridModelEntity()
+        {
+            Geometry = gridGeometry,
+            Material = StartingGridMaterial,
+            DepthBias = DepthBias,
+
+            StartingGridPoint = newStartGridPos,
+        });
     }
 }
 

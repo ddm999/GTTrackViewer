@@ -74,6 +74,8 @@ public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChan
 
     public bool IsVisible { get; set; } = true;
 
+    public abstract void OnMove();
+
     public void Hide()
     {
         Visibility = System.Windows.Visibility.Hidden;

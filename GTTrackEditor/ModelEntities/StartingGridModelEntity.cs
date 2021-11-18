@@ -2,10 +2,12 @@
 using GTTrackEditor.Readers.Entities;
 
 using HelixToolkit.Wpf.SharpDX;
+using SharpDX;
 
 using GTTrackEditor.Attributes;
 
 using PDTools.Files;
+using PDTools.Files.Courses.Runway;
 
 namespace GTTrackEditor.ModelEntities;
 
@@ -14,7 +16,7 @@ namespace GTTrackEditor.ModelEntities;
 /// </summary>
 public class StartingGridModelEntity : BaseModelEntity
 {
-    public Vec3R StartingGridPoint { get; set; }
+    public RunwayStartingGridPosition StartingGridPoint { get; set; }
 
     /// <summary>
     /// Position on the grid (0 indexed).
@@ -24,5 +26,11 @@ public class StartingGridModelEntity : BaseModelEntity
 
     public override bool CanRotateX => false;
     public override bool CanRotateZ => false;
+
+    public override void OnMove()
+    {
+        BoundingBox box = BoundsWithTransform;
+        StartingGridPoint.Position = new Vec3R(box.Center.X, box.Center.Y, box.Center.Z, StartingGridPoint.Position.AngleRad);
+    }
 }
 

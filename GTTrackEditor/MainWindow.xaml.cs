@@ -124,6 +124,17 @@ namespace GTTrackEditor
 
             ContextMenu menu = new ContextMenu() { };
 
+            if (item.Header is IModelCollection collection)
+            {
+                MenuItem visibilityItem = new();
+                visibilityItem.DataContext = item.Header;
+
+                visibilityItem.Header = "Add new element";
+                visibilityItem.Click += Component_AddNew;
+                
+                menu.Items.Add(visibilityItem);
+            }
+
             if (item.Header is IHideable hideable)
             {
                 MenuItem visibilityItem = new();
@@ -140,7 +151,6 @@ namespace GTTrackEditor
                     visibilityItem.Click += Component_Show;
                 }
                 menu.Items.Add(visibilityItem);
-
             }
 
             if (item.Header is RunwayView rwyView)
@@ -160,6 +170,16 @@ namespace GTTrackEditor
         {
             MemoryStream ms = new MemoryStream();
             ModelHandler.RunwayView.RunwayData.ToStream(ms);
+        }
+
+        private void Component_AddNew(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            if (item.DataContext is IModelCollection collection)
+            {
+                collection.AddNew();
+            }
         }
 
         private void Component_Hide(object sender, RoutedEventArgs e)
