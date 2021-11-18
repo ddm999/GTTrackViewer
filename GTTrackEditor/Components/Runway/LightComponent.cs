@@ -49,9 +49,9 @@ public class LightComponent : TrackComponentBase
     public override void RenderComponent()
     {
         Lights.Clear();
-        for (int i = 0; i < RunwayData.LightSets.Count; i++)
+        for (int i = 0; i < RunwayData.LightDefs.Count; i++)
         {
-            Vector3 actualPos = RunwayData.LightSets[i].Position.ToSharpDXVector();
+            Vector3 actualPos = RunwayData.LightDefs[i].Position.ToSharpDXVector();
             MeshBuilder builder = new MeshBuilder();
             builder.AddSphere(actualPos, 1);
             builder.ToMesh();
