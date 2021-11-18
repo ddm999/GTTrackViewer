@@ -45,8 +45,7 @@ public class MakeBigRoad : ScriptBase
         }
 
         var baseFlagsA = rwy.RoadTris[0].flagsA;
-        var baseFlagsB = rwy.RoadTris[0].flagsB;
-        var baseFlagsC = rwy.RoadTris[0].flagsC;
+        var baseUnkBits = rwy.RoadTris[0].unkBits;
         var baseUnk = rwy.RoadTris[0].unk;
         var baseSurf = rwy.RoadTris[0].SurfaceType;
 
@@ -63,8 +62,7 @@ public class MakeBigRoad : ScriptBase
                 RunwayRoadTri tri = new();
                 tri.SurfaceType = baseSurf;
                 tri.flagsA = baseFlagsA;
-                tri.flagsB = baseFlagsB;
-                tri.flagsC = baseFlagsC;
+                tri.unkBits = baseUnkBits;
                 tri.unk = baseUnk;
 
                 if (j==0)
