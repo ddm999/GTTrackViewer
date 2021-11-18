@@ -210,8 +210,9 @@ namespace GTTrackEditor
 
         private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
         {
-            DependencyObject obj = e.OriginalSource as DependencyObject;
-            TreeViewItem item = GetDependencyObjectFromVisualTree(obj, typeof(TreeViewItem)) as TreeViewItem;
+            TreeViewItem item = e.OriginalSource as TreeViewItem;
+            if (item is null)
+                return;
 
             ModelHandler.SetEditTarget(item.Header);
         }

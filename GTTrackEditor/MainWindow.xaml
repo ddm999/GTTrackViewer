@@ -153,7 +153,6 @@
                                     <TreeView Name="ExplorerTree" ItemsSource="{Binding}">
                                         <TreeView.ItemContainerStyle>
                                             <Style TargetType="{x:Type TreeViewItem}">
-                                                <Setter Property="IsExpanded" Value="True"/>
                                                 <EventSetter Event="PreviewMouseRightButtonDown"
                                             Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
                                                 <EventSetter Event="Selected"
