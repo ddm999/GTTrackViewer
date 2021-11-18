@@ -147,9 +147,10 @@ namespace GTTrackEditor
 
         private void SelectExplorerItem(object o)
         {
-            var tvi = FindTviFromObjectRecursive(Parent.FindName("ExplorerTree") as TreeView, o);
-            if (tvi != null) tvi.IsSelected = true;
-        }
+            var tvi = FindTviFromObjectRecursive(Parent.ExplorerTree, o);
+            if (tvi != null) 
+                tvi.IsSelected = true;
+            }
 
         private void ClearExplorerItem()
         {
@@ -159,13 +160,18 @@ namespace GTTrackEditor
         private static TreeViewItem FindTviFromObjectRecursive(ItemsControl ic, object o)
         {
             //Search for the object model in first level children (recursively)
-            if (ic.ItemContainerGenerator.ContainerFromItem(o) is TreeViewItem tvi) return tvi;
+            if (ic.ItemContainerGenerator.ContainerFromItem(o) is TreeViewItem tvi) 
+                return tvi;
+
             foreach (object i in ic.Items)
             {
                 //Get the TreeViewItem associated with the iterated object model
-                if (ic.ItemContainerGenerator.ContainerFromItem(i) is not TreeViewItem tvi2) continue;
+                if (ic.ItemContainerGenerator.ContainerFromItem(i) is not TreeViewItem tvi2) 
+                    continue;
+
                 tvi = FindTviFromObjectRecursive(tvi2, o);
-                if (tvi != null) return tvi;
+                if (tvi != null) 
+                    return tvi;
             }
             return null;
         }

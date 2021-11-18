@@ -84,21 +84,22 @@ namespace GTTrackEditor
                 try
                 {
 #endif
-                    using var file = File.Open(openFileDialog.FileName, FileMode.Open);
+                using var file = File.Open(openFileDialog.FileName, FileMode.Open);
 
-                    if (openFileDialog.FileName.EndsWith(".rwy"))
-                    {
-                        HandleRunway(file, openFileDialog.FileName);
-                    }
-                    else if (openFileDialog.FileName.EndsWith(".ad"))
-                    {
+                if (openFileDialog.FileName.EndsWith(".rwy"))
+                {
+                    HandleRunway(file, openFileDialog.FileName);
+                }
+                else if (openFileDialog.FileName.EndsWith(".ad"))
+                {
 
-                    }
-                    else if (openFileDialog.FileName.EndsWith("x"))
-                    {
-                        //HandleCourseData(ref sr, openFileDialog.FileName);
-                    }
+                }
+                else if (openFileDialog.FileName.EndsWith("x"))
+                {
+                    //HandleCourseData(ref sr, openFileDialog.FileName);
+                }
 #if !DEBUG
+
                 }
                 catch (Exception ex)
                 {
@@ -106,7 +107,6 @@ namespace GTTrackEditor
                     return;
                 }
 #endif
-
                 UpdateTitle();
             }
         }
@@ -116,26 +116,6 @@ namespace GTTrackEditor
             SettingsWindow window = new SettingsWindow();
             window.ShowDialog();
         }
-
-        /*
-        private void ListBoxItem_Selected(object sender, RoutedEventArgs e)
-        {
-            ExplorerVisibleToggle_Buttons(e.Source as ListBoxItem);
-        }
-
-        private void ExplorerContextMenu_Visibility_Click(object sender, RoutedEventArgs e)
-        {
-            ExplorerVisibleToggle_Buttons(((e.Source as MenuItem).Parent as ContextMenu).PlacementTarget as ListBoxItem);
-        }
-
-        private void ExplorerContextMenu_Edit_Click(object sender, RoutedEventArgs e)
-        {
-            ListBoxItem lbi = ((e.Source as MenuItem).Parent as ContextMenu).PlacementTarget as ListBoxItem;
-            byte index = ExplorerItemToIndex(lbi);
-            UpdateTrackModel();
-            ExplorerVisibleRecalculate();
-        }
-        */
 
         void TreeViewItem_OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -310,75 +290,6 @@ namespace GTTrackEditor
 
             Title = $"GT Track Editor {state}";
         }
-
-        /*
-        private void ExplorerVisibleToggle(ListBoxItem lbi, byte i)
-        {
-            if (modelVisibility[i])
-            {
-                modelVisibility[i] = false;
-                lbi.Foreground = lbi.Foreground == _editBrush ? _editHiddenBrush : _hiddenBrush;
-            }
-            else
-            {
-                modelVisibility[i] = true;
-                lbi.Foreground = lbi.Foreground == _editHiddenBrush ? _editBrush : _visibleBrush;
-            }
-        }
-
-        private static byte ExplorerItemToIndex(ListBoxItem lbi)
-        {
-            string name = lbi.Content as string;
-            switch (name[0])
-            {
-                case 'M': // MDL
-                    return name[4] switch
-                    {
-                        '0' => 0,
-                        '1' => 1,
-                        '2' => 2,
-                        '3' => 3,
-                        '4' => 4,
-                        '5' => 5,
-                        _ => throw new InvalidDataException(),
-                    };
-                case 'R': // RWY
-                    return name[4] switch
-                    {
-                        '0' => 6,
-                        '1' => 7,
-                        '2' => 8,
-                        '3' => 9,
-                        _ => throw new InvalidDataException(),
-                    };
-                case 'A': // AD
-                    return name[4] switch
-                    {
-                        '0' => 10,
-                        '1' => 11,
-                        '2' => 12,
-                        '3' => 13,
-                        '4' => 14,
-                        '5' => 15,
-                        '6' => 16,
-                        _ => throw new InvalidDataException(),
-                    };
-                default:
-                    throw new InvalidDataException();
-            }
-        }
-
-        private void ExplorerVisibleToggle_Buttons(ListBoxItem item)
-        {
-            ExplorerVisibleToggle(item, ExplorerItemToIndex(item));
-            UpdateTrackModel();
-        }
-
-        private void UpdateTrackModel()
-        {
-
-        }
-        */
 
         /// <summary>
         /// Used to update the point tracking

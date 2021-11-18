@@ -150,9 +150,10 @@
                         <LayoutAnchorablePaneGroup>
                             <LayoutAnchorablePane>
                                 <LayoutAnchorable Title="Explorer" ContentId="toolWindow1" CanClose="False">
-                                    <TreeView Name="ExplorerTree" ItemsSource="{Binding}">
+                                    <TreeView Name="ExplorerTree">
                                         <TreeView.ItemContainerStyle>
-                                            <Style TargetType="{x:Type TreeViewItem}">
+                                            <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                                <Setter Property="IsExpanded" Value="True"/>
                                                 <EventSetter Event="PreviewMouseRightButtonDown"
                                             Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
                                                 <EventSetter Event="Selected"
