@@ -5,6 +5,8 @@ using PDTools.Files.Courses.Runway;
 namespace GTTrackEditor.Scripts;
 public class RemoveBoundaries : ScriptBase
 {
+    public override string Name => "Remove Boudnaries";
+
     public override bool RequiresRunway { get => true; }
     public override void OnExecute(TrackEditorView tev)
     {

@@ -5,6 +5,8 @@ using PDTools.Files.Courses.Runway;
 namespace GTTrackEditor.Scripts;
 public class MakeBigRoad : ScriptBase
 {
+    public override string Name => "Make Big Road";
+
     public override bool RequiresRunway { get => true; }
     public override void OnExecute(TrackEditorView tev)
     {

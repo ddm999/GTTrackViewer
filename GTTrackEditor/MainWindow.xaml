@@ -14,6 +14,7 @@
   xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway" 
   xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.CourseData" 
   xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
+  xmlns:gt_controls="clr-namespace:GTTrackEditor.Controls"          
   mc:Ignorable="d" 
   Height="720" Width="1280" MinHeight="720" MinWidth="1280"
   Closing="Window_Closing"
@@ -36,17 +37,26 @@
                 <Button Click="LoadFile_Click" ToolTip="Load Course File">
                     <iconPacks:PackIconMaterial Kind="FilePlus" />
                 </Button>
-                <Button Click="ScriptButton_Click" ToolTip="Run Script">
+                <Button ToolTip="Run Script" gt_controls:ContextMenuLeftClickBehavior.IsLeftClickEnabled="True" Padding="4">
                     <iconPacks:PackIconMaterial Kind="Script" />
                     <Button.ContextMenu>
                         <ContextMenu ItemsSource="{Binding ScriptMenuItems}">
                             <ContextMenu.ItemContainerStyle>
-                                <Style TargetType="{x:Type MenuItem}">
+                                <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
                                     <EventSetter Event="Click" Handler="ScriptMenu_Click" />
+                                    <Setter Property="MenuItem.Header" Value="{Binding Name}"/>
                                 </Style>
                             </ContextMenu.ItemContainerStyle>
                         </ContextMenu>
                     </Button.ContextMenu>
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <ContentControl Content="{Binding Content, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                                <Path VerticalAlignment="Center" Margin="6,4,0,0" Fill="White" Data="M -4 -2 L 4 -2 L 0 3 Z"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </Button.ContentTemplate>
                 </Button>
                 <Separator/>
                 <Button Click="Settings_Click" ToolTip="App Settings">

@@ -233,11 +233,6 @@ namespace GTTrackEditor
         }
         */
 
-        private void ScriptButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(this, "right click on that button instead of left clicking", "c# sucks", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-        }
-
         private void ScriptMenu_Click(object sender, RoutedEventArgs e)
         {
 #if !DEBUG

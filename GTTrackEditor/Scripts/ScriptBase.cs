@@ -6,6 +6,8 @@
 namespace GTTrackEditor.Scripts;
 public abstract class ScriptBase
 {
+    public abstract string Name { get; }
+
     public virtual bool RequiresAutodrive { get => false; }
     public virtual bool RequiresCourseData { get => false; }
     public virtual bool RequiresRunway { get => false; }
