@@ -3,8 +3,6 @@ using GTTrackEditor.Readers.Entities;
 
 using HelixToolkit.Wpf.SharpDX;
 
-using GTTrackEditor.Attributes;
-
 using PDTools.Files;
 
 namespace GTTrackEditor.ModelEntities;

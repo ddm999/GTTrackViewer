@@ -1,10 +1,12 @@
-﻿using GTTrackEditor.Readers;
+﻿using System.ComponentModel;
+
+using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
 
 using HelixToolkit.Wpf.SharpDX;
-using SharpDX;
+using HelixToolkit.SharpDX.Core;
 
-using GTTrackEditor.Attributes;
+using SharpDX;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Runway;
@@ -21,12 +23,13 @@ public class StartingGridModelEntity : BaseModelEntity
     /// <summary>
     /// Position on the grid (0 indexed).
     /// </summary>
-    [EditableProperty]
+    [Browsable(true)]
     public int StartingIndex { get; set; }
 
     public override bool CanRotateX => false;
     public override bool CanRotateZ => false;
 
+    
     public override void OnMove()
     {
         BoundingBox box = BoundsWithTransform;

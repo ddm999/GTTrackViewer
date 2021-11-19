@@ -9,6 +9,7 @@
   xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
   xmlns:local="clr-namespace:GTTrackEditor" 
   xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+  xmlns:System="clr-namespace:System;assembly=mscorlib"
   xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
   xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
   xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway" 
@@ -269,9 +270,10 @@
                             </LayoutAnchorablePane>
                         </LayoutAnchorablePaneGroup>
                         <LayoutAnchorablePane>
-                            <LayoutAnchorable Title="Properties" ContentId="toolWindow2" CanClose="False">
-                                <xctk:PropertyGrid Name="PropertyGrid" SelectedObject="{Binding Path=Gizmo.EditItem, Mode=TwoWay}" AutoGenerateProperties="False"
-                                                   Background="#2d2d30" BorderBrush="#2d2d30" Foreground="Black">
+                            <LayoutAnchorable x:Name="PropertyPane" Title="Properties" ContentId="toolWindow2" CanClose="False">
+                                <xctk:PropertyGrid Name="PropertyGrid" SelectedObject="{Binding Path=PropertyGridSelectedItem}" AutoGenerateProperties="False"
+                                                   Background="#2d2d30" BorderBrush="#2d2d30" Foreground="Black" UpdateTextBoxSourceOnEnterKey="True"
+                                                   PreviewMouseDown="PropertyGrid_PreviewMouseDown">
                                     <xctk:PropertyGrid.Resources>
                                         <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="White" /> <!-- ! -->
                                     </xctk:PropertyGrid.Resources>

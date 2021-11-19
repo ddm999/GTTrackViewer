@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Controls;
 
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -21,8 +23,6 @@ using GTTrackEditor.ModelEntities;
 using Xceed.Wpf.Toolkit.PropertyGrid;
 
 using GTTrackEditor.Utils;
-using GTTrackEditor.Attributes;
-using System.Windows.Controls;
 
 namespace GTTrackEditor
 {
@@ -31,6 +31,17 @@ namespace GTTrackEditor
         public MainWindow Parent { get; set; }
 
         public Gizmo Gizmo { get; set; }
+
+        public Element3D _propertyGridSelectedItem { get; set; }
+        public Element3D PropertyGridSelectedItem
+        {
+            get => _propertyGridSelectedItem;
+            set
+            {
+                _propertyGridSelectedItem = value;
+                OnPropertyChanged(nameof(PropertyGridSelectedItem));
+            }
+        }
 
         public ObservableCollection<TrackEditorViewBase> Views { get; set; } = new();
 
@@ -130,10 +141,10 @@ namespace GTTrackEditor
                 EnterEditMode(teModel);
                 UpdateEditMode();
 
-                SelectExplorerItem(teModel);
+                SelectTreeViewItem(teModel);
 
                 PropertyDefinitionCollection list = new();
-                foreach (var prop in teModel.GetType().GetProperties().Where(p => p.GetCustomAttribute<EditableProperty>() is not null))
+                foreach (var prop in teModel.GetType().GetProperties().Where(p => p.GetCustomAttribute<BrowsableAttribute>() is not null))
                     list.Add(new() { Name = prop.Name });
 
                 Gizmo.EditItem = teModel;
@@ -145,7 +156,7 @@ namespace GTTrackEditor
             }
         }
 
-        private void SelectExplorerItem(object o)
+        private void SelectTreeViewItem(object o)
         {
             var tvi = FindTviFromObjectRecursive(Parent.ExplorerTree, o);
             if (tvi != null) 
@@ -193,6 +204,7 @@ namespace GTTrackEditor
         private void EnterEditMode(BaseModelEntity teModel)
         {
             Gizmo.SetActive(teModel);
+            PropertyGridSelectedItem = teModel;
 
             Parent.GizmoManipulator.Visibility = Visibility.Visible;
             Parent.GizmoManipulator.Target = null;
@@ -225,7 +237,7 @@ namespace GTTrackEditor
         /// <summary>
         /// Fired when exiting the edit mode.
         /// </summary>
-        public void ExitEditMode()
+        public void ExitEditMode(bool deactivatePropertyGrid = true)
         {
             Gizmo.SetInactive();
             Parent.GizmoManipulator.Visibility = Visibility.Hidden;
@@ -233,7 +245,8 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.Target = null;
             Parent.GizmoManipulator.CenterOffset = Vector3.Zero;
 
-            Parent.PropertyGrid.SelectedObject = null;
+            if (deactivatePropertyGrid)
+                PropertyGridSelectedItem = null;
 
             Parent.tb_SelectedItemPosition.Text = "No object selected";
         }

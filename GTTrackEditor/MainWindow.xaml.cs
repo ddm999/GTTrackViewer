@@ -376,5 +376,16 @@ namespace GTTrackEditor
             ModelHandler.CourseDataView.Init();
             ModelHandler.CourseDataView.Render();
         }
+
+        /// <summary>
+        /// Fired when the property grid is previewed. Cancels edit mode to avoid possible conflicts.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PropertyGrid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (ModelHandler.Gizmo.Active)
+                ModelHandler.ExitEditMode(deactivatePropertyGrid: false);
+        }
     }
 }

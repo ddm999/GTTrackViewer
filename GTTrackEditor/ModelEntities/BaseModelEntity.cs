@@ -1,12 +1,15 @@
-﻿using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
-
-using HelixToolkit.Wpf.SharpDX;
+﻿using HelixToolkit.Wpf.SharpDX;
 
 using System.ComponentModel;
 using System.Windows.Media;
 
 using GTTrackEditor.Interfaces;
+using GTTrackEditor.Readers;
+using GTTrackEditor.Readers.Entities;
+
+using SharpDX;
+
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace GTTrackEditor.ModelEntities;
 
@@ -15,6 +18,51 @@ namespace GTTrackEditor.ModelEntities;
 /// </summary>
 public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChanged, IHideable
 {
+    [Browsable(true)]
+    [PropertyOrder(0)]
+    public virtual float X
+    {
+        get => BoundsWithTransform.Center.X;
+        set
+        {
+            SetNewPosition(x: value);
+        }
+    }
+
+    [Browsable(true)]
+    [PropertyOrder(1)]
+    public virtual float Y
+    {
+        get => BoundsWithTransform.Center.Y;
+        set
+        {
+            SetNewPosition(y: value);
+        }
+    }
+
+    [Browsable(true)]
+    [PropertyOrder(2)]
+    public virtual float Z
+    {
+        get => BoundsWithTransform.Center.Z;
+        set
+        {
+            SetNewPosition(z: value);
+        }
+    }
+
+    private void SetNewPosition(float x = float.NaN, float y = float.NaN, float z = float.NaN, float r = float.NaN)
+    {
+        x = -(Bounds.Center.X - (float.IsNaN(x) ? BoundsWithTransform.Center.X : x));
+        y = -(Bounds.Center.Y - (float.IsNaN(y) ? BoundsWithTransform.Center.Y : y));
+        z = -(Bounds.Center.Z - (float.IsNaN(z) ? BoundsWithTransform.Center.Z : z));
+
+        // Todo: Implement angle
+
+        var m = SharpDX.Matrix.Translation(new Vector3(x, y, z));
+        Transform = new System.Windows.Media.Media3D.MatrixTransform3D(m.ToMatrix3D());
+    }
+
     /// <summary>
     /// Whether the model is allowed to rotate on the X axis.
     /// </summary>
