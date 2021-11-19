@@ -227,11 +227,11 @@ namespace GTTrackEditor
         /// <param name="modelHit"></param>
         public void UpdateEditMode()
         {
-            Vector3 newPos = (Gizmo.EditItem as GeometryModel3D).BoundsWithTransform.Center;
-            Parent.tb_SelectedItemPosition.Text = $"Object: {newPos}";
+            BaseModelEntity entity = Gizmo.EditItem as BaseModelEntity;
+            Vector3 newPos = entity.BoundsWithTransform.Center;
+            Parent.tb_SelectedItemPosition.Text = $"Object: {newPos} | {entity.AngleX}";
 
-            if (Gizmo.EditItem is BaseModelEntity entity)
-                entity.OnMove();
+            entity.OnMove();
         }
 
         /// <summary>

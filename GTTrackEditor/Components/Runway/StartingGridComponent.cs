@@ -71,6 +71,7 @@ public class StartingGridComponent : TrackComponentBase, IModelCollection
 
                 StartingIndex = i,
                 StartingGridPoint = RunwayData.StartingGrid[i],
+                AngleX = RunwayData.StartingGrid[i].Position.AngleRad,
             };
 
             Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);

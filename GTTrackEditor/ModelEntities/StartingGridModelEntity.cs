@@ -1,4 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
+using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
+using Quaternion = System.Windows.Media.Media3D.Quaternion;
 
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
@@ -29,11 +36,12 @@ public class StartingGridModelEntity : BaseModelEntity
     public override bool CanRotateX => false;
     public override bool CanRotateZ => false;
 
-    
     public override void OnMove()
     {
-        BoundingBox box = BoundsWithTransform;
-        StartingGridPoint.Position = new Vec3R(box.Center.X, box.Center.Y, box.Center.Z, StartingGridPoint.Position.AngleRad);
+        MatrixTransform3D m = Transform as MatrixTransform3D;
+
+        AngleX = (float)Math.Atan2(m.Value.M31, m.Value.M11);
+        StartingGridPoint.Position = new Vec3R(X, Y, Z, AngleX);
     }
 }
 

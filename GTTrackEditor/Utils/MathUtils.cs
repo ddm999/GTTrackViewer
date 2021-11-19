@@ -6,12 +6,13 @@ namespace GTTrackEditor.Utils
     {
         public static float PDRadToDeg(float rad)
         {
+            float degrees = (rad * 180) / MathF.PI;
             if (rad < 0)
             {
-                rad = MathF.PI + -rad;
+                degrees += 360;
             }
 
-            return rad * 180f / MathF.PI;
+            return degrees;
         }
     }
 }

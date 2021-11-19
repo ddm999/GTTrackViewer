@@ -1,13 +1,19 @@
 ﻿using HelixToolkit.Wpf.SharpDX;
 
+using System;
 using System.ComponentModel;
 using System.Windows.Media;
 
 using GTTrackEditor.Interfaces;
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
+using GTTrackEditor.Utils;
 
 using SharpDX;
+using Point3D = System.Windows.Media.Media3D.Point3D;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
+using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
+using Quaternion = System.Windows.Media.Media3D.Quaternion;
 
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
@@ -51,16 +57,27 @@ public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChan
         }
     }
 
+    [Browsable(true)]
+    public virtual float AngleX { get; set; }
+
     private void SetNewPosition(float x = float.NaN, float y = float.NaN, float z = float.NaN, float r = float.NaN)
     {
         x = -(Bounds.Center.X - (float.IsNaN(x) ? BoundsWithTransform.Center.X : x));
         y = -(Bounds.Center.Y - (float.IsNaN(y) ? BoundsWithTransform.Center.Y : y));
         z = -(Bounds.Center.Z - (float.IsNaN(z) ? BoundsWithTransform.Center.Z : z));
+        var sMatrix = SharpDX.Matrix.Translation(new Vector3(x, y, z));
 
-        // Todo: Implement angle
+        Vector3 newPos = new(Bounds.Center.X + x, Bounds.Center.Y + x, Bounds.Center.Z + z);
 
-        var m = SharpDX.Matrix.Translation(new Vector3(x, y, z));
-        Transform = new System.Windows.Media.Media3D.MatrixTransform3D(m.ToMatrix3D());
+        // Apply X angle
+        float angle = MathUtils.PDRadToDeg(AngleX);
+        var m = sMatrix.ToMatrix3D();
+        Vector3D axis = new(0, 1, 0);
+        m.RotateAt(new Quaternion(axis, angle), new Point3D(newPos.X, newPos.Y, newPos.Z));
+
+        AngleX = (float)Math.Atan2(m.M31, m.M11);
+
+        Transform = new System.Windows.Media.Media3D.MatrixTransform3D(m);
     }
 
     /// <summary>
