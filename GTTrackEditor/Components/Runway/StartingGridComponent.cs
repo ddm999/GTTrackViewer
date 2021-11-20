@@ -29,7 +29,7 @@ namespace GTTrackEditor.Components.Runway;
 
 public class StartingGridComponent : TrackComponentBase, IModelCollection
 {
-    public ObservableElement3DCollection StartingGridPoints { get; set; } = new();
+    public ObservableCollection<Element3D> StartingGridPoints { get; set; } = new();
     public DiffuseMaterial StartingGridMaterial { get; set; } = new();
 
     public RunwayFile RunwayData { get; set; }

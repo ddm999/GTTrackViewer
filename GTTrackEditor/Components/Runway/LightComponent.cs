@@ -29,7 +29,7 @@ namespace GTTrackEditor.Components.Runway;
 
 public class LightComponent : TrackComponentBase, IModelCollection
 {
-    public ObservableElement3DCollection Lights { get; set; } = new();
+    public ObservableCollection<Element3D> Lights { get; set; } = new();
     public DiffuseMaterial LightMaterial { get; set; } = new();
 
     public RunwayFile RunwayData { get; set; }

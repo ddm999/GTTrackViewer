@@ -29,7 +29,7 @@ namespace GTTrackEditor.Components.Runway;
 
 public class OldGadgetComponent : TrackComponentBase, IModelCollection
 {
-    public ObservableElement3DCollection Gadgets { get; set; } = new();
+    public ObservableCollection<Element3D> Gadgets { get; set; } = new();
     public DiffuseMaterial GadgetMaterial { get; set; } = new();
 
     public RunwayFile RunwayData { get; set; }

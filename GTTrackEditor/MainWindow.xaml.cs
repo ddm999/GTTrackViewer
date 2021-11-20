@@ -130,7 +130,7 @@ namespace GTTrackEditor
                 visibilityItem.DataContext = item.Header;
 
                 visibilityItem.Header = "Add new element";
-                visibilityItem.Click += Component_AddNewClicked;
+                visibilityItem.Click += Component_AddNewEntityClicked;
 
                 menu.Items.Add(visibilityItem);
             }
@@ -179,11 +179,19 @@ namespace GTTrackEditor
 
         private void Runway_Export(object sender, RoutedEventArgs e)
         {
-            MemoryStream ms = new MemoryStream();
-            ModelHandler.RunwayView.RunwayData.ToStream(ms);
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.ValidateNames = true;
+
+            if (dlg.ShowDialog() == true)
+            {
+                using var file = dlg.OpenFile();
+                ModelHandler.RunwayView.RunwayData.ToStream(file);
+
+                MessageBox.Show($"Runway successfully exported as {dlg.FileName}.", "Completed", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
-        private void Component_AddNewClicked(object sender, RoutedEventArgs e)
+        private void Component_AddNewEntityClicked(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
 
@@ -251,23 +259,6 @@ namespace GTTrackEditor
 
             ModelHandler.SetEditTarget(item.Header);
         }
-
-        /*
-        private void ExplorerContextMenu_Delete_Click(object sender, RoutedEventArgs e)
-        {
-            ListBoxItem lbi = ((e.Source as MenuItem).Parent as ContextMenu).PlacementTarget as ListBoxItem;
-            byte id = ExplorerItemToIndex(lbi);
-            Span<byte> span = File.ReadAllBytes(_courseDataFileName);
-            SpanReader sr = new(span, endian: Endian.Big);
-            SpanWriter sw = new(span, endian: Endian.Big);
-
-            ModelHandler.CourseDataView.CourseData.DeleteModel(ref sr, ref sw, id);
-            File.WriteAllBytes(_courseDataFileName, span.ToArray());
-
-            lbi.Visibility = Visibility.Hidden;
-            UpdateTrackModel();
-        }
-        */
 
         private void ScriptMenu_Click(object sender, RoutedEventArgs e)
         {
