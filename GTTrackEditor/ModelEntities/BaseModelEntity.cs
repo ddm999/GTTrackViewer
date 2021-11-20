@@ -131,7 +131,7 @@ public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChan
     protected float _yawAngle;
 
     /// <summary>
-    /// Yaw angle of the entity, if allowed to rotate.
+    /// Yaw angle of the entity from 0° to 360°, if allowed to rotate. 
     /// </summary>
     /// <remarks>Note: Updating this property will update the transform.</remarks>
     [Browsable(true)]
