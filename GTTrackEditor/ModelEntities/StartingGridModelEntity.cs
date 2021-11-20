@@ -9,6 +9,7 @@ using Quaternion = System.Windows.Media.Media3D.Quaternion;
 
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
+using GTTrackEditor.Utils;
 
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core;
@@ -33,15 +34,21 @@ public class StartingGridModelEntity : BaseModelEntity
     [Browsable(true)]
     public int StartingIndex { get; set; }
 
-    public override bool CanRotateX => false;
-    public override bool CanRotateZ => false;
+    public override bool PitchRotationAllowed => false;
+    public override bool RollRotationAllowed => false;
 
-    public override void OnMove()
+    public override void OnManipulation()
+    {
+        UpdateValues();
+    }
+
+    public override void UpdateValues()
     {
         MatrixTransform3D m = Transform as MatrixTransform3D;
+        float rad = m.GetMatrixYawAngleRad();
 
-        AngleX = (float)Math.Atan2(m.Value.M31, m.Value.M11);
-        StartingGridPoint.Position = new Vec3R(X, Y, Z, AngleX);
+        StartingGridPoint.Position = new Vec3R(X, Y, Z, rad);
     }
 }
+
 

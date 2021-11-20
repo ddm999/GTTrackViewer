@@ -58,11 +58,11 @@ public class StartingGridComponent : TrackComponentBase, IModelCollection
 
             Vector3 actualPos = RunwayData.StartingGrid[i].Position.ToSharpDXVector();
             for (int j = 0; j < gridGeometry.Positions.Count; ++j)
-            {
                 gridGeometry.Positions[j] += actualPos;
-            }
+
             gridGeometry.UpdateBounds();
 
+            float angle = MathUtils.Atan2RadToDeg(RunwayData.StartingGrid[i].Position.AngleRad);
             StartingGridModelEntity newGridModel = new()
             {
                 Geometry = gridGeometry,
@@ -71,14 +71,9 @@ public class StartingGridComponent : TrackComponentBase, IModelCollection
 
                 StartingIndex = i,
                 StartingGridPoint = RunwayData.StartingGrid[i],
-                AngleX = RunwayData.StartingGrid[i].Position.AngleRad,
+
+                YawAngle = angle,
             };
-
-            Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);
-
-            // Apply angle
-            float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].Position.AngleRad);
-            ModelUtils.Rotate(newGridModel, center, angle);
 
             StartingGridPoints.Add(newGridModel);
         }

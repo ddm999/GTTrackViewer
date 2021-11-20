@@ -212,9 +212,9 @@ namespace GTTrackEditor
             Parent.GizmoManipulator.Target = teModel;
 
             Parent.GizmoManipulator.EnableScaling = teModel.CanScale;
-            Parent.GizmoManipulator.EnableRotationX = teModel.CanRotateX;
-            Parent.GizmoManipulator.EnableRotationY = teModel.CanRotateY;
-            Parent.GizmoManipulator.EnableRotationZ = teModel.CanRotateZ;
+            Parent.GizmoManipulator.EnableRotationX = teModel.PitchRotationAllowed;
+            Parent.GizmoManipulator.EnableRotationY = teModel.YawRotationAllowed;
+            Parent.GizmoManipulator.EnableRotationZ = teModel.RollRotationAllowed;
 
             Parent.GizmoManipulator.EnableTranslationX = teModel.CanTranslateX;
             Parent.GizmoManipulator.EnableTranslationY = teModel.CanTranslateY;
@@ -229,9 +229,9 @@ namespace GTTrackEditor
         {
             BaseModelEntity entity = Gizmo.EditItem as BaseModelEntity;
             Vector3 newPos = entity.BoundsWithTransform.Center;
-            Parent.tb_SelectedItemPosition.Text = $"Object: {newPos} | {entity.AngleX}";
+            Parent.tb_SelectedItemPosition.Text = $"Object: {newPos} | {entity.YawAngle}";
 
-            entity.OnMove();
+            entity.OnManipulation();
         }
 
         /// <summary>

@@ -12,12 +12,17 @@ namespace GTTrackEditor.ModelEntities;
 /// </summary>
 public class OldGadgetModelEntity : BaseModelEntity
 {
-    public override bool CanRotateX => false;
-    public override bool CanRotateZ => false;
+    public override bool PitchRotationAllowed => false;
+    public override bool RollRotationAllowed => false;
 
-    public override void OnMove()
+    public override void OnManipulation()
     {
 
+    }
+
+    public override void UpdateValues()
+    {
+        
     }
 }
 
