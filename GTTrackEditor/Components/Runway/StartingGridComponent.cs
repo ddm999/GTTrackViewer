@@ -119,5 +119,13 @@ public class StartingGridComponent : TrackComponentBase, IModelCollection
             StartingGridPoint = newStartGridPos,
         });
     }
+
+    public void Remove(Element3D entity)
+    {
+        StartingGridModelEntity model = entity as StartingGridModelEntity;
+        RunwayData.StartingGrid.Remove(model.StartingGridPoint);
+
+        StartingGridPoints.Remove(entity);
+    }
 }
 

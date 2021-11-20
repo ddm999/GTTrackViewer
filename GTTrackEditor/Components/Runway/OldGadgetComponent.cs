@@ -20,13 +20,14 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
+using GTTrackEditor.Interfaces;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Runway;
 
 namespace GTTrackEditor.Components.Runway;
 
-public class OldGadgetComponent : TrackComponentBase
+public class OldGadgetComponent : TrackComponentBase, IModelCollection
 {
     public ObservableElement3DCollection Gadgets { get; set; } = new();
     public DiffuseMaterial GadgetMaterial { get; set; } = new();
@@ -56,25 +57,16 @@ public class OldGadgetComponent : TrackComponentBase
             builder.AddSphere(actualPos, 1);
             builder.ToMesh();
 
-            OldGadgetModelEntity newGridModel = new()
+            OldGadgetModelEntity newGadgetModel = new()
             {
                 Geometry = builder.ToMesh(),
                 Material = GadgetMaterial,
 
                 DepthBias = -15,
+                GadgetData = RunwayData.Gadgets[i],
             };
 
-            /*
-            Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);
-
-            // Apply angle
-            float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].AngleRad);
-            ModelUtils.Rotate(newGridModel, center, angle);
-
-            StartingGridPoints.Add(newGridModel);
-            */
-
-            Gadgets.Add(newGridModel);
+            Gadgets.Add(newGadgetModel);
         }
     }
 
@@ -98,6 +90,36 @@ public class OldGadgetComponent : TrackComponentBase
             (i as OldGadgetModelEntity).Show();
         TreeViewItemColor = Brushes.White;
         IsVisible = true;
+    }
+
+    public void AddNew()
+    {
+        var gData = new RunwayGadgetOld();
+
+        MeshBuilder builder = new MeshBuilder();
+        builder.AddSphere(Vector3.Zero, 1);
+        builder.ToMesh();
+
+        RunwayData.Gadgets.Add(gData);
+
+        OldGadgetModelEntity newGadgetModel = new()
+        {
+            Geometry = builder.ToMesh(),
+            Material = GadgetMaterial,
+
+            DepthBias = -15,
+            GadgetData = gData,
+        };
+
+        Gadgets.Add(newGadgetModel);
+    }
+
+    public void Remove(Element3D entity)
+    {
+        OldGadgetModelEntity model = entity as OldGadgetModelEntity;
+        RunwayData.Gadgets.Remove(model.GadgetData);
+
+        Gadgets.Remove(entity);
     }
 }
 

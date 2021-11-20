@@ -20,13 +20,14 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
+using GTTrackEditor.Interfaces;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Runway;
 
 namespace GTTrackEditor.Components.Runway;
 
-public class LightComponent : TrackComponentBase
+public class LightComponent : TrackComponentBase, IModelCollection
 {
     public ObservableElement3DCollection Lights { get; set; } = new();
     public DiffuseMaterial LightMaterial { get; set; } = new();
@@ -62,17 +63,8 @@ public class LightComponent : TrackComponentBase
                 Material = LightMaterial,
 
                 DepthBias = -15,
+                LightData = RunwayData.LightDefs[i],
             };
-
-            /*
-            Point3D center = new(actualPos.X, actualPos.Y, actualPos.Z);
-
-            // Apply angle
-            float angle = MathUtils.PDRadToDeg(RunwayData.StartingGrid[i].AngleRad);
-            ModelUtils.Rotate(newGridModel, center, angle);
-
-            StartingGridPoints.Add(newGridModel);
-            */
 
             Lights.Add(newLightModel);
         }
@@ -91,7 +83,44 @@ public class LightComponent : TrackComponentBase
 
     public override void Show()
     {
+        if (IsVisible)
+            return;
 
+        foreach (Element3D i in Lights)
+            (i as LightModelEntity).Show();
+        TreeViewItemColor = Brushes.White;
+        IsVisible = true;
+    }
+
+
+    public void AddNew()
+    {
+        var def = new RunwayLightDefinition();
+
+        MeshBuilder builder = new MeshBuilder();
+        builder.AddSphere(Vector3.Zero, 1);
+        builder.ToMesh();
+
+        RunwayData.LightDefs.Add(def);
+
+        LightModelEntity newLightModel = new()
+        {
+            Geometry = builder.ToMesh(),
+            Material = LightMaterial,
+
+            DepthBias = -15,
+            LightData = def,
+        };
+
+        Lights.Add(newLightModel);
+    }
+
+    public void Remove(Element3D entity)
+    {
+        LightModelEntity model = entity as LightModelEntity;
+        RunwayData.LightDefs.Remove(model.LightData);
+
+        Lights.Remove(entity);
     }
 }
 

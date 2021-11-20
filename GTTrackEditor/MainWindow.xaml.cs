@@ -28,6 +28,7 @@ using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
 using GTTrackEditor.Readers;
 using GTTrackEditor.Readers.Entities;
+using GTTrackEditor.ModelEntities;
 
 using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
@@ -123,15 +124,25 @@ namespace GTTrackEditor
             TreeViewItem item = GetDependencyObjectFromVisualTree(obj, typeof(TreeViewItem)) as TreeViewItem;
 
             ContextMenu menu = new ContextMenu() { };
-
             if (item.Header is IModelCollection collection)
             {
                 MenuItem visibilityItem = new();
                 visibilityItem.DataContext = item.Header;
 
                 visibilityItem.Header = "Add new element";
-                visibilityItem.Click += Component_AddNew;
-                
+                visibilityItem.Click += Component_AddNewClicked;
+
+                menu.Items.Add(visibilityItem);
+            }
+
+            if (item.Header is BaseModelEntity)
+            {
+                MenuItem visibilityItem = new();
+                visibilityItem.DataContext = item;
+
+                visibilityItem.Header = "Delete";
+                visibilityItem.Click += Entity_RemoveClicked;
+
                 menu.Items.Add(visibilityItem);
             }
 
@@ -143,12 +154,12 @@ namespace GTTrackEditor
                 if (hideable.IsVisible)
                 {
                     visibilityItem.Header = "Hide Element";
-                    visibilityItem.Click += Component_Hide;
+                    visibilityItem.Click += Component_HideClicked;
                 }
                 else
                 {
                     visibilityItem.Header = "Show Element";
-                    visibilityItem.Click += Component_Show;
+                    visibilityItem.Click += Component_ShowClicked;
                 }
                 menu.Items.Add(visibilityItem);
             }
@@ -172,7 +183,7 @@ namespace GTTrackEditor
             ModelHandler.RunwayView.RunwayData.ToStream(ms);
         }
 
-        private void Component_AddNew(object sender, RoutedEventArgs e)
+        private void Component_AddNewClicked(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
 
@@ -182,7 +193,31 @@ namespace GTTrackEditor
             }
         }
 
-        private void Component_Hide(object sender, RoutedEventArgs e)
+        private void Entity_RemoveClicked(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            if (item is null)
+                return;
+
+            if (item.DataContext is not TreeViewItem tvi)
+                return;
+
+            ItemsControl parent = ItemsControl.ItemsControlFromItemContainer(tvi);
+            if (parent is null)
+                return;
+
+            if (parent.DataContext is not IModelCollection collection)
+                return;
+
+            var elem = tvi.DataContext as Element3D;
+
+            if (ModelHandler.Gizmo.Active && ModelHandler.Gizmo.EditItem == elem)
+                ModelHandler.ExitEditMode();
+
+            collection.Remove(tvi.DataContext as Element3D);
+        }
+
+        private void Component_HideClicked(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
 
@@ -198,7 +233,7 @@ namespace GTTrackEditor
             }
         }
 
-        private void Component_Show(object sender, RoutedEventArgs e)
+        private void Component_ShowClicked(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
 
