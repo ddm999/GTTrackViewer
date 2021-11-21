@@ -44,24 +44,17 @@ public class CheckpointComponent : TrackComponentBase
     public override void RenderComponent()
     {
         MeshBuilder meshBuilder = new(false, false);
-        for (int i = 0; i < RunwayData.Checkpoints.Count; i++)
+        for (int n = 0; n < RunwayData.Checkpoints.Count; n++)
         {
-            meshBuilder.AddQuad(
-                RunwayData.Checkpoints[i].Left.ToSharpDXVector(),
-                RunwayData.Checkpoints[i].Middle.ToSharpDXVector(),
-                RunwayData.Checkpoints[i].Middle.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f),
-                RunwayData.Checkpoints[i].Left.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f)
-                );
-            meshBuilder.AddQuad(
-                RunwayData.Checkpoints[i].Middle.ToSharpDXVector(),
-                RunwayData.Checkpoints[i].Right.ToSharpDXVector(),
-                RunwayData.Checkpoints[i].Right.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f),
-                RunwayData.Checkpoints[i].Middle.ToSharpDXVector() + new Vector3(0.0f, 3f, 0.0f)
-                );
+            List<Vector3> vec3s = new();
+            vec3s.Add(RunwayData.Checkpoints[n].Left.ToSharpDXVector());
+            vec3s.Add(RunwayData.Checkpoints[n].Middle.ToSharpDXVector());
+            vec3s.Add(RunwayData.Checkpoints[n].Right.ToSharpDXVector());
+            meshBuilder.AddTube(vec3s, 1f, 18, false, true, true);
         }
 
         MeshGeometry3D checks = meshBuilder.ToMesh();
-        checks.Normals = checks.CalculateNormals();
+        //checks.Normals = checks.CalculateNormals();
         checks.AssignTo(CheckpointModel);
     }
 
