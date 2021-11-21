@@ -16,7 +16,7 @@ public abstract class TrackEditorViewBase
     /// <summary>
     /// Name for the tree view.
     /// </summary>
-    public abstract string TreeViewName { get; }
+    public string TreeViewName { get; set; }
 
     /// <summary>
     /// Components to render for this view.

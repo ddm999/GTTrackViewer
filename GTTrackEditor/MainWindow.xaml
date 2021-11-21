@@ -12,7 +12,8 @@
   xmlns:System="clr-namespace:System;assembly=mscorlib"
   xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
   xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
-  xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway" 
+  xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway"
+  xmlns:gt_minimap_components="clr-namespace:GTTrackEditor.Components.Minimap" 
   xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.CourseData" 
   xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
   xmlns:gt_controls="clr-namespace:GTTrackEditor.Controls"          
@@ -129,6 +130,10 @@
                                     <!-- Course Data Geometry -->
                                     <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
 
+                                    <hx:GroupModel3D Name="MinimapSections" ItemsSource="{Binding MinimapView.SectionFaceComponent.Meshes}" IsHitTestVisible="False"/>
+                                    <hx:GroupModel3D Name="MinimapRoad" ItemsSource="{Binding MinimapView.RoadFaceComponent.Meshes}" IsHitTestVisible="False"/>
+                                    <hx:GroupModel3D Name="MinimapPitlane" ItemsSource="{Binding MinimapView.PitlaneFaceComponent.Meshes}" IsHitTestVisible="False"/>
+                                    
                                     <!-- Runway Geometry -->
                                     <hx:MeshGeometryModel3D Name="RunwayBoundary3D" Geometry="{Binding RunwayView.Boundary.BoundaryModel}" Material="{Binding RunwayView.Boundary.BoundaryMaterial}" DepthBias="-10" CullMode="Back"/>
                                     <hx:MeshGeometryModel3D Name="RunwayCheckpoints3D" Geometry="{Binding RunwayView.Checkpoints.CheckpointModel}" Material="{Binding RunwayView.Checkpoints.CheckpointMaterial}" CullMode="None"/>
@@ -171,6 +176,30 @@
                                             </TreeViewItem.Header>
                                         </TreeViewItem>
                                         <TreeView.Resources>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding TreeViewName}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseMapView}" ItemsSource="{Binding Components}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="Map" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding TreeViewName}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_minimap_components:MinimapFaceComponent}" ItemsSource="{Binding Meshes}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="MapOutline" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            
+                                            <!-- Runway -->
                                             <HierarchicalDataTemplate DataType="{x:Type gt_views:RunwayView}" ItemsSource="{Binding Components}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <iconPacks:PackIconMaterial Kind="RoadVariant" />
@@ -179,13 +208,6 @@
                                                     <TextBlock Text=" (" />
                                                     <TextBlock Text="{Binding FileName}" />
                                                     <TextBlock Text=")" />
-                                                </StackPanel>
-                                            </HierarchicalDataTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
-                                                    <TextBlock Text=" "/>
-                                                    <TextBlock Text="{Binding TreeViewName}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_mentities:StartingGridModelEntity}">

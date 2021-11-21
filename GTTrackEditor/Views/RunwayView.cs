@@ -26,7 +26,6 @@ namespace GTTrackEditor.Views;
 
 public class RunwayView : TrackEditorViewBase
 {
-    public override string TreeViewName => "Runway";
     public string FileName { get; set; }
 
     public RunwayFile RunwayData { get; private set; }
@@ -47,6 +46,7 @@ public class RunwayView : TrackEditorViewBase
 
     public RunwayView()
     {
+        TreeViewName = "Runway";
         PitStopsMaterial.DiffuseColor = new(1.0f, 0.0f, 0.0f, 1.0f);
     }
 

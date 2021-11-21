@@ -48,6 +48,7 @@ namespace GTTrackEditor
         public RunwayView RunwayView { get; } = new();
         public CourseDataView CourseDataView { get; } = new();
         public AutodriveView AutodriveView { get; } = new();
+        public CourseMapView MinimapView { get; } = new();
 
         /// <summary>
         /// Grid, for utility
@@ -106,7 +107,7 @@ namespace GTTrackEditor
 
                 if (isManipulator && Gizmo.Active)
                     UpdateEditMode();
-                else if (e.HitTestResult.ModelHit is BaseModelEntity teModel)
+                else if (e.HitTestResult.ModelHit is BaseModelEntity teModel && teModel.IsHitTestVisible)
                 {
                     if (!Gizmo.Active || target != Gizmo.EditItem)
                     {

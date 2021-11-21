@@ -13,13 +13,13 @@ namespace GTTrackEditor.Views;
 
 public class CourseDataView : TrackEditorViewBase
 {
-    public override string TreeViewName => "Course Data";
     public PACB CourseData { get; set; }
 
     public CourseDataMeshComponent CourseModels { get; set; } = new();
 
     public void SetCourseData(PACB courseData)
     {
+        TreeViewName = "Course Data";
         CourseData = courseData;
     }
 

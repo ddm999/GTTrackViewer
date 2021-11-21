@@ -32,6 +32,7 @@ using GTTrackEditor.ModelEntities;
 
 using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
+using PDTools.Files.Courses.Minimap;
 
 namespace GTTrackEditor
 {
@@ -77,7 +78,8 @@ namespace GTTrackEditor
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Course Data Files (c***x)|*.*|" +
                 "Runway Files|*.rwy|" +
-                "Autodrive Files|*.ad";
+                "Autodrive Files|*.ad|" +
+                "Course Map Files|*.map";
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -90,6 +92,10 @@ namespace GTTrackEditor
                 if (openFileDialog.FileName.EndsWith(".rwy"))
                 {
                     HandleRunway(file, openFileDialog.FileName);
+                }
+                else if (openFileDialog.FileName.EndsWith(".map"))
+                {
+                    HandleMinimap(file, openFileDialog.FileName);
                 }
                 else if (openFileDialog.FileName.EndsWith(".ad"))
                 {
@@ -257,7 +263,8 @@ namespace GTTrackEditor
             if (item is null)
                 return;
 
-            ModelHandler.SetEditTarget(item.Header);
+            if (item.Header is Element3D elem && elem.IsHitTestVisible)
+                ModelHandler.SetEditTarget(item.Header);
         }
 
         private void ScriptMenu_Click(object sender, RoutedEventArgs e)
@@ -388,6 +395,19 @@ namespace GTTrackEditor
             ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(fileName);
             ModelHandler.RunwayView.Init();
             ModelHandler.RunwayView.Render();
+        }
+
+        private void HandleMinimap(Stream stream, string fileName)
+        {
+            CourseMapFile runway = CourseMapFile.FromStream(stream);
+            ModelHandler.MinimapView.SetMinimapData(runway);
+
+            if (!ModelHandler.Views.Contains(ModelHandler.MinimapView))
+                ModelHandler.Views.Add(ModelHandler.MinimapView);
+
+            ModelHandler.MinimapView.FileName = Path.GetFileNameWithoutExtension(fileName);
+            ModelHandler.MinimapView.Init();
+            ModelHandler.MinimapView.Render();
         }
 
         private void HandleCourseData(ref SpanReader sr, string fileName)

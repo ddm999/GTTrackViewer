@@ -23,8 +23,6 @@ namespace GTTrackEditor.Views;
 
 public class AutodriveView : TrackEditorViewBase
 {
-    public override string TreeViewName => "Autodrive";
-
     public AutoDriveFile AutodriveData { get; private set; }
 
     public MeshGeometry3D AutoDriveModel { get; set; } = new();
@@ -47,6 +45,7 @@ public class AutodriveView : TrackEditorViewBase
 
     public AutodriveView()
     {
+        TreeViewName = "Autodrive";
         DrivingLineMaterial.DiffuseColor = new Color4(0.231f, 0.788f, 0.929f, 0.8f);
     }
 
