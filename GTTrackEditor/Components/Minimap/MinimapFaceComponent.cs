@@ -15,12 +15,13 @@ using System.IO;
 
 using GTTrackEditor.Components;
 using GTTrackEditor.ModelEntities;
+using GTTrackEditor.Interfaces;
 
 using PDTools.Files.Courses.Minimap;
 
 namespace GTTrackEditor.Components.Minimap
 {
-    public class MinimapFaceComponent : TrackComponentBase
+    public class MinimapFaceComponent : TrackComponentBase, IModelCollection
     {
         public List<CourseMapFace> Faces { get; set; }
 
@@ -29,6 +30,8 @@ namespace GTTrackEditor.Components.Minimap
 
         public bool IsSectorFace { get; set; }
         public bool IsPitlaneFace { get; set; }
+        public bool IsLine { get; set; }
+
         public MinimapFaceComponent()
         {
             StartingGridMaterial.DiffuseColor = new(0.404f, 0.404f, 0.404f, 1f);
@@ -45,14 +48,16 @@ namespace GTTrackEditor.Components.Minimap
                 BuildSectors();
             else if (IsPitlaneFace)
                 BuildPitlane();
+            else if (IsLine)
+                BuildLine();
             else
             {
-                BuildRoad();
+                BuildPoints();
             }
 
         }
 
-        private void BuildRoad()
+        private void BuildLine()
         {
             StartingGridMaterial.DiffuseColor = new(1f, 1f, 1f, 1f);
 
@@ -71,18 +76,51 @@ namespace GTTrackEditor.Components.Minimap
                     buf.Add(current);
                 }
 
-                meshBuilder.AddTube(buf, 5f, 18, false);
+                
+                meshBuilder.AddTube(buf, 3f, 18, false);
                 var mesh = new CourseMapFaceModelEntity()
                 {
                     Geometry = meshBuilder.ToMesh(),
                     Material = StartingGridMaterial,
 
+                    Face = face,
                     IsHitTestVisible = false,
                 };
 
                 Meshes.Add(mesh);
                 buf.Clear();
             }
+
+            /* 
+            for (int i = 0; i < Faces.Count; i++)
+            {
+                LineBuilder lineBuilder = new LineBuilder();
+            
+                Color4Collection colors = new();
+                Vector3 last = Vector3.Zero;
+            
+                var face = Faces[i];
+                for (int j = 0; j < face.Points.Count; j++)
+                {
+                    var point = face.Points[j];
+                    Vector3 current = new Vector3((float)point.X * 0.25f, (float)point.Y * 0.25f, (float)point.Z * 0.25f);
+            
+                    if (last != Vector3.Zero)
+                        lineBuilder.AddLine(last, current);
+            
+                    last = current;
+                }
+                var mesh = new LineGeometryModel3D()
+                {
+                    Geometry = lineBuilder.ToLineGeometry3D(),
+                    Color = System.Windows.Media.Colors.White,
+            
+                    IsHitTestVisible = false,
+                };
+            
+                Meshes.Add(mesh);
+            }
+            */
         }
 
         private void BuildPitlane()
@@ -110,6 +148,7 @@ namespace GTTrackEditor.Components.Minimap
                     Geometry = meshBuilder.ToMesh(),
                     Material = StartingGridMaterial,
 
+                    Face = face,
                     IsHitTestVisible = false,
                 };
 
@@ -164,6 +203,41 @@ namespace GTTrackEditor.Components.Minimap
                     Geometry = meshBuilder.ToMesh(),
                     Material = StartingGridMaterial,
 
+                    Face = face,
+                    IsHitTestVisible = false,
+                };
+
+                Meshes.Add(mesh);
+                buf.Clear();
+            }
+        }
+
+        private void BuildPoints()
+        {
+            StartingGridMaterial.DiffuseColor = new(1f, 1f, 1f, 1f);
+            List<Vector3> buf = new List<Vector3>();
+
+            // TODO: Don't use spheres, link instead
+            for (int i = 0; i < Faces.Count; i++)
+            {
+                var face = Faces[i];
+                MeshBuilder meshBuilder = new(false, false);
+                Color4Collection colors = new();
+
+                for (int j = 0; j < face.Points.Count; j++)
+                {
+                    var point = face.Points[j];
+                    Vector3 current = new Vector3((float)point.X * 0.25f, (float)point.Y * 0.25f, (float)point.Z * 0.25f);
+
+                    meshBuilder.AddSphere(current, radius: 0.5f);
+                }
+
+                var mesh = new CourseMapFaceModelEntity()
+                {
+                    Geometry = meshBuilder.ToMesh(),
+                    Material = StartingGridMaterial,
+
+                    Face = face,
                     IsHitTestVisible = false,
                 };
 
@@ -206,6 +280,19 @@ namespace GTTrackEditor.Components.Minimap
                 (i as CourseMapFaceModelEntity).Show();
             TreeViewItemColor = Brushes.White;
             IsVisible = true;
+        }
+
+        public void AddNew()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(Element3D element)
+        {
+            CourseMapFaceModelEntity model = element as CourseMapFaceModelEntity;
+            Faces.Remove(model.Face);
+
+            Meshes.Remove(element);
         }
     }
 }

@@ -131,7 +131,9 @@
                                     <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
 
                                     <hx:GroupModel3D Name="MinimapSections" ItemsSource="{Binding MinimapView.SectionFaceComponent.Meshes}" IsHitTestVisible="False"/>
+                                    <hx:GroupModel3D Name="MinimapOffCourse" ItemsSource="{Binding MinimapView.OffCourseFaceComponent.Meshes}" IsHitTestVisible="False"/>
                                     <hx:GroupModel3D Name="MinimapRoad" ItemsSource="{Binding MinimapView.RoadFaceComponent.Meshes}" IsHitTestVisible="False"/>
+                                    <hx:GroupModel3D Name="MinimapRoadGT6" ItemsSource="{Binding MinimapView.RoadFaceGT6Component.Meshes}" IsHitTestVisible="False"/>
                                     <hx:GroupModel3D Name="MinimapPitlane" ItemsSource="{Binding MinimapView.PitlaneFaceComponent.Meshes}" IsHitTestVisible="False"/>
                                     
                                     <!-- Runway Geometry -->
@@ -190,12 +192,28 @@
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding TreeViewName}" />
                                                 </StackPanel>
+
                                             </HierarchicalDataTemplate>
+                                            
+                                            <!-- Minimap -->
                                             <HierarchicalDataTemplate DataType="{x:Type gt_minimap_components:MinimapFaceComponent}" ItemsSource="{Binding Meshes}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <iconPacks:PackIconMaterial Kind="MapOutline" />
-                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text=" " Foreground="{Binding TreeViewItemColor}"/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text="{Binding Meshes.Count}" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text=" meshes)" Foreground="{Binding TreeViewItemColor}"/>
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:CourseMapFaceModelEntity}" ItemsSource="{Binding Face}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="RayStartEnd" />
+                                                    <TextBlock Text=" " Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text="{Binding Face.Points.Count}" Foreground="{Binding TreeViewItemColor}"/>
+                                                    <TextBlock Text=" points)" Foreground="{Binding TreeViewItemColor}"/>
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                             

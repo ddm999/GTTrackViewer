@@ -17,15 +17,22 @@ using HelixToolkit.SharpDX.Core;
 using SharpDX;
 
 using PDTools.Files;
-using PDTools.Files.Courses.Runway;
+using PDTools.Files.Courses.Minimap;
 
 namespace GTTrackEditor.ModelEntities;
 
 /// <summary>
-/// Represents a starting grid model entity.
+/// Represents a course mini map mesh.
 /// </summary>
 public class CourseMapFaceModelEntity : BaseModelEntity
 {
+    public CourseMapFace Face { get; set; }
+
+    public CourseMapFaceModelEntity()
+    {
+        Name = "Mesh";
+    }
+
     public override void OnManipulation()
     {
 

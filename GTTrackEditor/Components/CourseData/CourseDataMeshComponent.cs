@@ -69,7 +69,7 @@ public class CourseDataMeshComponent : TrackComponentBase
             var mesh3d = meshBuilder.ToMesh();
             mesh3d.CalculateNormals();
 
-            TrackMeshModel model = new TrackMeshModel()
+            TrackModelBase model = new TrackModelBase()
             {
                 Geometry = mesh3d,
                 Material = CourseMeshModelMaterial,

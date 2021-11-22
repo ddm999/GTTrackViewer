@@ -34,6 +34,8 @@ public class CourseMapView : TrackEditorViewBase
 
     public MinimapFaceComponent SectionFaceComponent { get; set; } = new();
     public MinimapFaceComponent RoadFaceComponent { get; set; } = new();
+    public MinimapFaceComponent RoadFaceGT6Component { get; set; } = new();
+    public MinimapFaceComponent OffCourseFaceComponent { get; set; } = new();
     public MinimapFaceComponent PitlaneFaceComponent { get; set; } = new();
 
     public CourseMapView()
@@ -54,9 +56,27 @@ public class CourseMapView : TrackEditorViewBase
     public void Init()
     {
         Components.Clear();
-        SectionFaceComponent.Faces.Clear();
-        RoadFaceComponent.Faces.Clear();
-        PitlaneFaceComponent.Faces.Clear();
+
+        SectionFaceComponent.Meshes.Clear();
+        OffCourseFaceComponent.Meshes.Clear();
+        RoadFaceComponent.Meshes.Clear();
+        RoadFaceGT6Component.Meshes.Clear();
+        PitlaneFaceComponent.Meshes.Clear();
+
+        
+        if (MinimapData.RoadFaces.Count > 0)
+        {
+            RoadFaceComponent.Name = "Road";
+            RoadFaceComponent.Init(MinimapData.RoadFaces);
+            Components.Add(RoadFaceComponent);
+        }
+
+        if (MinimapData.OffCourseFaces.Count > 0)
+        {
+            OffCourseFaceComponent.Name = "Off-Course";
+            OffCourseFaceComponent.Init(MinimapData.OffCourseFaces);
+            Components.Add(OffCourseFaceComponent);
+        }
 
         if (MinimapData.SectionFaces.Count > 0)
         {
@@ -66,19 +86,20 @@ public class CourseMapView : TrackEditorViewBase
             Components.Add(SectionFaceComponent);
         }
 
-        if (MinimapData.UnkFaces.Count > 0)
-        {
-            RoadFaceComponent.Name = "Road";
-            RoadFaceComponent.Init(MinimapData.UnkFaces);
-            Components.Add(RoadFaceComponent);
-        }
-
         if (MinimapData.PitLaneFaces.Count > 0)
         {
             PitlaneFaceComponent.IsPitlaneFace = true;
             PitlaneFaceComponent.Name = "Pitlane";
             PitlaneFaceComponent.Init(MinimapData.PitLaneFaces);
             Components.Add(PitlaneFaceComponent);
+        }
+
+        if (MinimapData.FullRoadLine.Count > 0)
+        {
+            RoadFaceGT6Component.IsLine = true;
+            RoadFaceGT6Component.Name = "Full Road Line (GT6)";
+            RoadFaceGT6Component.Init(MinimapData.FullRoadLine);
+            Components.Add(RoadFaceGT6Component);
         }
     }
 }
