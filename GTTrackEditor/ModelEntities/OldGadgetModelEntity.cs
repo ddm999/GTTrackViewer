@@ -1,8 +1,5 @@
 ﻿using System.Numerics;
 
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
-
 using HelixToolkit.Wpf.SharpDX;
 
 using PDTools.Files;

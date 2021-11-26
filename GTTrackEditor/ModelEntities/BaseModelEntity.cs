@@ -5,8 +5,6 @@ using System.ComponentModel;
 using System.Windows.Media;
 
 using GTTrackEditor.Interfaces;
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
 using GTTrackEditor.Utils;
 
 using SharpDX;

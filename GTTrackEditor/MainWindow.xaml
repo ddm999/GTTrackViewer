@@ -103,7 +103,8 @@
                                     CameraMode="WalkAround" CameraRotationMode="Turntable" IsMoveEnabled="False" IsInertiaEnabled="False" IsPanEnabled="True" IsRotationEnabled="True" IsZoomEnabled="True" 
                                     ShowCoordinateSystem="True" UseDefaultGestures="False"
                                     ZoomSensitivity="30" PageUpDownZoomSensitivity="120"
-                                    MousePanSensitivity="80">
+                                    MousePanSensitivity="80" IsShadowMappingEnabled="False">
+
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseDown3D">
                                             <ie:CallMethodAction MethodName="OnMouseDown3DHandler" TargetObject="{Binding}" />
@@ -115,8 +116,7 @@
                                         <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
                                         <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="Control+RightClick" />
                                     </hx:Viewport3DX.InputBindings>
-                                    <hx:AmbientLight3D Color="{Binding AmbientLightColor}" />
-                                    <hx:DirectionalLight3D Direction="0.1 -1 0.1" Color="{Binding DirectionalLightColor}" />
+                                    <hx:ShadowMap3D></hx:ShadowMap3D>
 
                                     <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
                                     

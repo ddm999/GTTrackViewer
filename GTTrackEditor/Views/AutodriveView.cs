@@ -1,8 +1,5 @@
 ﻿using DemoCore;
 
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
-
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core;
 

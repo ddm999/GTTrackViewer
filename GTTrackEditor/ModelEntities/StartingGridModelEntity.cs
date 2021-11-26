@@ -7,8 +7,6 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 using Matrix3D = System.Windows.Media.Media3D.Matrix3D;
 using Quaternion = System.Windows.Media.Media3D.Quaternion;
 
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
 using GTTrackEditor.Utils;
 
 using HelixToolkit.Wpf.SharpDX;

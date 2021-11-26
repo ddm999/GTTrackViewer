@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 using GTTrackEditor.Utils;
 using GTTrackEditor.Components;
 using GTTrackEditor.Components.CourseData;
-using GTTrackEditor.Readers;
+using PDTools.Files.Courses.CourseData;
 
 namespace GTTrackEditor.Views;
 
 public class CourseDataView : TrackEditorViewBase
 {
-    public PACB CourseData { get; set; }
+    public CourseDataFile CourseData { get; set; }
 
     public CourseDataMeshComponent CourseModels { get; set; } = new();
 
-    public void SetCourseData(PACB courseData)
+    public void SetCourseData(CourseDataFile courseData)
     {
         TreeViewName = "Course Data";
         CourseData = courseData;

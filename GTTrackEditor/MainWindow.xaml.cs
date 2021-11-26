@@ -26,13 +26,12 @@ using HelixToolkit.SharpDX.Core;
 using GTTrackEditor.Components;
 using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
-using GTTrackEditor.Readers;
-using GTTrackEditor.Readers.Entities;
 using GTTrackEditor.ModelEntities;
 
 using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
 using PDTools.Files.Courses.Minimap;
+using PDTools.Files.Courses.CourseData;
 
 namespace GTTrackEditor
 {
@@ -70,7 +69,6 @@ namespace GTTrackEditor
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TrackEditorConfig.Save();
-
         }
 
         private void LoadFile_Click(object sender, RoutedEventArgs e)
@@ -103,7 +101,7 @@ namespace GTTrackEditor
                 }
                 else if (openFileDialog.FileName.EndsWith("x"))
                 {
-                    //HandleCourseData(ref sr, openFileDialog.FileName);
+                    HandleCourseData(file, openFileDialog.FileName);
                 }
 #if !DEBUG
 
@@ -410,9 +408,9 @@ namespace GTTrackEditor
             ModelHandler.MinimapView.Render();
         }
 
-        private void HandleCourseData(ref SpanReader sr, string fileName)
+        private void HandleCourseData(Stream stream, string fileName)
         {
-            PACB courseData = PACB.FromStream(ref sr);
+            CourseDataFile courseData = CourseDataFile.FromStream(stream);
             ModelHandler.CourseDataView.SetCourseData(courseData);
             _courseDataFileName = fileName;
 
