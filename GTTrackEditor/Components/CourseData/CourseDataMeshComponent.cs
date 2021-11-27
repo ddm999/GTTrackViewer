@@ -57,12 +57,12 @@ public class CourseDataMeshComponent : TrackComponentBase
                 var tris = mdl.GetTrisOfMesh(i);
                 var uvs = mdl.GetUVsOfMesh(i);
 
+                if (tris is null)
+                    continue; // Most likely tristrip - not supported for now
+
                 Vector3Collection vertList = new Vector3Collection(verts.Length);
                 Vector2Collection uvList = new Vector2Collection(uvs.Length);
                 IntCollection col = new IntCollection(tris.Count);
-
-                if (tris is null)
-                    continue; // Most likely tristrip - not supported for now
 
                 var dMat = new DiffuseMaterial();
                 
