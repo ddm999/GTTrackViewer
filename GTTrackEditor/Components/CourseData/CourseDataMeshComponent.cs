@@ -57,7 +57,7 @@ public class CourseDataMeshComponent : TrackComponentBase
                 var tris = mdl.GetTrisOfMesh(i);
                 var uvs = mdl.GetUVsOfMesh(i);
 
-                if (tris is null)
+                if (tris is null || tris.Count == 0)
                     continue; // Most likely tristrip - not supported for now
 
                 Vector3Collection vertList = new Vector3Collection(verts.Length);
@@ -73,7 +73,14 @@ public class CourseDataMeshComponent : TrackComponentBase
                     uint imageId = mdl.Materials.TextureInfos[(int)imgParamId].ImageId;
 
                     Texture text = mdl.TextureSet.Textures[(int)imageId];
-                    byte[] data = mdl.TextureSet.GetImageDataOfTexture(mdl.Stream, text, mdl.ParentCourseData.Entries[1].DataStart);
+
+                    long dataStartPos;
+                    if (mdl.ParentCourseData != null)
+                        dataStartPos = mdl.ParentCourseData.Entries[1].DataStart;
+                    else
+                        dataStartPos = 0;
+
+                    byte[] data = mdl.TextureSet.GetImageDataOfTexture(mdl.Stream, text, dataStartPos);
                     dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
                 }
 

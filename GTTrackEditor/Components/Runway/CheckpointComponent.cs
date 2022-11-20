@@ -44,6 +44,12 @@ public class CheckpointComponent : TrackComponentBase
         for (int n = 0; n < RunwayData.Checkpoints.Count; n++)
         {
             List<Vector3> vec3s = new();
+
+
+            RunwayData.Checkpoints[n].Left = new System.Numerics.Vector3(RunwayData.Checkpoints[n].Left.X, RunwayData.Checkpoints[n].Left.Y + 12f, RunwayData.Checkpoints[n].Left.Z);
+            RunwayData.Checkpoints[n].Middle = new System.Numerics.Vector3(RunwayData.Checkpoints[n].Middle.X, RunwayData.Checkpoints[n].Middle.Y + 12f, RunwayData.Checkpoints[n].Middle.Z);
+            RunwayData.Checkpoints[n].Right = new System.Numerics.Vector3(RunwayData.Checkpoints[n].Right.X, RunwayData.Checkpoints[n].Right.Y + 12f, RunwayData.Checkpoints[n].Right.Z);
+
             vec3s.Add(RunwayData.Checkpoints[n].Left.ToSharpDXVector());
             vec3s.Add(RunwayData.Checkpoints[n].Middle.ToSharpDXVector());
             vec3s.Add(RunwayData.Checkpoints[n].Right.ToSharpDXVector());

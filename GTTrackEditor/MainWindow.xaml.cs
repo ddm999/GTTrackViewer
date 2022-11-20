@@ -87,7 +87,8 @@ namespace GTTrackEditor
 #endif
                 using var file = File.Open(openFileDialog.FileName, FileMode.Open);
 
-                if (openFileDialog.FileName.EndsWith(".rwy"))
+
+                if (openFileDialog.FileName.EndsWith(".rwy") || openFileDialog.FileName.EndsWith("runway"))
                 {
                     HandleRunway(file, openFileDialog.FileName);
                 }

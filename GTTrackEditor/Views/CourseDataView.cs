@@ -30,6 +30,7 @@ public class CourseDataView : TrackEditorViewBase
 
     public void Init()
     {
+        CourseModels?.Meshes?.Clear();
         Components.Clear();
 
         CourseModels.Init(CourseData);
