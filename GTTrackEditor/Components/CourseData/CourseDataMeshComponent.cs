@@ -19,7 +19,9 @@ using GTTrackEditor.Utils;
 using PDTools.Files.Courses;
 using PDTools.Files.Courses.CourseData;
 using PDTools.Files.Models;
+using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Textures;
+using PDTools.Files.Models.ModelSet3.Meshes;
 
 namespace GTTrackEditor.Components.CourseData;
 
@@ -46,16 +48,16 @@ public class CourseDataMeshComponent : TrackComponentBase
     {
         for (int m = 0; m < 1; m++)
         {
-            MDL3 mdl = CourseData.MainModel;
+            ModelSet3 mdl = CourseData.MainModel;
 
-            for (ushort i = 0; i < mdl.Meshes.Count; i++)
+            for (short i = 0; i < mdl.Meshes.Count; i++)
             {
                 var mesh = mdl.Meshes[i];
 
                 // TODO: Optimize this
                 var verts = mdl.GetVerticesOfMesh(i);
-                var tris = mdl.GetTrisOfMesh(i);
-                var uvs = mdl.GetUVsOfMesh(i);
+                var tris = mdl.GetTrisOfMesh((ushort)i);
+                var uvs = mdl.GetUVsOfMesh((ushort)i);
 
                 if (tris is null || tris.Count == 0)
                     continue; // Most likely tristrip - not supported for now
@@ -66,21 +68,25 @@ public class CourseDataMeshComponent : TrackComponentBase
 
                 var dMat = new DiffuseMaterial();
                 
-                var mat = mdl.Materials.Entries1[mesh.MaterialIndex];
-                
-                if (mat.Entries.TryGetValue("diffuseMapSampler", out uint imgParamId))
+                var mat = mdl.Materials.Definitions[mesh.MaterialIndex];
+
+                var diffuseMapSampler = mat.ImageEntries.Find(e => e.Name == "diffuseMapSampler");
+                if (diffuseMapSampler is not null)
                 {
-                    uint imageId = mdl.Materials.TextureInfos[(int)imgParamId].ImageId;
+                    uint imageId = mdl.Materials.TextureInfos[(int)diffuseMapSampler.TextureID].ImageId;
 
                     Texture text = mdl.TextureSet.Textures[(int)imageId];
 
-                    long dataStartPos;
+                    long vramStartPos;
                     if (mdl.ParentCourseData != null)
-                        dataStartPos = mdl.ParentCourseData.Entries[1].DataStart;
+                        vramStartPos = mdl.ParentCourseData.Entries[1].DataStart;
                     else
-                        dataStartPos = 0;
+                        vramStartPos = 0;
 
-                    byte[] data = mdl.TextureSet.GetImageDataOfTexture(mdl.Stream, text, dataStartPos);
+                    // XXX: Temporary fix to D3D device corruption exception
+                    (text as CellTexture).LastMipmapLevel = 1;
+
+                    byte[] data = mdl.TextureSet.GetExternalImageDataOfTexture(mdl.Stream, text, vramStartPos);
                     dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
                 }
 
@@ -118,7 +124,7 @@ public class CourseDataMeshComponent : TrackComponentBase
         }
     }
 
-    private int CountTotalRenderableTrisForModel(MDL3 mdl)
+    private int CountTotalRenderableTrisForModel(ModelSet3 mdl)
     {
         int total = 0;
         for (ushort i = 0; i < mdl.Meshes.Count; i++)

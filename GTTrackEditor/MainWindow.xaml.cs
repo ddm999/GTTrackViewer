@@ -374,14 +374,12 @@ namespace GTTrackEditor
             {
                 RunwayFile runway_other = RunwayFile.FromStream(stream);
                 // if mergable, merge: else replace
-                if (runway_other.VersionMajor == 2 && ModelHandler.RunwayView.RunwayData.VersionMajor >= 40U)
-                {
-                    ModelHandler.RunwayView.RunwayData.Merge(runway_other);
-                    string newName = Path.GetFileNameWithoutExtension(fileName);
-                    ModelHandler.RunwayView.Init();
-                    ModelHandler.RunwayView.Render();
-                    return;
-                }
+                ModelHandler.RunwayView.RunwayData.Merge(runway_other);
+                string newName = Path.GetFileNameWithoutExtension(fileName);
+                ModelHandler.RunwayView.Init();
+                ModelHandler.RunwayView.Render();
+                return;
+
             }
 
             RunwayFile runway = RunwayFile.FromStream(stream);
