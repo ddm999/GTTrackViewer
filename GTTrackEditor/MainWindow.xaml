@@ -60,6 +60,9 @@
                         </DataTemplate>
                     </Button.ContentTemplate>
                 </Button>
+                <Button Click="Export_Click" ToolTip="Export Model">
+                    <iconPacks:PackIconMaterial Kind="FileExport" />
+                </Button>
                 <Separator/>
                 <Button Click="Settings_Click" ToolTip="App Settings">
                     <iconPacks:PackIconMaterial Kind="CogOutline" />

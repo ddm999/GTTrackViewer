@@ -35,6 +35,8 @@ using PDTools.Files.Courses.CourseData;
 using PDTools.Files.Models.ModelSet3.ShapeStream;
 using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Models.ShapeStream;
+using GTTrackEditor.Utils;
+using Typography.OpenFont.Tables;
 
 namespace GTTrackEditor
 {
@@ -451,6 +453,48 @@ namespace GTTrackEditor
         {
             if (ModelHandler.Gizmo.Active)
                 ModelHandler.ExitEditMode(deactivatePropertyGrid: false);
+        }
+
+        private void Export_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Wavefront .obj geometry format|*.obj";
+
+            if (saveFileDialog.ShowDialog() == false)
+                return;
+
+            using var file = File.Open(saveFileDialog.FileName, FileMode.Create);
+            StreamWriter sw = new(file);
+
+            ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+
+            var baseVerts = 1;
+            for (short i = 0; i < mdl.Meshes.Count; i++)
+            {
+                var mesh = mdl.Meshes[i];
+
+                var verts = mdl.GetVerticesOfMesh((ushort)i);
+                var tris = mdl.GetTrisOfMesh((ushort)i);
+
+                if (tris is null || tris.Count == 0)
+                    continue; // Most likely tristrip - not supported for now
+
+                sw.WriteLine($"o mesh{i}");
+
+                for (int j = 0; j < verts.Length; j++)
+                {
+                    sw.WriteLine($"v {verts[j].X} {verts[j].Y} {verts[j].Z}");
+                }
+
+                for (int j = 0; j < tris.Count; j++)
+                {
+                    sw.WriteLine($"f {tris[j].A + baseVerts} {tris[j].B + baseVerts} {tris[j].C + baseVerts}");
+                }
+
+                baseVerts += verts.Length;
+            }
+
+            sw.Close();
         }
     }
 }
