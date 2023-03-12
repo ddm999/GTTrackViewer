@@ -23,6 +23,7 @@ using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Textures;
 using PDTools.Files.Models.ModelSet3.Meshes;
 using System.ComponentModel;
+using System.Security.Principal;
 
 namespace GTTrackEditor.Components.CourseData;
 
@@ -69,29 +70,37 @@ public class CourseDataMeshComponent : TrackComponentBase
                 IntCollection col = new IntCollection(tris.Count);
 
                 var dMat = new DiffuseMaterial();
+                var badDMat = false;
                 
                 var mat = mdl.Materials.Definitions[mesh.MaterialIndex];
 
                 var diffuseMapSampler = mat.ImageEntries.Find(e => e.Name == "diffuseMapSampler");
                 if (diffuseMapSampler is not null)
                 {
-                    uint imageId = mdl.Materials.TextureInfos[(int)diffuseMapSampler.TextureID].ImageId;
-
-                    Texture text = mdl.TextureSet.Textures[(int)imageId];
-
-                    long vramStartPos;
-                    if (mdl.ParentCourseData != null)
-                        vramStartPos = mdl.ParentCourseData.Entries[1].DataStart;
-                    else
-                        vramStartPos = 0;
-
-                    // XXX: Temporary fix to D3D device corruption exception
-                    (text as CellTexture).LastMipmapLevel = 1;
-
-                    if (mdl.Stream.CanRead)
+                    try
                     {
+                        uint imageId = mdl.Materials.TextureInfos[(int)diffuseMapSampler.TextureID].ImageId;
+
+                        Texture text = mdl.TextureSet.Textures[(int)imageId];
+
+                        long vramStartPos;
+                        if (mdl.ParentCourseData != null)
+                            vramStartPos = mdl.ParentCourseData.Entries[1].DataStart;
+                        else
+                            vramStartPos = 0;
+
+                        // XXX: Temporary fix to D3D device corruption exception
+                        (text as CellTexture).LastMipmapLevel = 1;
+
                         byte[] data = mdl.TextureSet.GetExternalImageDataOfTexture(mdl.Stream, text, vramStartPos);
                         dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
+                    }
+                    catch
+                    {
+                        // reset material and make it grey
+                        dMat = new DiffuseMaterial();
+                        dMat.DiffuseColor = new Color4(0.7f, 0.7f, 0.7f, 1.0f);
+                        badDMat = true;
                     }
                 }
                 
@@ -122,6 +131,8 @@ public class CourseDataMeshComponent : TrackComponentBase
                     IsHitTestVisible = true, // Important for perf purposes - we won't be manipulating it anyway
                     CullMode = SharpDX.Direct3D11.CullMode.Back,
                     IsThrowingShadow = false,
+                    RenderWireframe = badDMat,
+                    WireframeColor = System.Windows.Media.Color.FromRgb(16,16,16),
                 };
 
                 Meshes.Add(model);

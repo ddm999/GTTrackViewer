@@ -348,7 +348,7 @@ namespace GTTrackEditor
                 state = $"({sb} )";
             }
 
-            Title = $"GT Track Editor {state}";
+            Title = $"GT Track Viewer {state}";
         }
 
         /// <summary>

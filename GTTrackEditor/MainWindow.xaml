@@ -20,7 +20,7 @@
   mc:Ignorable="d" 
   Height="720" Width="1280" MinHeight="720" MinWidth="1280"
   Closing="Window_Closing"
-  Title="GT Track Editor"
+  Title="GT Track Viewer"
   TitleCharacterCasing="Normal">
     <Window.DataContext>
         <local:TrackEditorView />
@@ -95,7 +95,7 @@
                     <LayoutDocumentPaneGroup Orientation="Horizontal">
                         <LayoutDocumentPane x:Name="LayoutDocumentPane">
                             <LayoutDocument
-                                Title="Track Editor"
+                                Title="Track Viewer"
                                 ContentId="document1">
 
                                 <hx:Viewport3DX x:Name="_viewport" Grid.Row="1" Background="White" BackgroundColor="Gray"
@@ -173,7 +173,7 @@
                                             <TreeViewItem.Header>
                                                 <StackPanel Orientation="Horizontal" Height="16">
                                                     <iconPacks:PackIconMaterial Kind="GoKartTrack" />
-                                                    <TextBlock Text=" Track Editor" Foreground="White" FontSize="12"/>
+                                                    <TextBlock Text=" Track Viewer" Foreground="White" FontSize="12"/>
                                                 </StackPanel>
                                             </TreeViewItem.Header>
                                         </TreeViewItem>
