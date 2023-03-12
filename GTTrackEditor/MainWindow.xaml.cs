@@ -4,39 +4,34 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using Microsoft.Win32;
-using Syroot.BinaryData.Core;
-using Syroot.BinaryData.Memory;
 using System.Text;
-using System.Linq;
 using System.Windows.Media;
-using System.Windows.Navigation;
 using System.Windows.Input;
 
 using MahApps.Metro.Controls;
 
-using AvalonDock;
-using AvalonDock.Layout;
-using AvalonDock.Layout.Serialization;
-
-using SharpDX;
-
 using HelixToolkit.Wpf.SharpDX;
 using HelixToolkit.SharpDX.Core;
 
-using GTTrackEditor.Components;
 using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
 using GTTrackEditor.ModelEntities;
 
 using PDTools.Files.Courses.Runway;
-using PDTools.Files.Courses.AutoDrive;
 using PDTools.Files.Courses.Minimap;
 using PDTools.Files.Courses.CourseData;
-using PDTools.Files.Models.ModelSet3.ShapeStream;
 using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Models.ShapeStream;
-using GTTrackEditor.Utils;
-using Typography.OpenFont.Tables;
+using PDTools.Files.Models.ModelSet3.ShapeStream;
+using PDTools.Files.Models.ModelSet3.FVF;
+using PDTools.Files;
+using Syroot.BinaryData.Core;
+using Syroot.BinaryData.Memory;
+using Syroot.BinaryData;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
+using ICSharpCode.SharpZipLib.Zip.Compression;
+using Microsoft.Toolkit.HighPerformance.Buffers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace GTTrackEditor
 {
@@ -495,6 +490,122 @@ namespace GTTrackEditor
             }
 
             sw.Close();
+        }
+
+        private void ShapeStream_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("ShapeStream export is extremely prone-to-breaking and exports everything into a single mesh!\n" +
+                            "The output MUST be used with edited dynamic_sky_spa (c227) files, as it assumes the FVF format from there!\n" +
+                            "This is absolutely NOT guaranteed to work! You have been warned!",
+                            "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "GT6 .shapestream streaming geometry format|*.shapestream";
+
+            if (saveFileDialog.ShowDialog() == false)
+                return;
+
+            byte[] rawBuffer = new byte[0x100000];
+            MemoryStream ms = new MemoryStream(rawBuffer);
+            BinaryStream bs = new BinaryStream(ms, ByteConverter.Big);
+
+
+            var mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+
+            List<string> infos = new();
+            for (short i = 0; i < mdl.Meshes.Count; i++)
+            {
+                infos.Add($"Mesh {i}:");
+                var baseOffset = bs.Position;
+                infos.Add($"  OffsetWithinShapeStream: {baseOffset:X}h");
+                // TODO: Optimize this
+                var verts = mdl.GetVerticesOfMesh((ushort)i);
+                var tris = mdl.GetTrisOfMesh((ushort)i);
+                var uvs = mdl.GetUVsOfMesh((ushort)i);
+                var bbox = mdl.GetBBoxOfMesh((ushort)i);
+
+                // leave space for header
+                bs.Position = baseOffset + 0x80;
+
+                infos.Add($"  FVFIndex: 0");
+                infos.Add($"  MaterialIndex: 0");
+
+                // STEP 1: vertices
+                for (var j=0; j<verts.Length; j++)
+                {
+                    bs.WriteSingle(verts[j].X); // position
+                    bs.WriteSingle(verts[j].Y);
+                    bs.WriteSingle(verts[j].Z);
+                    bs.WriteUInt32(0x001FF800); // normal
+                    bs.WriteSingle(0.5f);       // uv
+                    bs.WriteSingle(0.5f);
+                }
+                infos.Add($"  VertCount: {verts.Length}");
+
+                // STEP 2: tris
+                bs.Align(0x80);
+                var triOffset = bs.Position - baseOffset;
+
+                foreach (var t in tris)
+                {
+                    bs.WriteUInt16(t.A);
+                    bs.WriteUInt16(t.B);
+                    bs.WriteUInt16(t.C);
+                }
+                infos.Add($"  TriLength: {tris.Count*3}");
+                infos.Add($"  TriCount: {tris.Count}");
+
+                // STEP 3: bbox
+                bs.Align(0x10);
+                var bboxOffset = bs.Position - baseOffset;
+                foreach (var v in bbox)
+                {
+                    bs.WriteSingle(v.X);
+                    bs.WriteSingle(v.Y);
+                    bs.WriteSingle(v.Z);
+                }
+
+                // STEP 4: header
+                var meshSize = bs.Position - baseOffset;
+
+                bs.Position = baseOffset + 0x0;
+                bs.WriteUInt32((uint)meshSize);
+                bs.Position = baseOffset + 0xC;
+                bs.WriteUInt32(0x80); // verticesOffset
+                bs.WriteUInt32((uint)triOffset);
+                bs.Position = baseOffset + 0x18;
+                bs.WriteUInt32((uint)bboxOffset);
+
+                bs.Position = baseOffset + meshSize;
+                bs.Align(0x80);
+            }
+
+            // STEP 5: deflate
+            byte[] outBuffer = new byte[0x100000];
+            var deflater = new Deflater(1, true);
+            deflater.SetInput(rawBuffer, 0, (int)bs.Position);
+            deflater.Finish();
+            var dataLength = deflater.Deflate(outBuffer, 0, 0x100000);
+
+            byte[] outData = new byte[dataLength];
+            Array.Copy(outBuffer, outData, dataLength);
+            infos.Add($"ShapeStreamDataSize: {dataLength:X}h");
+            infos.Add($"ShapeStreamMeshCount: {mdl.Meshes.Count}");
+
+            using var file = File.Open(saveFileDialog.FileName, FileMode.Create);
+                file.Write(outData);
+
+            var infoPath = Path.ChangeExtension(saveFileDialog.FileName, ".shapeinfo");
+            using var infoFile = File.Open(infoPath, FileMode.Create);
+            {
+                using StreamWriter sw = new(infoFile);
+                foreach (var s in infos)
+                    sw.WriteLine(s);
+            }
+
+            //MessageBox.Show("Created ShapeStream.\n" +
+            //                $"Course data: {baseVerts} verts / {allTris.Count * 3} triLen / " +
+            //                $"{allTris.Count} tris / {dataLength:X}h ShapeStreamDataSize");
         }
     }
 }

@@ -63,6 +63,9 @@
                 <Button Click="Export_Click" ToolTip="Export Model">
                     <iconPacks:PackIconMaterial Kind="FileExport" />
                 </Button>
+                <Button Click="ShapeStream_Click" ToolTip="Produce ShapeStream">
+                    <iconPacks:PackIconMaterial Kind="FileExportOutline" />
+                </Button>
                 <Separator/>
                 <Button Click="Settings_Click" ToolTip="App Settings">
                     <iconPacks:PackIconMaterial Kind="CogOutline" />
