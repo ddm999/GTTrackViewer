@@ -32,6 +32,9 @@ using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
 using PDTools.Files.Courses.Minimap;
 using PDTools.Files.Courses.CourseData;
+using PDTools.Files.Models.ModelSet3.ShapeStream;
+using PDTools.Files.Models.ModelSet3;
+using PDTools.Files.Models.ShapeStream;
 
 namespace GTTrackEditor
 {
@@ -77,7 +80,8 @@ namespace GTTrackEditor
             openFileDialog.Filter = "Course Data Files (c***x)|*.*|" +
                 "Runway Files|*.rwy|" +
                 "Autodrive Files|*.ad|" +
-                "Course Map Files|*.map";
+                "Course Map Files|*.map|" +
+                "ShapeStream Files |*.shapestream";
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -103,6 +107,10 @@ namespace GTTrackEditor
                 else if (openFileDialog.FileName.EndsWith("x"))
                 {
                     HandleCourseData(file, openFileDialog.FileName);
+                }
+                else if (openFileDialog.FileName.EndsWith(".shapestream"))
+                {
+                    HandleShapeStream(file, openFileDialog.FileName);
                 }
 #if !DEBUG
 
@@ -337,7 +345,7 @@ namespace GTTrackEditor
             // End
             if (sb.Length > 0)
             {
-                state = $"( {sb} )";
+                state = $"({sb} )";
             }
 
             Title = $"GT Track Editor {state}";
@@ -415,6 +423,20 @@ namespace GTTrackEditor
 
             if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
                 ModelHandler.Views.Add(ModelHandler.CourseDataView);
+
+            ModelHandler.CourseDataView.Init();
+            ModelHandler.CourseDataView.Render();
+        }
+
+        private void HandleShapeStream(Stream stream, string fileName)
+        {
+            if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
+                throw new NotSupportedException("A Course Data file must first be loaded to load ShapeStream data!");
+
+            ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+
+            var ss = ShapeStream.FromStream(stream, mdl);
+            mdl.ShapeStream = ss;
 
             ModelHandler.CourseDataView.Init();
             ModelHandler.CourseDataView.Render();

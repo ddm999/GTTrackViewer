@@ -22,6 +22,7 @@ using PDTools.Files.Models;
 using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Textures;
 using PDTools.Files.Models.ModelSet3.Meshes;
+using System.ComponentModel;
 
 namespace GTTrackEditor.Components.CourseData;
 
@@ -30,6 +31,7 @@ public class CourseDataMeshComponent : TrackComponentBase
     public CourseDataFile CourseData { get; set; }
 
     public ObservableElement3DCollection Meshes { get; set; } = new();
+
     public DiffuseMaterial CourseMeshModelMaterial { get; set; } = new();
 
     public CourseDataMeshComponent()
@@ -55,7 +57,7 @@ public class CourseDataMeshComponent : TrackComponentBase
                 var mesh = mdl.Meshes[i];
 
                 // TODO: Optimize this
-                var verts = mdl.GetVerticesOfMesh(i);
+                var verts = mdl.GetVerticesOfMesh((ushort)i);
                 var tris = mdl.GetTrisOfMesh((ushort)i);
                 var uvs = mdl.GetUVsOfMesh((ushort)i);
 
@@ -86,10 +88,13 @@ public class CourseDataMeshComponent : TrackComponentBase
                     // XXX: Temporary fix to D3D device corruption exception
                     (text as CellTexture).LastMipmapLevel = 1;
 
-                    byte[] data = mdl.TextureSet.GetExternalImageDataOfTexture(mdl.Stream, text, vramStartPos);
-                    dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
+                    if (mdl.Stream.CanRead)
+                    {
+                        byte[] data = mdl.TextureSet.GetExternalImageDataOfTexture(mdl.Stream, text, vramStartPos);
+                        dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
+                    }
                 }
-
+                
                 for (int j = 0; j < verts.Length; j++)
                     vertList.Add(verts[j].ToSharpDXVector());
 
@@ -114,7 +119,7 @@ public class CourseDataMeshComponent : TrackComponentBase
                     Geometry = geog,
                     Material = dMat,
 
-                    IsHitTestVisible = false, // Important for perf purposes - we won't be manipulating it anyway
+                    IsHitTestVisible = true, // Important for perf purposes - we won't be manipulating it anyway
                     CullMode = SharpDX.Direct3D11.CullMode.Back,
                     IsThrowingShadow = false,
                 };
@@ -142,12 +147,22 @@ public class CourseDataMeshComponent : TrackComponentBase
 
     public override void Hide()
     {
-        throw new NotImplementedException();
+        if (!IsVisible)
+            return;
+
+        foreach (Element3D i in Meshes)
+            (i as TrackModelBase).Hide();
+        IsVisible = false;
     }
 
     public override void Show()
     {
-        throw new NotImplementedException();
+        if (IsVisible)
+            return;
+
+        foreach (Element3D i in Meshes)
+            (i as TrackModelBase).Show();
+        IsVisible = true;
     }
 }
 

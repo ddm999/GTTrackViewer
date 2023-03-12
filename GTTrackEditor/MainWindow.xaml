@@ -195,6 +195,24 @@
 
                                             </HierarchicalDataTemplate>
                                             
+                                            <!-- Course Data -->
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding Meshes.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" meshes)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:TrackModelBase}">
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <iconPacks:PackIconMaterial Kind="CubeOutline" />
+                                                    <TextBlock Text=" Track Mesh" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+
                                             <!-- Minimap -->
                                             <HierarchicalDataTemplate DataType="{x:Type gt_minimap_components:MinimapFaceComponent}" ItemsSource="{Binding Meshes}">
                                                 <StackPanel Orientation="Horizontal">
@@ -267,13 +285,6 @@
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
-                                                    <TextBlock Text=" "/>
-                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}"/>
-                                                </StackPanel>
-                                            </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:StartingGridComponent}" ItemsSource="{Binding StartingGridPoints}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <iconPacks:PackIconMaterial Kind="Car" />
@@ -286,7 +297,7 @@
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_runway_components:LightComponent}" ItemsSource="{Binding Lights}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="LightbulbOutline" />
+                                                    <iconPacks:PackIconMaterial Kind="Lightbulb" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
