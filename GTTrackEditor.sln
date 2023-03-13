@@ -78,6 +78,5 @@ Global
 		helix-toolkit\Source\HelixToolkit.Wpf.SharpDX.Shared\HelixToolkit.Wpf.SharpDX.Shared.projitems*{58784e9b-9b9a-4f5a-8ceb-8fe94a811a34}*SharedItemsImports = 5
 		helix-toolkit\Source\HelixToolkit.Shared\HelixToolkit.Shared.projitems*{d0ae80a8-8c10-4a0b-983f-2474969d649e}*SharedItemsImports = 5
 		helix-toolkit\Source\HelixToolkit.SharpDX.Shared\HelixToolkit.SharpDX.Shared.projitems*{d0ae80a8-8c10-4a0b-983f-2474969d649e}*SharedItemsImports = 5
-		PDTools\Typography\Typography.OpenFont\Typography.OpenFont.projitems*{f3f15a01-234a-4287-b84d-0d1016f86152}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
