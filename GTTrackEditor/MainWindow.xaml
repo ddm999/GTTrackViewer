@@ -14,7 +14,7 @@
   xmlns:gt_views="clr-namespace:GTTrackEditor.Views"
   xmlns:gt_runway_components="clr-namespace:GTTrackEditor.Components.Runway"
   xmlns:gt_minimap_components="clr-namespace:GTTrackEditor.Components.Minimap" 
-  xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.CourseData" 
+  xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.ModelSet" 
   xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
   xmlns:gt_controls="clr-namespace:GTTrackEditor.Controls"          
   mc:Ignorable="d" 
@@ -134,8 +134,6 @@
                                     Mouse3DMove="GizmoManipulator_Mouse3DMove" />
                                     
                                     <!-- Course Data Geometry -->
-                                    <hx:GroupModel3D Name="CourseModel" ItemsSource="{Binding CourseDataView.CourseModels.Meshes}" IsHitTestVisible="false"/>
-
                                     <hx:GroupModel3D Name="MinimapSections" ItemsSource="{Binding MinimapView.SectionFaceComponent.Meshes}" IsHitTestVisible="False"/>
                                     <hx:GroupModel3D Name="MinimapOffCourse" ItemsSource="{Binding MinimapView.OffCourseFaceComponent.Meshes}" IsHitTestVisible="False"/>
                                     <hx:GroupModel3D Name="MinimapRoad" ItemsSource="{Binding MinimapView.RoadFaceComponent.Meshes}" IsHitTestVisible="False"/>
@@ -201,18 +199,37 @@
 
                                             </HierarchicalDataTemplate>
                                             
+                                            <!-- General Model Set -->
+                                            
                                             <!-- Course Data -->
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:CourseDataMeshComponent}" ItemsSource="{Binding Meshes}">
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetComponent}" ItemsSource="{Binding ModelComponents}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="ImageFilterHdr" />
+                                                    <iconPacks:PackIconMaterial Kind="Square" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
-                                                    <TextBlock Text="{Binding Meshes.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding ModelComponents.Count}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text=" models)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetMeshComponent}" ItemsSource="{Binding MeshEntities}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="BoxCutter" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="Model"/>
+                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="{Binding MeshEntities.Count}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" meshes)" Foreground="{Binding TreeViewItemColor}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:TrackModelBase}">
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:ModelSetMeshEntity}">
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
+                                                    <TextBlock Text=" Mesh" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_mentities:TrackMeshBase}">
                                                 <StackPanel Orientation="Horizontal" >
                                                     <iconPacks:PackIconMaterial Kind="CubeOutline" />
                                                     <TextBlock Text=" Track Mesh" Foreground="{Binding TreeViewItemColor}" />

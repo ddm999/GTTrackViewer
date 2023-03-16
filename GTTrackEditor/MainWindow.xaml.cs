@@ -36,9 +36,10 @@ using PDTools.Files.Models.ModelSet3.ShapeStream;
 using PDTools.Files.Models.ModelSet3;
 using PDTools.Files.Models.ShapeStream;
 using GTTrackEditor.Utils;
-using Typography.OpenFont.Tables;
+
 using ICSharpCode.SharpZipLib.Zip.Compression;
 using Syroot.BinaryData;
+using SharpDX.Win32;
 
 namespace GTTrackEditor
 {
@@ -93,8 +94,9 @@ namespace GTTrackEditor
                 try
                 {
 #endif
-                using var file = File.Open(openFileDialog.FileName, FileMode.Open);
+                var file = File.Open(openFileDialog.FileName, FileMode.Open);
 
+                // TODO: Dispose stream when done!
 
                 if (openFileDialog.FileName.EndsWith(".rwy") || openFileDialog.FileName.Contains("runway", StringComparison.OrdinalIgnoreCase))
                 {
@@ -437,13 +439,20 @@ namespace GTTrackEditor
             if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
                 throw new NotSupportedException("A Course Data file must first be loaded to load ShapeStream data!");
 
-            ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+            ModelSet3 modelSet = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
-            var ss = ShapeStream.FromStream(stream, mdl);
-            mdl.ShapeStream = ss;
+            var ss = ShapeStream.FromStream(stream, modelSet);
+            modelSet.ShapeStream = ss;
 
             ModelHandler.CourseDataView.Init();
             ModelHandler.CourseDataView.Render();
+
+            foreach (var i in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
+            {
+                var group = new GroupModel3D();
+                group.ItemsSource = i.MeshEntities;
+                _viewport.Items.Add(group);
+            }
         }
 
         /// <summary>
@@ -468,7 +477,7 @@ namespace GTTrackEditor
             using var file = File.Open(saveFileDialog.FileName, FileMode.Create);
             StreamWriter sw = new(file);
 
-            ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+            ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
             var baseVerts = 1;
             for (short i = 0; i < mdl.Meshes.Count; i++)
@@ -516,7 +525,7 @@ namespace GTTrackEditor
             MemoryStream ms = new MemoryStream(rawBuffer);
             BinaryStream bs = new BinaryStream(ms, ByteConverter.Big);
 
-            var mdl = ModelHandler.CourseDataView.CourseData.MainModel;
+            var mdl = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
             List<string> infos = new();
             for (short i = 0; i < mdl.Meshes.Count; i++)

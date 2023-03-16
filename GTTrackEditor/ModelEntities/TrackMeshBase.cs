@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GTTrackEditor.ModelEntities
 {
-    public class TrackModelBase : BaseModelEntity
+    public class TrackMeshBase : BaseModelEntity
     {
         public override bool CanTranslateX => false;
         public override bool CanTranslateY => false;

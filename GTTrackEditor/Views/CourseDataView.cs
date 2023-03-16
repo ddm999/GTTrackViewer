@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 using GTTrackEditor.Utils;
 using GTTrackEditor.Components;
-using GTTrackEditor.Components.CourseData;
 using PDTools.Files.Courses.CourseData;
+using GTTrackEditor.Components.ModelSet;
 
 namespace GTTrackEditor.Views;
+
+using System.Collections.ObjectModel;
 
 public class CourseDataView : TrackEditorViewBase
 {
     public CourseDataFile CourseData { get; set; }
-
-    public CourseDataMeshComponent CourseModels { get; set; } = new();
+    public ModelSetComponent ModelSetComponent { get; set; } = new();
 
     public void SetCourseData(CourseDataFile courseData)
     {
@@ -30,12 +31,13 @@ public class CourseDataView : TrackEditorViewBase
 
     public void Init()
     {
-        CourseModels?.Meshes?.Clear();
+        //CourseModel?.ModelSet.?.Clear();
         Components.Clear();
 
-        CourseModels.Init(CourseData);
+        ModelSetComponent.Init(CourseData.MainModelSet);
+        ModelSetComponent.Name = "Main Model";
 
-        Components.Add(CourseModels);
+        Components.Add(ModelSetComponent);
     }
 }
 
