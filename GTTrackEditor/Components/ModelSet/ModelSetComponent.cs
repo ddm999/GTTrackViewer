@@ -123,13 +123,11 @@ public class ModelSetComponent : TrackComponentBase
         var diffuseMapSampler = mat.ImageEntries.Find(e => e.Name == "diffuseMapSampler");
         if (diffuseMapSampler is not null && (diffuseMapSampler.TextureID & 0x8000) == 0)
         {
-            try
+            PGLUCellTextureInfo textureInfo = ModelSet.Materials.TextureInfos[(int)diffuseMapSampler.TextureID];
+            Texture text = ModelSet.TextureSet.Textures[(int)textureInfo.ImageId];
+
+            if (text.ImageOffset != 0 && text.ImageSize != 0)
             {
-
-                PGLUCellTextureInfo textureInfo = ModelSet.Materials.TextureInfos[(int)diffuseMapSampler.TextureID];
-
-                Texture text = ModelSet.TextureSet.Textures[(int)textureInfo.ImageId];
-
                 long vramStartPos;
                 if (ModelSet.ParentCourseData != null)
                     vramStartPos = ModelSet.ParentCourseData.Entries[1].DataStart;
@@ -146,7 +144,7 @@ public class ModelSetComponent : TrackComponentBase
                 using (var sw = new StreamWriter("test.obj"))
                 {
                     sw.WriteLine("mtllib testmtl.mtl");
-                    
+
                     foreach (var i in verts)
                     {
                         sw.WriteLine($"v {i.X} {i.Y} {i.Z}");
@@ -182,48 +180,14 @@ public class ModelSetComponent : TrackComponentBase
                 File.WriteAllBytes("test.dds", data);
                 */
 
-                /*
+                
                 dMat.DiffuseMapSampler = new SharpDX.Direct3D11.SamplerStateDescription()
                 {
-                    AddressU = TextureAddressMode.Wrap,
-                    AddressV = TextureAddressMode.Wrap,
-                    AddressW = TextureAddressMode.Wrap,
+                    AddressU = ConvertTextureWrapMode(textureInfo.WrapS),
+                    AddressV = ConvertTextureWrapMode(textureInfo.WrapT),
+                    AddressW = ConvertTextureWrapMode(textureInfo.WrapR),
                     //Filter = Filter.Anisotropic,
-                };*/
-
-                TextureAddressMode Get(CELL_GCM_TEXTURE_WRAP cellWrap)
-                {
-                    switch (cellWrap)
-                    {
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_WRAP_NONE:
-                            return TextureAddressMode.Clamp;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_WRAP:
-                            return TextureAddressMode.Wrap;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR:
-                            return TextureAddressMode.Mirror;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_CLAMP_TO_EDGE:
-                            return TextureAddressMode.Clamp;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_BORDER:
-                            return TextureAddressMode.Border;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_CLAMP:
-                            return TextureAddressMode.Clamp;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_CLAMP_TO_EDGE:
-                            return TextureAddressMode.MirrorOnce;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_BORDER:
-                            return TextureAddressMode.MirrorOnce;
-                        case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_CLAMP:
-                            return TextureAddressMode.MirrorOnce;
-                        default:
-                            return TextureAddressMode.Clamp;
-                    }
-                }
-            }
-            catch
-            {
-                // reset material and make it grey
-                dMat = new DiffuseMaterial();
-                dMat.DiffuseColor = new Color4(0.7f, 0.7f, 0.7f, 1.0f);
-                badDMat = true;
+                };
             }
         }
 
@@ -238,7 +202,7 @@ public class ModelSetComponent : TrackComponentBase
         }
 
         for (int j = 0; j < uvs.Length; j++)
-            uvList.Add(new(0, 1));
+            uvList.Add(new(uvs[j].X, uvs[j].Y));
 
         for (int j = 0; j < norms.Length; j++)
             normList.Add(new(norms[j].Item1, norms[j].Item2, norms[j].Item3));
@@ -255,6 +219,7 @@ public class ModelSetComponent : TrackComponentBase
             Material = dMat,
 
             IsHitTestVisible = true, // Important for perf purposes - we won't be manipulating it anyway
+            CullMode = CullMode.Back,
             //DepthBias = 300,
             IsThrowingShadow = false,
             RenderWireframe = badDMat,
@@ -289,6 +254,33 @@ public class ModelSetComponent : TrackComponentBase
     public override void Show()
     {
         
+    }
+
+    static TextureAddressMode ConvertTextureWrapMode(CELL_GCM_TEXTURE_WRAP cellWrap)
+    {
+        switch (cellWrap)
+        {
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_WRAP_NONE:
+                return TextureAddressMode.Clamp;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_WRAP:
+                return TextureAddressMode.Wrap;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR:
+                return TextureAddressMode.Mirror;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_CLAMP_TO_EDGE:
+                return TextureAddressMode.Clamp;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_BORDER:
+                return TextureAddressMode.Border;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_CLAMP:
+                return TextureAddressMode.Clamp;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_CLAMP_TO_EDGE:
+                return TextureAddressMode.MirrorOnce;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_BORDER:
+                return TextureAddressMode.MirrorOnce;
+            case CELL_GCM_TEXTURE_WRAP.CELL_GCM_TEXTURE_MIRROR_ONCE_CLAMP:
+                return TextureAddressMode.MirrorOnce;
+            default:
+                return TextureAddressMode.Clamp;
+        }
     }
 }
 
