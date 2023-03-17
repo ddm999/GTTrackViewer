@@ -32,18 +32,18 @@ using System.Collections.ObjectModel;
 
 namespace GTTrackEditor.Components.ModelSet;
 
-public class ModelSetMeshComponent : TrackComponentBase
+public class ModelSetModelComponent : TrackComponentBase
 {
     public ObservableElement3DCollection MeshEntities { get; set; } = new();
 
-    public ModelSetMeshComponent()
-    {
+    public ModelSet3Model Model { get; set; }
+    public int Index { get; set; }
 
-    }
-
-    public void Init()
+    public ModelSetModelComponent(ModelSet3Model model, int modelIndex)
     {
-        Name = "Mesh Group";
+        Model = model;
+        Index = modelIndex;
+        Name = $"Model #{Index}";
     }
 
 

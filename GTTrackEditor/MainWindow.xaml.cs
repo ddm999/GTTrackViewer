@@ -94,17 +94,15 @@ namespace GTTrackEditor
                 try
                 {
 #endif
-                var file = File.Open(openFileDialog.FileName, FileMode.Open);
-
                 // TODO: Dispose stream when done!
 
                 if (openFileDialog.FileName.EndsWith(".rwy") || openFileDialog.FileName.Contains("runway", StringComparison.OrdinalIgnoreCase))
                 {
-                    HandleRunway(file, openFileDialog.FileName);
+                    HandleRunway(openFileDialog.FileName);
                 }
                 else if (openFileDialog.FileName.EndsWith(".map"))
                 {
-                    HandleMinimap(file, openFileDialog.FileName);
+                    HandleMinimap(openFileDialog.FileName);
                 }
                 else if (openFileDialog.FileName.EndsWith(".ad"))
                 {
@@ -112,11 +110,11 @@ namespace GTTrackEditor
                 }
                 else if (openFileDialog.FileName.EndsWith("x"))
                 {
-                    HandleCourseData(file, openFileDialog.FileName);
+                    HandleCourseData(openFileDialog.FileName);
                 }
                 else if (openFileDialog.FileName.EndsWith(".shapestream"))
                 {
-                    HandleShapeStream(file, openFileDialog.FileName);
+                    HandleShapeStream(openFileDialog.FileName);
                 }
 #if !DEBUG
 
@@ -382,8 +380,10 @@ namespace GTTrackEditor
             return parent;
         }
 
-        private void HandleRunway(Stream stream, string fileName)
+        private void HandleRunway(string fileName)
         {
+            using var stream = new FileStream(fileName, FileMode.Open);
+
             if (ModelHandler.RunwayView.Loaded())
             {
                 RunwayFile runway_other = RunwayFile.FromStream(stream);
@@ -408,8 +408,10 @@ namespace GTTrackEditor
             ModelHandler.RunwayView.Render();
         }
 
-        private void HandleMinimap(Stream stream, string fileName)
+        private void HandleMinimap(string fileName)
         {
+            using var stream = new FileStream(fileName, FileMode.Open);
+
             CourseMapFile runway = CourseMapFile.FromStream(stream);
             ModelHandler.MinimapView.SetMinimapData(runway);
 
@@ -421,9 +423,12 @@ namespace GTTrackEditor
             ModelHandler.MinimapView.Render();
         }
 
-        private void HandleCourseData(Stream stream, string fileName)
+        private void HandleCourseData(string fileName)
         {
-            CourseDataFile courseData = CourseDataFile.FromStream(stream);
+            if (ModelHandler.CourseDataView.Loaded())
+                ModelHandler.CourseDataView.Unload(_viewport);
+
+            CourseDataFile courseData = CourseDataFile.Open(fileName);
             ModelHandler.CourseDataView.SetCourseData(courseData);
             _courseDataFileName = fileName;
 
@@ -432,10 +437,21 @@ namespace GTTrackEditor
 
             ModelHandler.CourseDataView.Init();
             ModelHandler.CourseDataView.Render();
+
+            foreach (var component in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
+            {
+                var group = new GroupModel3D();
+                group.ItemsSource = component.MeshEntities;
+                _viewport.Items.Add(group);
+
+                ModelHandler.CourseDataView.ModelSetComponent.RenderingGroups.Add(group);
+            }
         }
 
-        private void HandleShapeStream(Stream stream, string fileName)
+        private void HandleShapeStream(string fileName)
         {
+            using var stream = new FileStream(fileName, FileMode.Open);
+
             if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
                 throw new NotSupportedException("A Course Data file must first be loaded to load ShapeStream data!");
 
@@ -447,11 +463,13 @@ namespace GTTrackEditor
             ModelHandler.CourseDataView.Init();
             ModelHandler.CourseDataView.Render();
 
-            foreach (var i in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
+            foreach (var component in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
             {
                 var group = new GroupModel3D();
-                group.ItemsSource = i.MeshEntities;
+                group.ItemsSource = component.MeshEntities;
                 _viewport.Items.Add(group);
+
+                ModelHandler.CourseDataView.ModelSetComponent.RenderingGroups.Add(group);
             }
         }
 

@@ -11,6 +11,8 @@ using GTTrackEditor.Components.ModelSet;
 
 namespace GTTrackEditor.Views;
 
+using HelixToolkit.Wpf.SharpDX;
+
 using System.Collections.ObjectModel;
 
 public class CourseDataView : TrackEditorViewBase
@@ -31,13 +33,25 @@ public class CourseDataView : TrackEditorViewBase
 
     public void Init()
     {
-        //CourseModel?.ModelSet.?.Clear();
-        Components.Clear();
-
         ModelSetComponent.Init(CourseData.MainModelSet);
-        ModelSetComponent.Name = "Main Model";
+        ModelSetComponent.Name = "Course Main Model";
 
         Components.Add(ModelSetComponent);
+    }
+
+    public bool IsSelected { get; set; }
+    public bool IsExpanded { get; set; }
+
+    public void Unload(Viewport3DX viewport)
+    {
+        foreach (var group in ModelSetComponent.RenderingGroups)
+            viewport.Items.Remove(group);
+
+        ModelSetComponent.RenderingGroups.Clear();
+        Components.Clear();
+
+        CourseData.Dispose();
+        CourseData = null;
     }
 }
 

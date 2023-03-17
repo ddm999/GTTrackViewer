@@ -22,6 +22,20 @@ namespace GTTrackEditor.ModelEntities;
 /// </summary>
 public abstract class BaseModelEntity : MeshGeometryModel3D, INotifyPropertyChanged, IHideable
 {
+    private string _entityName;
+    /// <summary>
+    /// Name for the tree view.
+    /// </summary>
+    public string EntityName
+    {
+        get => _entityName;
+        set
+        {
+            _entityName = value;
+            OnPropertyChanged(nameof(EntityName));
+        }
+    }
+
     /// <summary>
     /// Whether the model is allowed to rotate on pitch.
     /// </summary>

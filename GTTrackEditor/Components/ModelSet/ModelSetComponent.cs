@@ -38,13 +38,16 @@ public class ModelSetComponent : TrackComponentBase
 {
     public ModelSet3 ModelSet { get; set; }
 
-    public ObservableCollection<ModelSetMeshComponent> ModelComponents { get; set; } = new();
+    public ObservableCollection<ModelSetModelComponent> ModelComponents { get; set; } = new();
 
-    public DiffuseMaterial CourseMeshModelMaterial { get; set; } = new();
+    /// <summary>
+    /// Viewport group for each model
+    /// </summary>
+    public List<GroupModel3D> RenderingGroups { get; set; } = new();
 
     public ModelSetComponent()
     {
-        CourseMeshModelMaterial.DiffuseColor = new(1f, 1f, 1f, 0.5f);
+
     }
 
     // to test uv weirdness: check model [8], mesh [2]
@@ -52,32 +55,69 @@ public class ModelSetComponent : TrackComponentBase
     {
         Name = "Model Set";
         ModelSet = modelSet;
-        CourseMeshModelMaterial.DiffuseColor = new(1f, 1f, 1f, 0.5f);
     }
 
 
     public override void RenderComponent()
     {
-        if (ModelSet.ShapeStream is null)
-            return;
-
         for (int i = 0; i < ModelSet.Models.Count; i++)
         {
-            var modelComponent = new ModelSetMeshComponent();
-
             ModelSet3Model model = ModelSet.Models[i];
-            InterpretCommands(modelComponent, model.Commands);
+            var modelComponent = new ModelSetModelComponent(model, i);
 
+            InterpretCommands(modelComponent, model.Commands);
             ModelComponents.Add(modelComponent);
         }
     }
 
-    private void InterpretCommands(ModelSetMeshComponent modelEntity, List<ModelSetupCommand> commands)
+    private void InterpretCommands(ModelSetModelComponent modelEntity, List<ModelSetupCommand> commands)
     {
-        foreach (var cmd in commands)
+        if (commands.Count == 0)
+            return;
+
+        int instPtr = 0;
+        bool advanceOne = true;
+
+        while (true)
         {
+            advanceOne = true;
+
+            ModelSetupCommand cmd = commands[instPtr];
+            if (cmd.Opcode == ModelSetupOpcode.Command_0_End)
+                break;
+
             switch (cmd.Opcode)
             {
+                case ModelSetupOpcode.Command_5_Switch:
+                    var sw = cmd as Command_5_Switch;
+                    instPtr = sw.BranchJumpIndices[0];
+                    advanceOne = false;
+                    break;
+
+                case ModelSetupOpcode.Command_9_JumpToByte:
+                    var jmpByte = cmd as Command_9_JumpToByte;
+                    instPtr = jmpByte.JumpToIndex;
+                    advanceOne = false;
+                    break;
+
+                case ModelSetupOpcode.Command_10_JumpToShort:
+                    var jmpShort = cmd as Command_10_JumpToShort;
+                    instPtr = jmpShort.JumpToIndex;
+                    advanceOne = false;
+                    break;
+
+                case ModelSetupOpcode.Command_59_LoadMesh2_Byte:
+                    Command_59_LoadMesh2_Byte(modelEntity, cmd as Command_59_LoadMesh2_Byte);
+                    break;
+
+                case ModelSetupOpcode.Command_60_LoadMesh2_UShort:
+                    Command_60_LoadMesh2_UShort(modelEntity, cmd as Command_60_LoadMesh2_UShort);
+                    break;
+
+                case ModelSetupOpcode.Command_74_LoadMultipleMeshes:
+                    Command_74_LoadMultipleMeshes(modelEntity, cmd as Command_74_LoadMultipleMeshes);
+                    break;
+
                 case ModelSetupOpcode.Command_75_LoadMultipleMeshes2:
                     Command_75_LoadMultipleMeshes2(modelEntity, cmd as Command_75_LoadMultipleMeshes2);
                     break;
@@ -86,10 +126,31 @@ public class ModelSetComponent : TrackComponentBase
                     ;
                     break;
             }
+
+            if (advanceOne)
+                instPtr++;
         }
     }
 
-    private void Command_75_LoadMultipleMeshes2(ModelSetMeshComponent modelEntity, Command_75_LoadMultipleMeshes2 cmd)
+    private void Command_59_LoadMesh2_Byte(ModelSetModelComponent modelEntity, Command_59_LoadMesh2_Byte cmd)
+    {
+        LoadMesh(modelEntity, cmd.MeshID);
+    }
+
+    private void Command_60_LoadMesh2_UShort(ModelSetModelComponent modelEntity, Command_60_LoadMesh2_UShort cmd)
+    {
+        LoadMesh(modelEntity, (ushort)cmd.Unk);
+    }
+
+    private void Command_74_LoadMultipleMeshes(ModelSetModelComponent modelEntity, Command_74_LoadMultipleMeshes cmd)
+    {
+        foreach (var meshIndex in cmd.MeshIndices)
+        {
+            LoadMesh(modelEntity, meshIndex);
+        }
+    }
+    
+    private void Command_75_LoadMultipleMeshes2(ModelSetModelComponent modelEntity, Command_75_LoadMultipleMeshes2 cmd)
     {
         foreach (var meshIndex in cmd.MeshIndices)
         {
@@ -97,7 +158,7 @@ public class ModelSetComponent : TrackComponentBase
         }
     }
 
-    private void LoadMesh(ModelSetMeshComponent modelEntity, ushort meshId)
+    private void LoadMesh(ModelSetModelComponent modelEntity, ushort meshId)
     {
         var mdl3Mesh = ModelSet.Meshes[meshId];
 
@@ -213,7 +274,7 @@ public class ModelSetComponent : TrackComponentBase
         geog.TextureCoordinates = uvList;
         geog.Normals = normList;
 
-        ModelSetMeshEntity mesh = new ModelSetMeshEntity()
+        ModelSetMeshEntity mesh = new ModelSetMeshEntity(mdl3Mesh, meshId)
         {
             Geometry = geog,
             Material = dMat,

@@ -162,14 +162,25 @@
                         <LayoutAnchorablePaneGroup>
                             <LayoutAnchorablePane>
                                 <LayoutAnchorable Title="Explorer" ContentId="toolWindow1" CanClose="False">
-                                    <TreeView Name="ExplorerTree">
+
+                                    <TreeView Name="ExplorerTree" VirtualizingStackPanel.IsVirtualizing="False">
+                                        <TreeView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <local:MyVirtualizingStackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </TreeView.ItemsPanel>
                                         <TreeView.ItemContainerStyle>
                                             <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                                                 <Setter Property="IsExpanded" Value="True"/>
-                                                <EventSetter Event="PreviewMouseRightButtonDown"
-                                            Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
-                                                <EventSetter Event="Selected"
-                                            Handler="TreeViewItem_Selected" />
+                                                <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_OnPreviewMouseRightButtonDown" />
+                                                <EventSetter Event="Selected" Handler="TreeViewItem_Selected" />
+                                                <Setter Property="ItemsPanel">
+                                                    <Setter.Value>
+                                                        <ItemsPanelTemplate>
+                                                            <local:MyVirtualizingStackPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
                                             </Style>
                                         </TreeView.ItemContainerStyle>
 
@@ -184,7 +195,7 @@
                                         <TreeView.Resources>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_views:CourseDataView}" ItemsSource="{Binding Components}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
+                                                    <iconPacks:PackIconMaterial Kind="Eye" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding TreeViewName}" />
                                                 </StackPanel>
@@ -204,7 +215,7 @@
                                             <!-- Course Data -->
                                             <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetComponent}" ItemsSource="{Binding ModelComponents}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="Square" />
+                                                    <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
@@ -212,11 +223,11 @@
                                                     <TextBlock Text=" models)" Foreground="{Binding TreeViewItemColor}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetMeshComponent}" ItemsSource="{Binding MeshEntities}">
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetModelComponent}" ItemsSource="{Binding MeshEntities}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconMaterial Kind="BoxCutter" />
+                                                    <iconPacks:PackIconMaterial Kind="CubeOutline" />
                                                     <TextBlock Text=" "/>
-                                                    <TextBlock Text="Model"/>
+                                                    <TextBlock Text="{Binding Name}"/>
                                                     <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text="{Binding MeshEntities.Count}" Foreground="{Binding TreeViewItemColor}" />
                                                     <TextBlock Text=" meshes)" Foreground="{Binding TreeViewItemColor}" />
@@ -224,8 +235,9 @@
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_mentities:ModelSetMeshEntity}">
                                                 <StackPanel Orientation="Horizontal" >
-                                                    <iconPacks:PackIconMaterial Kind="ChevronUpBoxOutline" />
-                                                    <TextBlock Text=" Mesh" Foreground="{Binding TreeViewItemColor}" />
+                                                    <iconPacks:PackIconMaterial Kind="VectorTriangle" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding EntityName}" Foreground="{Binding TreeViewItemColor}" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                             

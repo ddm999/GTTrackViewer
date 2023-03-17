@@ -28,7 +28,7 @@ public class CourseMapFaceModelEntity : BaseModelEntity
 
     public CourseMapFaceModelEntity()
     {
-        Name = "Mesh";
+        EntityName = "Mesh";
     }
 
     public override void OnManipulation()

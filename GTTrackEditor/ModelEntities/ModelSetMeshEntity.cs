@@ -16,14 +16,34 @@ using SharpDX;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Minimap;
+using PDTools.Files.Models.ModelSet3.Meshes;
 
 namespace GTTrackEditor.ModelEntities;
 
 public class ModelSetMeshEntity : BaseModelEntity
 {
-    public ModelSetMeshEntity()
+    public MDL3Mesh Mesh { get; set; }
+    public int MeshIndex { get; set; }
+
+    [Browsable(true)]
+    public string Flags => $"0x{Mesh.Flags:X4}";
+
+    [Browsable(true)]
+    public int MaterialIndex => Mesh.MaterialIndex;
+
+    [Browsable(true)]
+    public int FVFIndex => Mesh.FVFIndex;
+
+    [Browsable(true)]
+    public uint TriCount => Mesh.TriCount;
+
+    [Browsable(true)]
+    public uint VertCount => Mesh.VertexCount;
+
+    public ModelSetMeshEntity(MDL3Mesh mesh, int meshIndex)
     {
-        Name = "Mesh";
+        Mesh = mesh;
+        EntityName = $"Mesh #{meshIndex}";
     }
 
     public override void OnManipulation()
