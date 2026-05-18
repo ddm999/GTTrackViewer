@@ -16,17 +16,16 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
-using PDTools.Files.Courses;
-using PDTools.Files.Courses.CourseData;
-using PDTools.Files.Models;
-using PDTools.Files.Models.ModelSet3;
+using PDTools.Files.Courses.PS3;
+using PDTools.Files.Models.PS3.ModelSet3;
+using PDTools.Files.Models.PS3.ModelSet3.Models;
+using PDTools.Files.Models.PS3.ModelSet3.Shapes;
 using PDTools.Files.Textures;
-using PDTools.Files.Models.ModelSet3.Meshes;
+using PDTools.Files.Models.PS3.PGLCommands;
 using System.ComponentModel;
 using System.Security.Principal;
 using System.Security.Cryptography;
 using System.Linq;
-using PDTools.Files.Models.ModelSet3.Commands;
 using SixLabors.ImageSharp;
 using System.Collections.ObjectModel;
 

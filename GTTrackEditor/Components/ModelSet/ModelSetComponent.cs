@@ -16,17 +16,17 @@ using MatrixTransform3D = System.Windows.Media.Media3D.MatrixTransform3D;
 using GTTrackEditor.ModelEntities;
 using GTTrackEditor.Utils;
 
-using PDTools.Files.Courses;
-using PDTools.Files.Courses.CourseData;
-using PDTools.Files.Models;
-using PDTools.Files.Models.ModelSet3;
+using PDTools.Files.Courses.PS3;
+using PDTools.Files.Models.PS3.ModelSet3;
+using PDTools.Files.Models.PS3.ModelSet3.Models;
+using PDTools.Files.Models.PS3.ModelSet3.Shapes;
 using PDTools.Files.Textures;
-using PDTools.Files.Models.ModelSet3.Meshes;
+using PDTools.Files.Textures.PS3;
+using PDTools.Files.Models.PS3.PGLCommands;
 using System.ComponentModel;
 using System.Security.Principal;
 using System.Security.Cryptography;
 using System.Linq;
-using PDTools.Files.Models.ModelSet3.Commands;
 using SixLabors.ImageSharp;
 using System.Collections.ObjectModel;
 using SharpDX.Direct3D11;
@@ -95,23 +95,23 @@ public class ModelSetComponent : TrackComponentBase
                     break;
 
                 case ModelSetupOpcode.Command_9_JumpToByte:
-                    var jmpByte = cmd as Command_9_JumpToByte;
+                    var jmpByte = cmd as Command_JumpByte;
                     instPtr = jmpByte.JumpToIndex;
                     advanceOne = false;
                     break;
 
                 case ModelSetupOpcode.Command_10_JumpToShort:
-                    var jmpShort = cmd as Command_10_JumpToShort;
+                    var jmpShort = cmd as Command_JumpShort;
                     instPtr = jmpShort.JumpToIndex;
                     advanceOne = false;
                     break;
 
                 case ModelSetupOpcode.Command_59_LoadMesh2_Byte:
-                    Command_59_LoadMesh2_Byte(modelEntity, cmd as Command_59_LoadMesh2_Byte);
+                    Command_59_LoadMesh2_Byte(modelEntity, cmd as Command_CallShape2Byte);
                     break;
 
                 case ModelSetupOpcode.Command_60_LoadMesh2_UShort:
-                    Command_60_LoadMesh2_UShort(modelEntity, cmd as Command_60_LoadMesh2_UShort);
+                    Command_60_LoadMesh2_UShort(modelEntity, cmd as Command_CallShape2UShort);
                     break;
 
                 case ModelSetupOpcode.Command_74_LoadMultipleMeshes:
@@ -132,12 +132,12 @@ public class ModelSetComponent : TrackComponentBase
         }
     }
 
-    private void Command_59_LoadMesh2_Byte(ModelSetModelComponent modelEntity, Command_59_LoadMesh2_Byte cmd)
+    private void Command_59_LoadMesh2_Byte(ModelSetModelComponent modelEntity, Command_CallShape2Byte cmd)
     {
         LoadMesh(modelEntity, cmd.MeshID);
     }
 
-    private void Command_60_LoadMesh2_UShort(ModelSetModelComponent modelEntity, Command_60_LoadMesh2_UShort cmd)
+    private void Command_60_LoadMesh2_UShort(ModelSetModelComponent modelEntity, Command_CallShape2UShort cmd)
     {
         LoadMesh(modelEntity, (ushort)cmd.Unk);
     }
@@ -160,13 +160,13 @@ public class ModelSetComponent : TrackComponentBase
 
     private void LoadMesh(ModelSetModelComponent modelEntity, ushort meshId)
     {
-        var mdl3Mesh = ModelSet.Meshes[meshId];
+        var mdl3Mesh = ModelSet.Shapes[meshId];
 
         // TODO: Optimize this
-        var verts = ModelSet.GetVerticesOfMesh(meshId);
+        var verts = ModelSet.GetVerticesOfShape(meshId);
         var tris = ModelSet.GetTrisOfMesh(meshId);
         var uvs = ModelSet.GetUVsOfMesh(meshId);
-        var norms = ModelSet.GetNormalsOfMesh(meshId);
+        var norms = ModelSet.GetNormalsOfShape(meshId);
 
         if (tris is null || tris.Count == 0)
             return; // Most likely tristrip - not supported for now
@@ -185,9 +185,13 @@ public class ModelSetComponent : TrackComponentBase
         if (diffuseMapSampler is not null && (diffuseMapSampler.TextureID & 0x8000) == 0)
         {
             PGLUCellTextureInfo textureInfo = ModelSet.Materials.TextureInfos[(int)diffuseMapSampler.TextureID];
-            Texture text = ModelSet.TextureSet.Textures[(int)textureInfo.ImageId];
 
-            if (text.ImageOffset != 0 && text.ImageSize != 0)
+            // BufferId is not set during Read() so BufferInfo defaults to Buffers[0] for all textures;
+            // use ImageId (the value stored in the file) to fetch the correct buffer, matching old Textures[ImageId] lookup
+            var bufferInfo = (CellTextureBuffer)ModelSet.TextureSet.Buffers[(int)textureInfo.ImageId];
+            textureInfo.BufferInfo = bufferInfo;
+
+            if (bufferInfo.ImageOffset != 0 && bufferInfo.ImageSize != 0)
             {
                 long vramStartPos;
                 if (ModelSet.ParentCourseData != null)
@@ -195,10 +199,11 @@ public class ModelSetComponent : TrackComponentBase
                 else
                     vramStartPos = 0;
 
-                // XXX: Temporary fix to D3D device corruption exception
-                (text as CellTexture).LastMipmapLevel = 1;
+                // XXX: Clamp to 1 mip level - raw image data in the stream only covers the base mip,
+                // so the DDS header must not advertise more levels than are present
+                textureInfo.MipmapLevelLast = 1;
 
-                byte[] data = ModelSet.TextureSet.GetExternalImageDataOfTexture(ModelSet.Stream, text, vramStartPos);
+                byte[] data = ModelSet.TextureSet.GetExternalImageDataOfTexture(ModelSet.Stream, textureInfo, vramStartPos);
                 dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
 
                 /*
@@ -294,10 +299,10 @@ public class ModelSetComponent : TrackComponentBase
     private int CountTotalRenderableTrisForModel(ModelSet3 mdl)
     {
         int total = 0;
-        for (ushort i = 0; i < mdl.Meshes.Count; i++)
+        for (ushort i = 0; i < mdl.Shapes.Count; i++)
         {
             // Create mesh
-            MDL3Mesh mesh = mdl.Meshes[i];
+            MDL3Shape mesh = mdl.Shapes[i];
             if (mesh.Tristrip)
                 continue;
 

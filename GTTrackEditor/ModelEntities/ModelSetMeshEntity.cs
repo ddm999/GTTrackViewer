@@ -16,13 +16,13 @@ using SharpDX;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Minimap;
-using PDTools.Files.Models.ModelSet3.Meshes;
+using PDTools.Files.Models.PS3.ModelSet3.Shapes;
 
 namespace GTTrackEditor.ModelEntities;
 
 public class ModelSetMeshEntity : BaseModelEntity
 {
-    public MDL3Mesh Mesh { get; set; }
+    public MDL3Shape Mesh { get; set; }
     public int MeshIndex { get; set; }
 
     [Browsable(true)]
@@ -40,7 +40,7 @@ public class ModelSetMeshEntity : BaseModelEntity
     [Browsable(true)]
     public uint VertCount => Mesh.VertexCount;
 
-    public ModelSetMeshEntity(MDL3Mesh mesh, int meshIndex)
+    public ModelSetMeshEntity(MDL3Shape mesh, int meshIndex)
     {
         Mesh = mesh;
         EntityName = $"Mesh #{meshIndex}";

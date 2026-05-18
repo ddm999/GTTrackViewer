@@ -31,9 +31,9 @@ using GTTrackEditor.ModelEntities;
 using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
 using PDTools.Files.Courses.Minimap;
-using PDTools.Files.Courses.CourseData;
-using PDTools.Files.Models.ModelSet3.ShapeStream;
-using PDTools.Files.Models.ModelSet3;
+using PDTools.Files.Courses.PS3;
+using PDTools.Files.Models.PS3.ModelSet3.ShapeStream;
+using PDTools.Files.Models.PS3.ModelSet3;
 using PDTools.Files.Models.ShapeStream;
 using GTTrackEditor.Utils;
 
@@ -498,11 +498,11 @@ namespace GTTrackEditor
             ModelSet3 mdl = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
             var baseVerts = 1;
-            for (short i = 0; i < mdl.Meshes.Count; i++)
+            for (short i = 0; i < mdl.Shapes.Count; i++)
             {
-                var mesh = mdl.Meshes[i];
+                var mesh = mdl.Shapes[i];
 
-                var verts = mdl.GetVerticesOfMesh((ushort)i);
+                var verts = mdl.GetVerticesOfShape((ushort)i);
                 var tris = mdl.GetTrisOfMesh((ushort)i);
 
                 if (tris is null || tris.Count == 0)
@@ -546,17 +546,17 @@ namespace GTTrackEditor
             var mdl = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
             List<string> infos = new();
-            for (short i = 0; i < mdl.Meshes.Count; i++)
+            for (short i = 0; i < mdl.Shapes.Count; i++)
             {
                 infos.Add($"Mesh {i}:");
                 var baseOffset = bs.Position;
                 infos.Add($"  OffsetWithinShapeStream: {baseOffset:X}h");
                 // TODO: Optimize this
-                var verts = mdl.GetVerticesOfMesh((ushort)i);
+                var verts = mdl.GetVerticesOfShape((ushort)i);
                 var tris = mdl.GetTrisOfMesh((ushort)i);
                 var uvs = mdl.GetUVsOfMesh((ushort)i);
-                var bbox = mdl.GetBBoxOfMesh((ushort)i);
-                var norms = mdl.GetNormalsOfMesh((ushort)i);
+                var bbox = mdl.GetBBoxOfShape((ushort)i);
+                var norms = mdl.GetNormalsOfShape((ushort)i);
 
                 // leave space for header
                 bs.Position = baseOffset + 0x80;
@@ -630,7 +630,7 @@ namespace GTTrackEditor
             byte[] outData = new byte[dataLength];
             Array.Copy(outBuffer, outData, dataLength);
             infos.Add($"ShapeStreamDataSize: {dataLength:X}h");
-            infos.Add($"ShapeStreamMeshCount: {mdl.Meshes.Count}");
+            infos.Add($"ShapeStreamMeshCount: {mdl.Shapes.Count}");
 
             using var file = File.Open(saveFileDialog.FileName, FileMode.Create);
             file.Write(outData);

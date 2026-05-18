@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using GTTrackEditor.Utils;
 using GTTrackEditor.Components;
-using PDTools.Files.Courses.CourseData;
+using PDTools.Files.Courses.PS3;
 using GTTrackEditor.Components.ModelSet;
 
 namespace GTTrackEditor.Views;
