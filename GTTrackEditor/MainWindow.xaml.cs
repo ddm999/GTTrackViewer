@@ -269,6 +269,10 @@ namespace GTTrackEditor
 
             if (item.Header is Element3D elem && elem.IsHitTestVisible)
                 ModelHandler.SetEditTarget(item.Header);
+            else if (item.Header is GTTrackEditor.Components.ModelSet.ModelSetMaterialEntry matEntry)
+                ModelHandler.SetPropertyTarget(new ModelEntities.MaterialPropertyView(matEntry.Material));
+            else if (item.Header is GTTrackEditor.Components.ModelSet.ResolvedTextureEntry texEntry && texEntry.TextureInfo != null)
+                ModelHandler.SetPropertyTarget(new ModelEntities.TextureInfoPropertyView(texEntry.SamplerName, texEntry.TextureInfo));
         }
 
         private void ScriptMenu_Click(object sender, RoutedEventArgs e)

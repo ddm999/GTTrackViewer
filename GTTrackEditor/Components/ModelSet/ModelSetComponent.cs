@@ -18,8 +18,10 @@ using GTTrackEditor.Utils;
 
 using PDTools.Files.Courses.PS3;
 using PDTools.Files.Models.PS3.ModelSet3;
+using PDTools.Files.Models.PS3.ModelSet3.Materials;
 using PDTools.Files.Models.PS3.ModelSet3.Models;
 using PDTools.Files.Models.PS3.ModelSet3.Shapes;
+using PDTools.Files.Textures;
 using PDTools.Files.Textures;
 using PDTools.Files.Textures.PS3;
 using PDTools.Files.Models.PS3.PGLCommands;
@@ -40,6 +42,13 @@ public class ModelSetComponent : TrackComponentBase
     public ModelSet3 ModelSet { get; set; }
 
     public ObservableCollection<ModelSetModelComponent> ModelComponents { get; set; } = new();
+    public ModelSetModelsComponent ModelsBlock { get; set; }
+    public ModelSetMaterialsComponent MaterialsBlock { get; set; }
+
+    /// <summary>
+    /// Combined tree children: model components followed by the materials block.
+    /// </summary>
+    public ObservableCollection<object> TreeChildren { get; set; } = new();
 
     /// <summary>
     /// Viewport group for each model
@@ -65,7 +74,36 @@ public class ModelSetComponent : TrackComponentBase
         MeshGeometry3D Geometry,
         byte[] TextureData,                       // null = no texture
         SamplerStateDescription? Sampler,
-        bool RenderWireframe);
+        bool RenderWireframe,
+        MDL3Material Material);
+
+    private void BuildTreeBlocks()
+    {
+        ModelsBlock = new ModelSetModelsComponent { Models = ModelComponents };
+
+        MaterialsBlock = new ModelSetMaterialsComponent();
+        for (int i = 0; i < ModelSet.Materials.Definitions.Count; i++)
+        {
+            var def = ModelSet.Materials.Definitions[i];
+            var entry = new ModelSetMaterialEntry { Index = i, Material = def };
+
+            foreach (var key in def.ImageEntries)
+            {
+                PGLUCellTextureInfo texInfo = null;
+                if ((key.TextureID & 0x8000) == 0 && (int)key.TextureID < ModelSet.Materials.TextureInfos.Count)
+                    texInfo = ModelSet.Materials.TextureInfos[(int)key.TextureID];
+                entry.ImageEntries.Add(new ResolvedTextureEntry { SamplerName = key.Name, TextureInfo = texInfo });
+            }
+
+            MaterialsBlock.Materials.Add(entry);
+        }
+    }
+
+    private void PopulateTreeChildren()
+    {
+        TreeChildren.Add(ModelsBlock);
+        TreeChildren.Add(MaterialsBlock);
+    }
 
     public override void RenderComponent()
     {
@@ -77,6 +115,9 @@ public class ModelSetComponent : TrackComponentBase
             InterpretCommands(modelComponent, model.Commands, meshId => LoadMesh(modelComponent, meshId));
             ModelComponents.Add(modelComponent);
         }
+
+        BuildTreeBlocks();
+        PopulateTreeChildren();
     }
 
     public override async Task RenderComponentAsync()
@@ -119,9 +160,13 @@ public class ModelSetComponent : TrackComponentBase
                 RenderWireframe = data.RenderWireframe,
                 WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
                 IsDepthClipEnabled = false,
+                MaterialDef = data.Material,
             };
             loadPlan[i].Comp.MeshEntities.Add(entity);
         }
+
+        BuildTreeBlocks();
+        PopulateTreeChildren();
     }
 
     private void InterpretCommands(ModelSetModelComponent modelEntity, List<ModelSetupCommand> commands, Action<ushort> onMeshId)
@@ -206,6 +251,7 @@ public class ModelSetComponent : TrackComponentBase
             RenderWireframe = data.RenderWireframe,
             WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
             IsDepthClipEnabled = false,
+            MaterialDef = data.Material,
         };
         modelEntity.MeshEntities.Add(mesh);
     }
@@ -286,7 +332,7 @@ public class ModelSetComponent : TrackComponentBase
             Normals = normList,
         };
 
-        return new MeshComputeResult(mdl3Mesh, meshId, geog, textureData, sampler, false);
+        return new MeshComputeResult(mdl3Mesh, meshId, geog, textureData, sampler, false, mat);
     }
 
     private int CountTotalRenderableTrisForModel(ModelSet3 mdl)

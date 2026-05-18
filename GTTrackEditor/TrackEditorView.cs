@@ -33,8 +33,8 @@ namespace GTTrackEditor
 
         public Gizmo Gizmo { get; set; }
 
-        public Element3D _propertyGridSelectedItem { get; set; }
-        public Element3D PropertyGridSelectedItem
+        public object _propertyGridSelectedItem { get; set; }
+        public object PropertyGridSelectedItem
         {
             get => _propertyGridSelectedItem;
             set
@@ -157,6 +157,16 @@ namespace GTTrackEditor
             {
                 ExitEditMode();
             }
+        }
+
+        public void SetPropertyTarget(object obj)
+        {
+            ExitEditMode();
+            var list = new PropertyDefinitionCollection();
+            foreach (var prop in obj.GetType().GetProperties().Where(p => p.GetCustomAttribute<BrowsableAttribute>() is not null))
+                list.Add(new PropertyDefinition() { Name = prop.Name });
+            Parent.PropertyGrid.PropertyDefinitions = list;
+            PropertyGridSelectedItem = obj;
         }
 
         // https://learn.microsoft.com/en-us/dotnet/desktop/wpf/controls/how-to-find-a-treeviewitem-in-a-treeview

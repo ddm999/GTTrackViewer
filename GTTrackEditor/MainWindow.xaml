@@ -16,7 +16,7 @@
   xmlns:gt_minimap_components="clr-namespace:GTTrackEditor.Components.Minimap" 
   xmlns:gt_course_components="clr-namespace:GTTrackEditor.Components.ModelSet" 
   xmlns:gt_mentities="clr-namespace:GTTrackEditor.ModelEntities"
-  xmlns:gt_controls="clr-namespace:GTTrackEditor.Controls"          
+  xmlns:gt_controls="clr-namespace:GTTrackEditor.Controls"
   mc:Ignorable="d" 
   Height="720" Width="1280" MinHeight="720" MinWidth="1280"
   Closing="Window_Closing"
@@ -213,14 +213,19 @@
                                             <!-- General Model Set -->
                                             
                                             <!-- Course Data -->
-                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetComponent}" ItemsSource="{Binding ModelComponents}">
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetComponent}" ItemsSource="{Binding TreeChildren}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <iconPacks:PackIconMaterial Kind="PackageVariantClosed" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding Name}" Foreground="{Binding TreeViewItemColor}" />
-                                                    <TextBlock Text=" (" Foreground="{Binding TreeViewItemColor}" />
-                                                    <TextBlock Text="{Binding ModelComponents.Count}" Foreground="{Binding TreeViewItemColor}" />
-                                                    <TextBlock Text=" models)" Foreground="{Binding TreeViewItemColor}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetModelsComponent}" ItemsSource="{Binding Models}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="CubeOutline" />
+                                                    <TextBlock Text=" Models (" />
+                                                    <TextBlock Text="{Binding Models.Count}" />
+                                                    <TextBlock Text=")" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
                                             <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetModelComponent}" ItemsSource="{Binding MeshEntities}">
@@ -238,8 +243,35 @@
                                                     <iconPacks:PackIconMaterial Kind="VectorTriangle" />
                                                     <TextBlock Text=" "/>
                                                     <TextBlock Text="{Binding EntityName}" Foreground="{Binding TreeViewItemColor}" />
+                                                    <TextBlock Text="  mat#" Foreground="Gray" />
+                                                    <TextBlock Text="{Binding MaterialIndex}" Foreground="Gray" />
                                                 </StackPanel>
                                             </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetMaterialsComponent}" ItemsSource="{Binding Materials}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="Palette" />
+                                                    <TextBlock Text=" Materials (" />
+                                                    <TextBlock Text="{Binding Materials.Count}" />
+                                                    <TextBlock Text=")" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <HierarchicalDataTemplate DataType="{x:Type gt_course_components:ModelSetMaterialEntry}" ItemsSource="{Binding ImageEntries}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="PaletteOutline" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding DisplayName}" />
+                                                </StackPanel>
+                                            </HierarchicalDataTemplate>
+                                            <DataTemplate DataType="{x:Type gt_course_components:ResolvedTextureEntry}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <iconPacks:PackIconMaterial Kind="ImageOutline" />
+                                                    <TextBlock Text=" "/>
+                                                    <TextBlock Text="{Binding SamplerName}" />
+                                                    <TextBlock Text=" (" Foreground="Gray" />
+                                                    <TextBlock Text="{Binding DisplayInfo}" Foreground="Gray" />
+                                                    <TextBlock Text=")" Foreground="Gray" />
+                                                </StackPanel>
+                                            </DataTemplate>
                                             
                                             <HierarchicalDataTemplate DataType="{x:Type gt_mentities:TrackMeshBase}">
                                                 <StackPanel Orientation="Horizontal" >
