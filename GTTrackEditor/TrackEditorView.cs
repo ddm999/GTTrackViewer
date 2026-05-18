@@ -33,6 +33,13 @@ namespace GTTrackEditor
 
         public Gizmo Gizmo { get; set; }
 
+        private ImageSource _texturePreviewSource;
+        public ImageSource TexturePreviewSource
+        {
+            get => _texturePreviewSource;
+            set { _texturePreviewSource = value; OnPropertyChanged(nameof(TexturePreviewSource)); }
+        }
+
         public object _propertyGridSelectedItem { get; set; }
         public object PropertyGridSelectedItem
         {
@@ -66,6 +73,7 @@ namespace GTTrackEditor
         {
             ScriptMenuItems.Add(new Scripts.MakeBigRoad());
             ScriptMenuItems.Add(new Scripts.RemoveBoundaries());
+            ScriptMenuItems.Add(new Scripts.DumpShaderParams());
 
             EffectsManager = new DefaultEffectsManager();
 

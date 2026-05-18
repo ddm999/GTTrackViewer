@@ -10,6 +10,7 @@ using Syroot.BinaryData.Memory;
 using System.Text;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Input;
 
@@ -29,6 +30,7 @@ using GTTrackEditor.Views;
 using GTTrackEditor.Interfaces;
 using GTTrackEditor.ModelEntities;
 
+using PDTools.Files.Textures.PS3;
 using PDTools.Files.Courses.Runway;
 using PDTools.Files.Courses.AutoDrive;
 using PDTools.Files.Courses.Minimap;
@@ -261,18 +263,132 @@ namespace GTTrackEditor
             }
         }
 
-        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
+        private async void TreeViewItem_Selected(object sender, RoutedEventArgs e)
         {
             TreeViewItem item = e.OriginalSource as TreeViewItem;
             if (item is null)
                 return;
 
-            if (item.Header is Element3D elem && elem.IsHitTestVisible)
+            if (item.Header is ModelEntities.ModelSetMeshEntity meshEntity && meshEntity.IsHitTestVisible)
+            {
+                ModelHandler.SetEditTarget(meshEntity);
+                var diffuseEntry = meshEntity.MaterialEntry?.ImageEntries.Find(e => e.SamplerName == "diffuseMapSampler");
+                if (diffuseEntry?.TextureInfo != null)
+                    await LoadTexturePreviewAsync(diffuseEntry, meshEntity);
+                else
+                    ModelHandler.TexturePreviewSource = null;
+            }
+            else if (item.Header is Element3D elem && elem.IsHitTestVisible)
                 ModelHandler.SetEditTarget(item.Header);
             else if (item.Header is GTTrackEditor.Components.ModelSet.ModelSetMaterialEntry matEntry)
+            {
                 ModelHandler.SetPropertyTarget(new ModelEntities.MaterialPropertyView(matEntry.Material));
+                var diffuseEntry = matEntry.ImageEntries.Find(e => e.SamplerName == "diffuseMapSampler");
+                if (diffuseEntry?.TextureInfo != null)
+                    await LoadTexturePreviewAsync(diffuseEntry);
+                else
+                    ModelHandler.TexturePreviewSource = null;
+            }
             else if (item.Header is GTTrackEditor.Components.ModelSet.ResolvedTextureEntry texEntry && texEntry.TextureInfo != null)
+            {
                 ModelHandler.SetPropertyTarget(new ModelEntities.TextureInfoPropertyView(texEntry.SamplerName, texEntry.TextureInfo));
+                await LoadTexturePreviewAsync(texEntry);
+            }
+        }
+
+        private async Task LoadTexturePreviewAsync(
+            GTTrackEditor.Components.ModelSet.ResolvedTextureEntry texEntry,
+            ModelEntities.ModelSetMeshEntity meshEntity = null)
+        {
+            byte[] ddsBytes = await Task.Run(() => FetchTextureDds(texEntry));
+            if (ddsBytes is null) return;
+
+            var (pixelData, width, height, pixelFormat, stride) = await Task.Run(() =>
+            {
+                using var ms = new MemoryStream(ddsBytes);
+                var dds = Pfim.Pfimage.FromStream(ms);
+                var fmt = dds.Format switch
+                {
+                    Pfim.ImageFormat.Rgba32 => PixelFormats.Bgra32,
+                    Pfim.ImageFormat.Rgb24  => PixelFormats.Bgr24,
+                    _ => throw new NotSupportedException($"Unsupported Pfim format: {dds.Format}")
+                };
+                return (dds.Data.ToArray(), dds.Width, dds.Height, fmt, dds.Stride);
+            });
+
+            var textureBitmap = BitmapSource.Create(width, height, 96, 96, pixelFormat, null, pixelData, stride);
+            textureBitmap.Freeze();
+
+            if (meshEntity?.Geometry is HelixToolkit.SharpDX.Core.MeshGeometry3D mesh3D &&
+                mesh3D.TextureCoordinates?.Count > 0 && mesh3D.Indices?.Count > 0)
+            {
+                ModelHandler.TexturePreviewSource = DrawUVOverlay(textureBitmap, mesh3D.TextureCoordinates, mesh3D.Indices);
+            }
+            else
+            {
+                ModelHandler.TexturePreviewSource = textureBitmap;
+            }
+        }
+
+        private static BitmapSource DrawUVOverlay(
+            BitmapSource texture,
+            HelixToolkit.SharpDX.Core.Vector2Collection uvCoords,
+            HelixToolkit.SharpDX.Core.IntCollection indices)
+        {
+            int w = texture.PixelWidth;
+            int h = texture.PixelHeight;
+
+            var geo = new System.Windows.Media.StreamGeometry();
+            using (var ctx = geo.Open())
+            {
+                for (int i = 0; i + 2 < indices.Count; i += 3)
+                {
+                    int a = indices[i], b = indices[i + 1], c = indices[i + 2];
+                    if (a >= uvCoords.Count || b >= uvCoords.Count || c >= uvCoords.Count) continue;
+                    ctx.BeginFigure(new System.Windows.Point(uvCoords[a].X * w, uvCoords[a].Y * h), isFilled: false, isClosed: true);
+                    ctx.LineTo(new System.Windows.Point(uvCoords[b].X * w, uvCoords[b].Y * h), isStroked: true, isSmoothJoin: false);
+                    ctx.LineTo(new System.Windows.Point(uvCoords[c].X * w, uvCoords[c].Y * h), isStroked: true, isSmoothJoin: false);
+                }
+            }
+            geo.Freeze();
+
+            var pen = new Pen(new SolidColorBrush(System.Windows.Media.Color.FromArgb(200, 255, 220, 0)), 1.0);
+            pen.Freeze();
+
+            var dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
+            {
+                dc.DrawImage(texture, new Rect(0, 0, w, h));
+                dc.DrawGeometry(null, pen, geo);
+            }
+
+            var rtb = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+            rtb.Freeze();
+            return rtb;
+        }
+
+        private static byte[] FetchTextureDds(GTTrackEditor.Components.ModelSet.ResolvedTextureEntry texEntry)
+        {
+            var modelSet = texEntry.OwnerModelSet;
+            var info = texEntry.TextureInfo;
+
+            var bufferInfo = (CellTextureBuffer)modelSet.TextureSet.Buffers[(int)info.ImageId];
+            info.BufferInfo = bufferInfo;
+
+            if (bufferInfo.ImageOffset == 0 && bufferInfo.ImageSize == 0) return null;
+
+            long vramStartPos = modelSet.ParentCourseData?.Entries[1].DataStart ?? 0;
+            byte origMip = info.MipmapLevelLast;
+            info.MipmapLevelLast = 1;
+            try
+            {
+                return modelSet.TextureSet.GetExternalImageDataOfTexture(modelSet.Stream, info, vramStartPos);
+            }
+            finally
+            {
+                info.MipmapLevelLast = origMip;
+            }
         }
 
         private void ScriptMenu_Click(object sender, RoutedEventArgs e)
@@ -281,7 +397,7 @@ namespace GTTrackEditor
             try
             {
 #endif
-                var script = (e.OriginalSource as MenuItem).Header as Scripts.ScriptBase;
+                var script = (e.OriginalSource as MenuItem)?.DataContext as Scripts.ScriptBase;
                 script.Execute(ModelHandler);
 #if !DEBUG
             }

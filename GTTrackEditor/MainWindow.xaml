@@ -102,7 +102,8 @@
                         <LayoutDocumentPane x:Name="LayoutDocumentPane">
                             <LayoutDocument
                                 Title="Track Viewer"
-                                ContentId="document1">
+                                ContentId="document1"
+                                IsSelected="True">
 
                                 <hx:Viewport3DX x:Name="_viewport" Grid.Row="1" Background="White" BackgroundColor="Gray"
                                     EffectsManager="{Binding EffectsManager}" Camera="{Binding Camera}"
@@ -154,6 +155,33 @@
                                     <hx:TopMostGroup3D x:Name="AutoDrivePointTextGroup" EnableTopMost="True" ItemsSource="{Binding AutodriveView.AutoDrivePointText}"/>
                                     <hx:MeshGeometryModel3D Name="AutoDrive3D" Geometry="{Binding Path=AutodriveView.AutoDriveModel}" Material="{Binding AutodriveView.DrivingLineMaterial}" CullMode="Back"/>
                                 </hx:Viewport3DX>
+                            </LayoutDocument>
+                            <LayoutDocument Title="Image Viewer" ContentId="imageViewer">
+                                <Grid Background="#1e1e1e">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                        <Image Source="{Binding TexturePreviewSource}"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Stretch="None" Margin="8">
+                                            <Image.LayoutTransform>
+                                                <ScaleTransform ScaleY="-1"/>
+                                            </Image.LayoutTransform>
+                                        </Image>
+                                    </ScrollViewer>
+                                    <TextBlock Text="Select a texture entry in the Explorer to preview it"
+                                               Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TexturePreviewSource}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                             </LayoutDocument>
                         </LayoutDocumentPane>
                     </LayoutDocumentPaneGroup>

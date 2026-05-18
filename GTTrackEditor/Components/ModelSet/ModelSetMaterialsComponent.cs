@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using PDTools.Files.Models.PS3.ModelSet3;
 using PDTools.Files.Models.PS3.ModelSet3.Materials;
 using PDTools.Files.Textures.PS3;
 
@@ -8,6 +9,7 @@ public class ResolvedTextureEntry
 {
     public string SamplerName { get; set; }
     public PGLUCellTextureInfo TextureInfo { get; set; }  // null if TextureID has 0x8000 flag
+    public ModelSet3 OwnerModelSet { get; set; }
 
     public string DisplayInfo => TextureInfo != null
         ? $"{TextureInfo.Width}×{TextureInfo.Height}"

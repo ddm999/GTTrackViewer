@@ -16,8 +16,11 @@ using SharpDX;
 
 using PDTools.Files;
 using PDTools.Files.Courses.Minimap;
+using PDTools.Files.Models.PS3.ModelSet3;
 using PDTools.Files.Models.PS3.ModelSet3.Materials;
 using PDTools.Files.Models.PS3.ModelSet3.Shapes;
+
+using GTTrackEditor.Components.ModelSet;
 
 namespace GTTrackEditor.ModelEntities;
 
@@ -26,6 +29,8 @@ public class ModelSetMeshEntity : BaseModelEntity
     public MDL3Shape Mesh { get; set; }
     public int MeshIndex { get; set; }
     public MDL3Material MaterialDef { get; set; }
+    public ModelSetMaterialEntry MaterialEntry { get; set; }
+    public ModelSet3 OwnerModelSet { get; set; }
 
     [Browsable(true)]
     public string Flags => $"0x{Mesh.Flags:X4}";

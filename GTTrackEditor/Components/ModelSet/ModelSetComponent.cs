@@ -92,11 +92,17 @@ public class ModelSetComponent : TrackComponentBase
                 PGLUCellTextureInfo texInfo = null;
                 if ((key.TextureID & 0x8000) == 0 && (int)key.TextureID < ModelSet.Materials.TextureInfos.Count)
                     texInfo = ModelSet.Materials.TextureInfos[(int)key.TextureID];
-                entry.ImageEntries.Add(new ResolvedTextureEntry { SamplerName = key.Name, TextureInfo = texInfo });
+                entry.ImageEntries.Add(new ResolvedTextureEntry { SamplerName = key.Name, TextureInfo = texInfo, OwnerModelSet = ModelSet });
             }
 
             MaterialsBlock.Materials.Add(entry);
         }
+
+        // Back-link each mesh entity to its resolved material entry
+        foreach (var modelComp in ModelComponents)
+            foreach (ModelSetMeshEntity meshEntity in modelComp.MeshEntities.OfType<ModelSetMeshEntity>())
+                if (meshEntity.Mesh.MaterialIndex < MaterialsBlock.Materials.Count)
+                    meshEntity.MaterialEntry = MaterialsBlock.Materials[meshEntity.Mesh.MaterialIndex];
     }
 
     private void PopulateTreeChildren()
@@ -161,6 +167,7 @@ public class ModelSetComponent : TrackComponentBase
                 WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
                 IsDepthClipEnabled = false,
                 MaterialDef = data.Material,
+                OwnerModelSet = ModelSet,
             };
             loadPlan[i].Comp.MeshEntities.Add(entity);
         }
@@ -252,6 +259,7 @@ public class ModelSetComponent : TrackComponentBase
             WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
             IsDepthClipEnabled = false,
             MaterialDef = data.Material,
+            OwnerModelSet = ModelSet,
         };
         modelEntity.MeshEntities.Add(mesh);
     }
