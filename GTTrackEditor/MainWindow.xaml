@@ -124,7 +124,7 @@
                                     </hx:Viewport3DX.InputBindings>
                                     <hx:ShadowMap3D></hx:ShadowMap3D>
 
-                                    <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="Black"/>
+                                    <hx:LineGeometryModel3D Name="Grid3D" Geometry="{Binding Grid}" Color="#40000000"/>
                                     
                                     <!-- Gizmo -->
                                     <hx:TransformManipulator3D
@@ -370,6 +370,14 @@
                 </LayoutPanel>
             </LayoutRoot>
         </DockingManager>
+        <ProgressBar x:Name="LoadingBar" Grid.Row="2"
+                     Height="4" VerticalAlignment="Center"
+                     IsIndeterminate="True"
+                     Visibility="Collapsed"
+                     Foreground="#0078D4"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Panel.ZIndex="1"/>
         <StatusBar Name="statusBar" Grid.Row="2" Background="#2d2d30">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>

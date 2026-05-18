@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Generic;
@@ -79,7 +80,7 @@ namespace GTTrackEditor
             TrackEditorConfig.Save();
         }
 
-        private void LoadFile_Click(object sender, RoutedEventArgs e)
+        private async void LoadFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Course Data Files (c***x)|*.*|" +
@@ -90,41 +91,33 @@ namespace GTTrackEditor
 
             if (openFileDialog.ShowDialog() == true)
             {
-#if !DEBUG
+                Mouse.OverrideCursor = Cursors.Wait;
+                LoadingBar.Visibility = Visibility.Visible;
                 try
                 {
-#endif
-                // TODO: Dispose stream when done!
+                    // TODO: Dispose stream when done!
 
-                if (openFileDialog.FileName.EndsWith(".rwy") || openFileDialog.FileName.Contains("runway", StringComparison.OrdinalIgnoreCase))
-                {
-                    HandleRunway(openFileDialog.FileName);
-                }
-                else if (openFileDialog.FileName.EndsWith(".map"))
-                {
-                    HandleMinimap(openFileDialog.FileName);
-                }
-                else if (openFileDialog.FileName.EndsWith(".ad"))
-                {
-
-                }
-                else if (openFileDialog.FileName.EndsWith("x"))
-                {
-                    HandleCourseData(openFileDialog.FileName);
-                }
-                else if (openFileDialog.FileName.EndsWith(".shapestream"))
-                {
-                    HandleShapeStream(openFileDialog.FileName);
-                }
-#if !DEBUG
-
+                    if (openFileDialog.FileName.EndsWith(".rwy") || openFileDialog.FileName.Contains("runway", StringComparison.OrdinalIgnoreCase))
+                        await HandleRunwayAsync(openFileDialog.FileName);
+                    else if (openFileDialog.FileName.EndsWith(".map"))
+                        await HandleMinimapAsync(openFileDialog.FileName);
+                    else if (openFileDialog.FileName.EndsWith(".ad"))
+                    {
+                    }
+                    else if (openFileDialog.FileName.EndsWith("x"))
+                        await HandleCourseDataAsync(openFileDialog.FileName);
+                    else if (openFileDialog.FileName.EndsWith(".shapestream"))
+                        await HandleShapeStreamAsync(openFileDialog.FileName);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(this, $"Error opening file: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
                 }
-#endif
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                    LoadingBar.Visibility = Visibility.Collapsed;
+                }
                 UpdateTitle();
             }
         }
@@ -380,23 +373,24 @@ namespace GTTrackEditor
             return parent;
         }
 
-        private void HandleRunway(string fileName)
+        private async Task HandleRunwayAsync(string fileName)
         {
-            using var stream = new FileStream(fileName, FileMode.Open);
-
             if (ModelHandler.RunwayView.Loaded())
             {
-                RunwayFile runway_other = RunwayFile.FromStream(stream);
-                // if mergable, merge: else replace
+                RunwayFile runway_other = await Task.Run(() => {
+                    using var stream = new FileStream(fileName, FileMode.Open);
+                    return RunwayFile.FromStream(stream);
+                });
                 ModelHandler.RunwayView.RunwayData.Merge(runway_other);
-                string newName = Path.GetFileNameWithoutExtension(fileName);
                 ModelHandler.RunwayView.Init();
-                ModelHandler.RunwayView.Render();
+                await ModelHandler.RunwayView.RenderAsync();
                 return;
-
             }
 
-            RunwayFile runway = RunwayFile.FromStream(stream);
+            RunwayFile runway = await Task.Run(() => {
+                using var stream = new FileStream(fileName, FileMode.Open);
+                return RunwayFile.FromStream(stream);
+            });
             ModelHandler.RunwayView.SetRunwayData(runway);
             _rwyFileName = fileName;
 
@@ -405,30 +399,31 @@ namespace GTTrackEditor
 
             ModelHandler.RunwayView.FileName = Path.GetFileNameWithoutExtension(fileName);
             ModelHandler.RunwayView.Init();
-            ModelHandler.RunwayView.Render();
+            await ModelHandler.RunwayView.RenderAsync();
         }
 
-        private void HandleMinimap(string fileName)
+        private async Task HandleMinimapAsync(string fileName)
         {
-            using var stream = new FileStream(fileName, FileMode.Open);
-
-            CourseMapFile runway = CourseMapFile.FromStream(stream);
-            ModelHandler.MinimapView.SetMinimapData(runway);
+            CourseMapFile minimap = await Task.Run(() => {
+                using var stream = new FileStream(fileName, FileMode.Open);
+                return CourseMapFile.FromStream(stream);
+            });
+            ModelHandler.MinimapView.SetMinimapData(minimap);
 
             if (!ModelHandler.Views.Contains(ModelHandler.MinimapView))
                 ModelHandler.Views.Add(ModelHandler.MinimapView);
 
             ModelHandler.MinimapView.FileName = Path.GetFileNameWithoutExtension(fileName);
             ModelHandler.MinimapView.Init();
-            ModelHandler.MinimapView.Render();
+            await ModelHandler.MinimapView.RenderAsync();
         }
 
-        private void HandleCourseData(string fileName)
+        private async Task HandleCourseDataAsync(string fileName)
         {
             if (ModelHandler.CourseDataView.Loaded())
                 ModelHandler.CourseDataView.Unload(_viewport);
 
-            CourseDataFile courseData = CourseDataFile.Open(fileName);
+            CourseDataFile courseData = await Task.Run(() => CourseDataFile.Open(fileName));
             ModelHandler.CourseDataView.SetCourseData(courseData);
             _courseDataFileName = fileName;
 
@@ -436,39 +431,38 @@ namespace GTTrackEditor
                 ModelHandler.Views.Add(ModelHandler.CourseDataView);
 
             ModelHandler.CourseDataView.Init();
-            ModelHandler.CourseDataView.Render();
+            await ModelHandler.CourseDataView.RenderAsync();
 
             foreach (var component in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
             {
                 var group = new GroupModel3D();
                 group.ItemsSource = component.MeshEntities;
                 _viewport.Items.Add(group);
-
                 ModelHandler.CourseDataView.ModelSetComponent.RenderingGroups.Add(group);
             }
         }
 
-        private void HandleShapeStream(string fileName)
+        private async Task HandleShapeStreamAsync(string fileName)
         {
-            using var stream = new FileStream(fileName, FileMode.Open);
-
             if (!ModelHandler.Views.Contains(ModelHandler.CourseDataView))
                 throw new NotSupportedException("A Course Data file must first be loaded to load ShapeStream data!");
 
             ModelSet3 modelSet = ModelHandler.CourseDataView.CourseData.MainModelSet;
 
-            var ss = ShapeStream.FromStream(stream, modelSet);
+            var ss = await Task.Run(() => {
+                using var stream = new FileStream(fileName, FileMode.Open);
+                return ShapeStream.FromStream(stream, modelSet);
+            });
             modelSet.ShapeStream = ss;
 
             ModelHandler.CourseDataView.Init();
-            ModelHandler.CourseDataView.Render();
+            await ModelHandler.CourseDataView.RenderAsync();
 
             foreach (var component in ModelHandler.CourseDataView.ModelSetComponent.ModelComponents)
             {
                 var group = new GroupModel3D();
                 group.ItemsSource = component.MeshEntities;
                 _viewport.Items.Add(group);
-
                 ModelHandler.CourseDataView.ModelSetComponent.RenderingGroups.Add(group);
             }
         }

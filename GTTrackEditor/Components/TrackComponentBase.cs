@@ -53,6 +53,12 @@ public abstract class TrackComponentBase : INotifyPropertyChanged, IHideable
 
     public abstract void RenderComponent();
 
+    public virtual Task RenderComponentAsync()
+    {
+        RenderComponent();
+        return Task.CompletedTask;
+    }
+
     /* IHideable */
     public bool IsVisible { get; set; } = true;
 

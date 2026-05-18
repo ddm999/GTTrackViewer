@@ -28,5 +28,11 @@ public abstract class TrackEditorViewBase
         foreach (var component in Components)
             component.RenderComponent();
     }
+
+    public async Task RenderAsync()
+    {
+        foreach (var component in Components)
+            await component.RenderComponentAsync();
+    }
 }
 

@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Security.Principal;
 using System.Security.Cryptography;
 using System.Linq;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using System.Collections.ObjectModel;
 using SharpDX.Direct3D11;
@@ -58,6 +59,14 @@ public class ModelSetComponent : TrackComponentBase
     }
 
 
+    private record MeshComputeResult(
+        MDL3Shape Shape,
+        ushort MeshId,
+        MeshGeometry3D Geometry,
+        byte[] TextureData,                       // null = no texture
+        SamplerStateDescription? Sampler,
+        bool RenderWireframe);
+
     public override void RenderComponent()
     {
         for (int i = 0; i < ModelSet.Models.Count; i++)
@@ -65,12 +74,57 @@ public class ModelSetComponent : TrackComponentBase
             ModelSet3Model model = ModelSet.Models[i];
             var modelComponent = new ModelSetModelComponent(model, i);
 
-            InterpretCommands(modelComponent, model.Commands);
+            InterpretCommands(modelComponent, model.Commands, meshId => LoadMesh(modelComponent, meshId));
             ModelComponents.Add(modelComponent);
         }
     }
 
-    private void InterpretCommands(ModelSetModelComponent modelEntity, List<ModelSetupCommand> commands)
+    public override async Task RenderComponentAsync()
+    {
+        // Pass 1 (UI thread): walk commands to build the load plan
+        var loadPlan = new List<(ModelSetModelComponent Comp, ushort MeshId)>();
+        for (int i = 0; i < ModelSet.Models.Count; i++)
+        {
+            var model = ModelSet.Models[i];
+            var comp = new ModelSetModelComponent(model, i);
+            InterpretCommands(comp, model.Commands, meshId => loadPlan.Add((comp, meshId)));
+            ModelComponents.Add(comp);
+        }
+
+        // Pass 2 (background thread): compute geometry + texture data
+        var results = await Task.Run(() =>
+            loadPlan.Select(p => TryComputeMeshData(p.MeshId)).ToList()
+        );
+
+        // Pass 3 (UI thread): create FrameworkElement entities
+        for (int i = 0; i < loadPlan.Count; i++)
+        {
+            var data = results[i];
+            if (data is null) continue;
+
+            var dMat = new DiffuseMaterial();
+            if (data.TextureData is not null)
+            {
+                dMat.DiffuseMap = TextureModel.Create(new MemoryStream(data.TextureData));
+                dMat.DiffuseMapSampler = data.Sampler!.Value;
+            }
+
+            var entity = new ModelSetMeshEntity(data.Shape, data.MeshId)
+            {
+                Geometry = data.Geometry,
+                Material = dMat,
+                IsHitTestVisible = true,
+                CullMode = CullMode.Back,
+                IsThrowingShadow = false,
+                RenderWireframe = data.RenderWireframe,
+                WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
+                IsDepthClipEnabled = false,
+            };
+            loadPlan[i].Comp.MeshEntities.Add(entity);
+        }
+    }
+
+    private void InterpretCommands(ModelSetModelComponent modelEntity, List<ModelSetupCommand> commands, Action<ushort> onMeshId)
     {
         if (commands.Count == 0)
             return;
@@ -107,23 +161,21 @@ public class ModelSetComponent : TrackComponentBase
                     break;
 
                 case ModelSetupOpcode.Command_59_LoadMesh2_Byte:
-                    Command_59_LoadMesh2_Byte(modelEntity, cmd as Command_CallShape2Byte);
+                    onMeshId((cmd as Command_CallShape2Byte).MeshID);
                     break;
 
                 case ModelSetupOpcode.Command_60_LoadMesh2_UShort:
-                    Command_60_LoadMesh2_UShort(modelEntity, cmd as Command_CallShape2UShort);
+                    onMeshId((ushort)(cmd as Command_CallShape2UShort).Unk);
                     break;
 
                 case ModelSetupOpcode.Command_74_LoadMultipleMeshes:
-                    Command_74_LoadMultipleMeshes(modelEntity, cmd as Command_74_LoadMultipleMeshes);
+                    foreach (var idx in (cmd as Command_74_LoadMultipleMeshes).MeshIndices)
+                        onMeshId(idx);
                     break;
 
                 case ModelSetupOpcode.Command_75_LoadMultipleMeshes2:
-                    Command_75_LoadMultipleMeshes2(modelEntity, cmd as Command_75_LoadMultipleMeshes2);
-                    break;
-
-                default:
-                    ;
+                    foreach (var idx in (cmd as Command_75_LoadMultipleMeshes2).MeshIndices)
+                        onMeshId(idx);
                     break;
             }
 
@@ -132,52 +184,51 @@ public class ModelSetComponent : TrackComponentBase
         }
     }
 
-    private void Command_59_LoadMesh2_Byte(ModelSetModelComponent modelEntity, Command_CallShape2Byte cmd)
-    {
-        LoadMesh(modelEntity, cmd.MeshID);
-    }
-
-    private void Command_60_LoadMesh2_UShort(ModelSetModelComponent modelEntity, Command_CallShape2UShort cmd)
-    {
-        LoadMesh(modelEntity, (ushort)cmd.Unk);
-    }
-
-    private void Command_74_LoadMultipleMeshes(ModelSetModelComponent modelEntity, Command_74_LoadMultipleMeshes cmd)
-    {
-        foreach (var meshIndex in cmd.MeshIndices)
-        {
-            LoadMesh(modelEntity, meshIndex);
-        }
-    }
-    
-    private void Command_75_LoadMultipleMeshes2(ModelSetModelComponent modelEntity, Command_75_LoadMultipleMeshes2 cmd)
-    {
-        foreach (var meshIndex in cmd.MeshIndices)
-        {
-            LoadMesh(modelEntity, meshIndex);
-        }
-    }
-
     private void LoadMesh(ModelSetModelComponent modelEntity, ushort meshId)
+    {
+        var data = TryComputeMeshData(meshId);
+        if (data is null) return;
+
+        var dMat = new DiffuseMaterial();
+        if (data.TextureData is not null)
+        {
+            dMat.DiffuseMap = TextureModel.Create(new MemoryStream(data.TextureData));
+            dMat.DiffuseMapSampler = data.Sampler!.Value;
+        }
+
+        ModelSetMeshEntity mesh = new ModelSetMeshEntity(data.Shape, data.MeshId)
+        {
+            Geometry = data.Geometry,
+            Material = dMat,
+            IsHitTestVisible = true,
+            CullMode = CullMode.Back,
+            IsThrowingShadow = false,
+            RenderWireframe = data.RenderWireframe,
+            WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
+            IsDepthClipEnabled = false,
+        };
+        modelEntity.MeshEntities.Add(mesh);
+    }
+
+    private MeshComputeResult TryComputeMeshData(ushort meshId)
     {
         var mdl3Mesh = ModelSet.Shapes[meshId];
 
-        // TODO: Optimize this
         var verts = ModelSet.GetVerticesOfShape(meshId);
         var tris = ModelSet.GetTrisOfMesh(meshId);
         var uvs = ModelSet.GetUVsOfMesh(meshId);
         var norms = ModelSet.GetNormalsOfShape(meshId);
 
         if (tris is null || tris.Count == 0)
-            return; // Most likely tristrip - not supported for now
+            return null; // Most likely tristrip - not supported for now
 
         Vector3Collection vertList = new Vector3Collection(verts.Length);
         Vector2Collection uvList = new Vector2Collection(uvs.Length);
-        IntCollection col = new IntCollection(tris.Count);
+        IntCollection col = new IntCollection(tris.Count * 3);
         Vector3Collection normList = new Vector3Collection(norms.Length);
 
-        var dMat = new DiffuseMaterial();
-        var badDMat = false;
+        byte[] textureData = null;
+        SamplerStateDescription? sampler = null;
 
         var mat = ModelSet.Materials.Definitions[mdl3Mesh.MaterialIndex];
 
@@ -187,72 +238,26 @@ public class ModelSetComponent : TrackComponentBase
             PGLUCellTextureInfo textureInfo = ModelSet.Materials.TextureInfos[(int)diffuseMapSampler.TextureID];
 
             // BufferId is not set during Read() so BufferInfo defaults to Buffers[0] for all textures;
-            // use ImageId (the value stored in the file) to fetch the correct buffer, matching old Textures[ImageId] lookup
+            // use ImageId (the value stored in the file) to fetch the correct buffer
             var bufferInfo = (CellTextureBuffer)ModelSet.TextureSet.Buffers[(int)textureInfo.ImageId];
             textureInfo.BufferInfo = bufferInfo;
 
             if (bufferInfo.ImageOffset != 0 && bufferInfo.ImageSize != 0)
             {
-                long vramStartPos;
-                if (ModelSet.ParentCourseData != null)
-                    vramStartPos = ModelSet.ParentCourseData.Entries[1].DataStart;
-                else
-                    vramStartPos = 0;
+                long vramStartPos = ModelSet.ParentCourseData != null
+                    ? ModelSet.ParentCourseData.Entries[1].DataStart
+                    : 0;
 
                 // XXX: Clamp to 1 mip level - raw image data in the stream only covers the base mip,
                 // so the DDS header must not advertise more levels than are present
                 textureInfo.MipmapLevelLast = 1;
 
-                byte[] data = ModelSet.TextureSet.GetExternalImageDataOfTexture(ModelSet.Stream, textureInfo, vramStartPos);
-                dMat.DiffuseMap = TextureModel.Create(new System.IO.MemoryStream(data)); // TODO: Also optimize, cache textures locally (would be useful for reading too)
-
-                /*
-                using (var sw = new StreamWriter("test.obj"))
-                {
-                    sw.WriteLine("mtllib testmtl.mtl");
-
-                    foreach (var i in verts)
-                    {
-                        sw.WriteLine($"v {i.X} {i.Y} {i.Z}");
-                    }
-
-                    foreach (var i in uvs)
-                    {
-                        sw.WriteLine($"vt {i.X} {i.Y}");
-                    }
-
-                    sw.WriteLine("usemtl testmtl");
-
-                    foreach (var i in tris)
-                    {
-                        sw.WriteLine($"f {i.A+1}/{i.A + 1} {i.B+1}/{i.B + 1} {i.C+1}/{i.C + 1}");
-                    }
-
-
-                }
-
-                using (var sw = new StreamWriter("testmtl.mtl"))
-                {
-                    sw.WriteLine("newmtl testmtl");
-                    sw.WriteLine("Ka 1.000000 1.000000 1.000000");
-                    sw.WriteLine("Kd 1.000000 1.000000 1.000000");
-                    sw.WriteLine("Ks 0.000000 0.000000 0.000000");
-                    sw.WriteLine("Tr 1.000000");
-                    sw.WriteLine("illum 1");
-                    sw.WriteLine("Ns 0.000000");
-                    sw.WriteLine("map_Kd test.dds");
-                }
-
-                File.WriteAllBytes("test.dds", data);
-                */
-
-                
-                dMat.DiffuseMapSampler = new SharpDX.Direct3D11.SamplerStateDescription()
+                textureData = ModelSet.TextureSet.GetExternalImageDataOfTexture(ModelSet.Stream, textureInfo, vramStartPos);
+                sampler = new SharpDX.Direct3D11.SamplerStateDescription()
                 {
                     AddressU = ConvertTextureWrapMode(textureInfo.WrapS),
                     AddressV = ConvertTextureWrapMode(textureInfo.WrapT),
                     AddressW = ConvertTextureWrapMode(textureInfo.WrapR),
-                    //Filter = Filter.Anisotropic,
                 };
             }
         }
@@ -273,27 +278,15 @@ public class ModelSetComponent : TrackComponentBase
         for (int j = 0; j < norms.Length; j++)
             normList.Add(new(norms[j].Item1, norms[j].Item2, norms[j].Item3));
 
-        var geog = new MeshGeometry3D();
-        geog.Positions = vertList;
-        geog.Indices = col;
-        geog.TextureCoordinates = uvList;
-        geog.Normals = normList;
-
-        ModelSetMeshEntity mesh = new ModelSetMeshEntity(mdl3Mesh, meshId)
+        var geog = new MeshGeometry3D
         {
-            Geometry = geog,
-            Material = dMat,
-
-            IsHitTestVisible = true, // Important for perf purposes - we won't be manipulating it anyway
-            CullMode = CullMode.Back,
-            //DepthBias = 300,
-            IsThrowingShadow = false,
-            RenderWireframe = badDMat,
-            WireframeColor = System.Windows.Media.Color.FromRgb(16, 16, 16),
-            IsDepthClipEnabled = false,
+            Positions = vertList,
+            Indices = col,
+            TextureCoordinates = uvList,
+            Normals = normList,
         };
 
-        modelEntity.MeshEntities.Add(mesh);
+        return new MeshComputeResult(mdl3Mesh, meshId, geog, textureData, sampler, false);
     }
 
     private int CountTotalRenderableTrisForModel(ModelSet3 mdl)
